@@ -1,0 +1,28 @@
+{
+  "name": "proxy-client",
+  "version": "1.0.0",
+  "description": "A Proxy Client application with various functionalities.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "npx http-server -p 8080",
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0",
+    "jest": "^26.6.0"
+  },
+  "keywords": [
+    "proxy",
+    "client",
+    "javascript",
+    "web"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
