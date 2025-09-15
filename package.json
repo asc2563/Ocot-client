@@ -5,17 +5,18 @@
   "main": "src/main.js",
   "scripts": {
     "start": "npx http-server -p 8080",
-    "build": "webpack --mode production",
+    "build": "esbuild src/main.js --bundle --outfile=dist/bundle.js --format=iife",
     "test": "jest"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
   },
   "devDependencies": {
+    "esbuild": "^0.25.9",
+    "jest": "^26.6.0",
     "webpack": "^5.0.0",
-    "webpack-cli": "^4.0.0",
-    "jest": "^26.6.0"
+    "webpack-cli": "^4.0.0"
   },
   "keywords": [
     "proxy",

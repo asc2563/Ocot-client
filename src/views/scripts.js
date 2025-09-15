@@ -1,13 +1,13 @@
-// Exported function to create the Exploits view
-export default function createExploitsView() {
-  const exploitsView = document.createElement("div");
-  exploitsView.style.width = "100%";
-  exploitsView.style.height = "100%";
-  exploitsView.style.display = "none";
-  exploitsView.style.backgroundColor = "#f0f0f0";
-  exploitsView.style.color = "#333";
-  exploitsView.style.padding = "20px";
-  exploitsView.style.fontFamily = "Arial, sans-serif";
+// Exported function to create the explois view
+export default function createscriptsView() {
+  const exploisView = document.createElement("div");
+  exploisView.style.width = "100%";
+  exploisView.style.height = "100%";
+  exploisView.style.display = "none";
+  exploisView.style.backgroundColor = "#f0f0f0";
+  exploisView.style.color = "#333";
+  exploisView.style.padding = "20px";
+  exploisView.style.fontFamily = "Arial, sans-serif";
 
   // Tab Cloak
   const tabCloakButton = document.createElement("button");
@@ -193,7 +193,7 @@ export default function createExploitsView() {
     blooketCheatsButton,
     fakeCrashButton,
     emergencyTabSwitcherButton,
-  ].forEach((btn) => exploitsView.appendChild(btn));
+  ].forEach((btn) => exploisView.appendChild(btn));
 
-  return exploitsView;
+  return exploisView;
 }

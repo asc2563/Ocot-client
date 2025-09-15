@@ -96,7 +96,7 @@ javascript: (function () {
       this.sidebarButtons.historyFloodButton = makeBtn("History Flood");
       this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy");
       this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
-      this.sidebarButtons.exploitsButton = makeBtn("Exploits");
+      this.sidebarButtons.scriptsButton = makeBtn("Scripts");
       this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
 
       [
@@ -108,7 +108,7 @@ javascript: (function () {
         this.sidebarButtons.historyFloodButton,
         this.sidebarButtons.corsProxyButton,
         this.sidebarButtons.pocketBrowserButton,
-        this.sidebarButtons.exploitsButton,
+        this.sidebarButtons.scriptsButton,
         this.sidebarButtons.hideButton,
       ].forEach((btn) => sidebar.appendChild(btn));
 
@@ -132,7 +132,7 @@ javascript: (function () {
       this.views.historyFloodView = this.createHistoryFloodView();
       this.views.corsProxyView = this.createCorsProxyView();
       this.views.pocketBrowserView = this.createPocketBrowserView();
-      this.views.exploitsView = this.createExploitsView();
+      this.views.scriptsView = this.createScriptsView();
 
       Object.values(this.views).forEach((view) => content.appendChild(view));
       this.setupSidebarEvents();
@@ -476,15 +476,15 @@ javascript: (function () {
       return pocketBrowserView;
     }
 
-    createExploitsView() {
-      const exploitsView = document.createElement("div");
-      exploitsView.style.width = "100%";
-      exploitsView.style.height = "100%";
-      exploitsView.style.display = "none";
-      exploitsView.style.backgroundColor = "#f0f0f0";
-      exploitsView.style.color = "#333";
-      exploitsView.style.padding = "20px";
-      exploitsView.style.fontFamily = "Arial, sans-serif";
+    createScriptsView() {
+      const scriptsView = document.createElement("div");
+      scriptsView.style.width = "100%";
+      scriptsView.style.height = "100%";
+      scriptsView.style.display = "none";
+      scriptsView.style.backgroundColor = "#f0f0f0";
+      scriptsView.style.color = "#333";
+      scriptsView.style.padding = "20px";
+      scriptsView.style.fontFamily = "Arial, sans-serif";
 
       const tabCloakButton = document.createElement("button");
       tabCloakButton.textContent = "Tab Cloak";
@@ -541,10 +541,10 @@ javascript: (function () {
       [tabCloakButton, pageEditorButton, pageEditorOffButton].forEach((btn) => {
         btn.style.marginRight = "10px";
         btn.style.marginBottom = "10px";
-        exploitsView.appendChild(btn);
+        scriptsView.appendChild(btn);
       });
 
-      return exploitsView;
+      return scriptsView;
     }
 
     setupSidebarEvents() {
@@ -615,10 +615,10 @@ javascript: (function () {
         setActiveButton(b.pocketBrowserButton);
       });
 
-      b.exploitsButton.addEventListener("click", () => {
+      b.scriptsButton.addEventListener("click", () => {
         hideAll();
-        v.exploitsView.style.display = "block";
-        setActiveButton(b.exploitsButton);
+        v.scriptsView.style.display = "block";
+        setActiveButton(b.scriptsButton);
       });
     }
 

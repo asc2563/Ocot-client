@@ -6,7 +6,8 @@ import createCloakingView from "./views/cloaking.js";
 import createHistoryFloodView from "./views/historyFlood.js";
 import createCorsProxyView from "./views/corsProxy.js";
 import createPocketBrowserView from "./views/pocketBrowser.js";
-import createExploitsView from "./views/exploits.js";
+import createscriptsView from "./views/scripts.js";
+import createBookmarkletsView from "./views/bookmarklets.js";
 
 console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
 
@@ -93,6 +94,7 @@ class ProxyClientApp {
     };
 
     // Sidebar buttons
+
     this.sidebarButtons.proxyButton = makeBtn("Proxy", "", "#555");
     this.sidebarButtons.proxyButton.classList.add("active-view");
     this.sidebarButtons.notesButton = makeBtn("Notes");
@@ -102,10 +104,10 @@ class ProxyClientApp {
     this.sidebarButtons.historyFloodButton = makeBtn("History Flood");
     this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy");
     this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
-    this.sidebarButtons.exploitsButton = makeBtn("Exploits");
+    this.sidebarButtons.exploisButton = makeBtn("explois");
+    this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
     this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
 
-    // Add buttons to sidebar
     [
       this.sidebarButtons.proxyButton,
       this.sidebarButtons.notesButton,
@@ -115,7 +117,8 @@ class ProxyClientApp {
       this.sidebarButtons.historyFloodButton,
       this.sidebarButtons.corsProxyButton,
       this.sidebarButtons.pocketBrowserButton,
-      this.sidebarButtons.exploitsButton,
+      this.sidebarButtons.exploisButton,
+      this.sidebarButtons.bookmarkletsButton,
       this.sidebarButtons.hideButton,
     ].forEach((btn) => sidebar.appendChild(btn));
 
@@ -132,6 +135,7 @@ class ProxyClientApp {
     content.style.padding = "0";
 
     // Views
+
     this.views.proxyView = createProxyView();
     this.views.notesView = createNotesView();
     this.views.calculatorView = createCalculatorView();
@@ -140,7 +144,8 @@ class ProxyClientApp {
     this.views.historyFloodView = createHistoryFloodView();
     this.views.corsProxyView = createCorsProxyView();
     this.views.pocketBrowserView = createPocketBrowserView();
-    this.views.exploitsView = createExploitsView();
+    this.views.scriptsView = createScriptsView();
+    this.views.bookmarkletsView = createBookmarkletsView();
 
     // Add all views to content
     Object.values(this.views).forEach((view) => content.appendChild(view));
@@ -223,10 +228,16 @@ class ProxyClientApp {
       setActiveButton(b.pocketBrowserButton);
     });
 
-    b.exploitsButton.addEventListener("click", () => {
+    b.exploisButton.addEventListener("click", () => {
       hideAll();
-      v.exploitsView.style.display = "block";
-      setActiveButton(b.exploitsButton);
+      v.exploisView.style.display = "block";
+      setActiveButton(b.exploisButton);
+    });
+
+    b.bookmarkletsButton.addEventListener("click", () => {
+      hideAll();
+      v.bookmarkletsView.style.display = "block";
+      setActiveButton(b.bookmarkletsButton);
     });
   }
 
