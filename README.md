@@ -14,7 +14,7 @@ The Proxy Client is a web-based application designed to provide various function
 - **Pocket Browser View**: A simple browser interface.
 - **Exploits View**: Various exploit-related functionalities.
 - **Bookmarklets View**: Access a collection of bookmarklets for quick actions.
-- **Games lisr View**: Access a collection of blocked, unblocked and cors proxy optimized games.
+- **Games list View**: Access a collection of blocked, unblocked and cors proxy optimized games.
 
 ## Installation
 1. Clone the repository:
