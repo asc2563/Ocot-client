@@ -31,7 +31,19 @@ The Proxy Client is a web-based application designed to provide various function
    ```
 
 ## Usage
-To launch the application, open `index.html` in a web browser. Use the sidebar to navigate between different views.
+To launch the application, you have multiple ways to do so.
+
+1. open `index.html` in a web browser. Use the sidebar to navigate between different views.
+
+2. run this bookmarklet:
+
+TODO: ADD CODE FOR BOOKMARKLET AND CONSOLE
+
+3. put this code in the console (if unblocked):
+
+
+
+
 
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
