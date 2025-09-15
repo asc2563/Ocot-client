@@ -1,12 +1,4 @@
 (() => {
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __esm = (fn, res) => function __init() {
-    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-  };
-  var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  };
-
   // src/views/proxy.js
   function createProxyView() {
     const proxyView = document.createElement("div");
@@ -21,10 +13,6 @@
     proxyView.appendChild(iframe);
     return proxyView;
   }
-  var init_proxy = __esm({
-    "src/views/proxy.js"() {
-    }
-  });
 
   // src/views/notes.js
   function createNotesView() {
@@ -43,20 +31,16 @@
     notesView.appendChild(notesTextarea);
     return notesView;
   }
-  var init_notes = __esm({
-    "src/views/notes.js"() {
-    }
-  });
 
   // src/views/calculator.js
   function createCalculatorView() {
-    const calculatorView2 = document.createElement("div");
-    calculatorView2.style.width = "100%";
-    calculatorView2.style.height = "100%";
-    calculatorView2.style.display = "none";
-    calculatorView2.style.backgroundColor = "#e0e0e0";
-    calculatorView2.style.padding = "20px";
-    calculatorView2.innerHTML = `
+    const calculatorView = document.createElement("div");
+    calculatorView.style.width = "100%";
+    calculatorView.style.height = "100%";
+    calculatorView.style.display = "none";
+    calculatorView.style.backgroundColor = "#e0e0e0";
+    calculatorView.style.padding = "20px";
+    calculatorView.innerHTML = `
 		<div style="max-width: 300px; margin: 0 auto;">
 			<input type="text" id="calcDisplay" style="width: 100%; height: 40px; margin-bottom: 10px; text-align: right; font-size: 20px;" disabled>
 			<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;">
@@ -80,13 +64,9 @@
 			</div>
 		</div>
 	`;
-    calculatorView2._initialized = false;
-    return calculatorView2;
+    calculatorView._initialized = false;
+    return calculatorView;
   }
-  var init_calculator = __esm({
-    "src/views/calculator.js"() {
-    }
-  });
 
   // src/views/console.js
   function createConsoleView() {
@@ -129,10 +109,28 @@
     outputDiv.style.fontSize = "14px";
     runButton.addEventListener("click", () => {
       try {
-        const result = eval(consoleTextarea.value);
-        outputDiv.textContent = result !== void 0 ? result : "Code executed successfully.";
+        const code = consoleTextarea.value.trim();
+        if (!code) {
+          outputDiv.textContent = "No code to execute.";
+          return;
+        }
+        const dangerousPatterns = [
+          /document\.write/i,
+          /window\.location/i,
+          /eval\s*\(/i,
+          /Function\s*\(/i,
+          /setTimeout\s*\(/i,
+          /setInterval\s*\(/i
+        ];
+        const isDangerous = dangerousPatterns.some((pattern) => pattern.test(code));
+        if (isDangerous) {
+          outputDiv.textContent = "Error: Potentially unsafe code detected. Please use safer alternatives.";
+          return;
+        }
+        const result = Function('"use strict"; return (' + code + ")")();
+        outputDiv.textContent = result !== void 0 ? String(result) : "Code executed successfully.";
       } catch (error) {
-        outputDiv.textContent = `Error: ${error.message}`;
+        outputDiv.textContent = `Error: ${error.name}: ${error.message}`;
       }
     });
     consoleView.appendChild(consoleTextarea);
@@ -140,10 +138,6 @@
     consoleView.appendChild(outputDiv);
     return consoleView;
   }
-  var init_console = __esm({
-    "src/views/console.js"() {
-    }
-  });
 
   // src/views/cloaking.js
   function createCloakingView() {
@@ -179,6 +173,7 @@
     applyButton.style.border = "none";
     applyButton.style.borderRadius = "4px";
     applyButton.style.cursor = "pointer";
+    let cloakingInterval = null;
     applyButton.addEventListener("click", () => {
       const newTitle = titleInput.value;
       const newIcon = iconInput.value;
@@ -190,18 +185,36 @@
         document.title = newTitle || "Default Title";
         document.getElementsByTagName("head")[0].appendChild(link);
       }
+      if (cloakingInterval) {
+        clearInterval(cloakingInterval);
+      }
       gcloak();
-      setInterval(gcloak, 1e3);
+      cloakingInterval = setInterval(gcloak, 5e3);
+    });
+    const stopButton = document.createElement("button");
+    stopButton.textContent = "Stop Cloaking";
+    stopButton.style.padding = "10px";
+    stopButton.style.backgroundColor = "#dc3545";
+    stopButton.style.color = "#ffffff";
+    stopButton.style.border = "none";
+    stopButton.style.borderRadius = "4px";
+    stopButton.style.cursor = "pointer";
+    stopButton.style.marginLeft = "10px";
+    stopButton.addEventListener("click", () => {
+      if (cloakingInterval) {
+        clearInterval(cloakingInterval);
+        cloakingInterval = null;
+        alert("Cloaking stopped.");
+      }
     });
     cloakingView.appendChild(titleInput);
     cloakingView.appendChild(iconInput);
-    cloakingView.appendChild(applyButton);
+    const buttonContainer = document.createElement("div");
+    buttonContainer.appendChild(applyButton);
+    buttonContainer.appendChild(stopButton);
+    cloakingView.appendChild(buttonContainer);
     return cloakingView;
   }
-  var init_cloaking = __esm({
-    "src/views/cloaking.js"() {
-    }
-  });
 
   // src/views/historyFlood.js
   function createHistoryFloodView() {
@@ -255,10 +268,6 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     historyFloodView.appendChild(floodButton);
     return historyFloodView;
   }
-  var init_historyFlood = __esm({
-    "src/views/historyFlood.js"() {
-    }
-  });
 
   // src/views/corsProxy.js
   function createCorsProxyView() {
@@ -304,10 +313,6 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     corsProxyView.appendChild(corsFetchButton);
     return corsProxyView;
   }
-  var init_corsProxy = __esm({
-    "src/views/corsProxy.js"() {
-    }
-  });
 
   // src/views/pocketBrowser.js
   function createPocketBrowserView() {
@@ -342,16 +347,175 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     pocketBrowserView.appendChild(pocketBrowserIframe);
     return pocketBrowserView;
   }
-  var init_pocketBrowser = __esm({
-    "src/views/pocketBrowser.js"() {
-    }
-  });
 
   // src/views/scripts.js
-  var init_scripts = __esm({
-    "src/views/scripts.js"() {
-    }
-  });
+  function createscriptsView() {
+    const exploisView = document.createElement("div");
+    exploisView.style.width = "100%";
+    exploisView.style.height = "100%";
+    exploisView.style.display = "none";
+    exploisView.style.backgroundColor = "#f0f0f0";
+    exploisView.style.color = "#333";
+    exploisView.style.padding = "20px";
+    exploisView.style.fontFamily = "Arial, sans-serif";
+    const tabCloakButton = document.createElement("button");
+    tabCloakButton.textContent = "Tab Cloak";
+    tabCloakButton.style.padding = "8px";
+    tabCloakButton.style.backgroundColor = "#444";
+    tabCloakButton.style.border = "none";
+    tabCloakButton.style.borderRadius = "4px";
+    tabCloakButton.style.color = "#fff";
+    tabCloakButton.style.cursor = "pointer";
+    tabCloakButton.addEventListener("click", () => {
+      let url = prompt("Enter the URL to cloak:", "https://example.com");
+      let win = window.open();
+      let iframe = win.document.createElement("iframe");
+      iframe.style = "position:fixed;width:100vw;height:100vh;top:0px;left:0px;right:0px;bottom:0px;z-index:2147483647;background-color:white;border:none;";
+      if (url.includes("https://") || url.includes("http://")) {
+        iframe.src = url;
+      } else {
+        iframe.src = "https://" + url;
+      }
+      win.document.body.appendChild(iframe);
+    });
+    const pageEditorButton = document.createElement("button");
+    pageEditorButton.textContent = "Page Editor On";
+    pageEditorButton.style.padding = "8px";
+    pageEditorButton.style.backgroundColor = "#444";
+    pageEditorButton.style.border = "none";
+    pageEditorButton.style.borderRadius = "4px";
+    pageEditorButton.style.color = "#fff";
+    pageEditorButton.style.cursor = "pointer";
+    pageEditorButton.addEventListener("click", () => {
+      document.body.contentEditable = "true";
+      document.designMode = "on";
+      alert(
+        "Page is now editable. Refresh the page or press page editor off to disable editing."
+      );
+    });
+    const pageEditorOffButton = document.createElement("button");
+    pageEditorOffButton.textContent = "Page Editor Off";
+    pageEditorOffButton.style.padding = "8px";
+    pageEditorOffButton.style.backgroundColor = "#444";
+    pageEditorOffButton.style.border = "none";
+    pageEditorOffButton.style.borderRadius = "4px";
+    pageEditorOffButton.style.color = "#fff";
+    pageEditorOffButton.style.cursor = "pointer";
+    pageEditorOffButton.addEventListener("click", () => {
+      document.body.contentEditable = "false";
+      document.designMode = "off";
+      alert("Page editing is now disabled.");
+    });
+    const blooketCheatsButton = document.createElement("button");
+    blooketCheatsButton.textContent = "Blooket Cheats";
+    blooketCheatsButton.style.padding = "8px";
+    blooketCheatsButton.style.backgroundColor = "#444";
+    blooketCheatsButton.style.border = "none";
+    blooketCheatsButton.style.borderRadius = "4px";
+    blooketCheatsButton.style.color = "#fff";
+    blooketCheatsButton.style.cursor = "pointer";
+    blooketCheatsButton.addEventListener("click", () => {
+      try {
+        (function() {
+          let bkmkltscript = document.createElement("script");
+          bkmkltscript.src = "https://cdn.jsdelivr.net/gh/asc2563/proxys@master/blooketcheats.js";
+          document.body.appendChild(bkmkltscript);
+        })();
+      } catch (error) {
+        alert(`Error loading Blooket Cheats: ${error.message}`);
+      }
+    });
+    const fakeCrashButton = document.createElement("button");
+    fakeCrashButton.textContent = "Fake Crash";
+    fakeCrashButton.style.padding = "8px";
+    fakeCrashButton.style.backgroundColor = "#c00";
+    fakeCrashButton.style.border = "none";
+    fakeCrashButton.style.borderRadius = "4px";
+    fakeCrashButton.style.color = "#fff";
+    fakeCrashButton.style.cursor = "pointer";
+    fakeCrashButton.style.marginTop = "10px";
+    fakeCrashButton.addEventListener("click", () => {
+      if (window.proxyFrame) {
+        window.proxyFrame.style.display = "none";
+      }
+      setTimeout(() => {
+        alert(
+          "Uncaught TypeError: Failed to execute 'run' on 'ClientCore': Cannot read properties of undefined (reading 'execute')\n    at ProxyClientCore.run (main.js:1:1234)\n    at <anonymous>:1:1"
+        );
+        window.close();
+        setTimeout(() => {
+          if (!window.closed) {
+            window.location.href = "about:blank";
+            setTimeout(() => {
+              window.close();
+              if (!window.closed) {
+                alert(
+                  "Unable to close the tab automatically. Please close it manually."
+                );
+              }
+            }, 100);
+          }
+        }, 100);
+      }, 50);
+    });
+    const emergencyTabSwitcherButton = document.createElement("button");
+    emergencyTabSwitcherButton.textContent = "Emergency Tab Switcher";
+    emergencyTabSwitcherButton.style.padding = "8px";
+    emergencyTabSwitcherButton.style.backgroundColor = "#444";
+    emergencyTabSwitcherButton.style.border = "none";
+    emergencyTabSwitcherButton.style.borderRadius = "4px";
+    emergencyTabSwitcherButton.style.color = "#fff";
+    emergencyTabSwitcherButton.style.cursor = "pointer";
+    emergencyTabSwitcherButton.addEventListener("click", () => {
+      (() => {
+        const elem = document.createElement("div");
+        const body = document.body;
+        body.appendChild(elem);
+        Object.assign(elem.style, {
+          position: "fixed",
+          top: "0px",
+          right: "0px",
+          margin: "10px",
+          paddingTop: "10px",
+          width: "200px",
+          height: "40px",
+          zIndex: "10000",
+          opacity: "0.9",
+          color: "white",
+          backgroundColor: "black",
+          border: "1px solid white",
+          textAlign: "center",
+          cursor: "pointer",
+          display: "block"
+        });
+        elem.id = "elem";
+        elem.textContent = "Z";
+        const safetyUrl = prompt(
+          "What tab do you want to open when a teacher comes by? Click Z to go to that tab. Warning: may have to click out of element for it to work"
+        );
+        const navigateToSafety = () => {
+          if (safetyUrl) {
+            window.location.href = safetyUrl;
+          }
+        };
+        window.addEventListener("keydown", (event) => {
+          if (event.key.toLowerCase() === "z") {
+            navigateToSafety();
+          }
+        });
+        elem.addEventListener("click", navigateToSafety);
+      })();
+    });
+    [
+      tabCloakButton,
+      pageEditorButton,
+      pageEditorOffButton,
+      blooketCheatsButton,
+      fakeCrashButton,
+      emergencyTabSwitcherButton
+    ].forEach((btn) => exploisView.appendChild(btn));
+    return exploisView;
+  }
 
   // src/views/bookmarklets.js
   function createBookmarkletsView() {
@@ -397,242 +561,231 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     bookmarkletsView.appendChild(bookmarkletList);
     return bookmarkletsView;
   }
-  var init_bookmarklets = __esm({
-    "src/views/bookmarklets.js"() {
-    }
-  });
 
   // src/main.js
-  var require_main = __commonJS({
-    "src/main.js"(exports, module) {
-      init_proxy();
-      init_notes();
-      init_calculator();
-      init_console();
-      init_cloaking();
-      init_historyFlood();
-      init_corsProxy();
-      init_pocketBrowser();
-      init_scripts();
-      init_bookmarklets();
-      console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
-      var ProxyClientApp = class {
-        constructor() {
-          this.frame = null;
-          this.views = {};
-          this.sidebarButtons = {};
-        }
-        launch() {
-          this.frame = document.createElement("div");
-          window.proxyFrame = this.frame;
-          this.setupFrameStyle();
-          const sidebar = this.createSidebar();
-          const content = this.createContent();
-          this.frame.appendChild(sidebar);
-          this.frame.appendChild(content);
-          document.body.innerHTML = "";
-          document.body.appendChild(this.frame);
-          document.addEventListener("keydown", (event) => {
-            if (event.key === "\\") {
-              if (window.proxyFrame) {
-                window.proxyFrame.style.display = window.proxyFrame.style.display === "none" ? "flex" : "none";
-              }
-            }
-          });
-          this.sidebarButtons.hideButton.addEventListener("click", () => {
-            this.frame.style.display = "none";
-          });
-          console.log(
-            "Application launched successfully. Press backslash (\\) to show if hidden."
-          );
-        }
-        setupFrameStyle() {
-          const frame = this.frame;
-          frame.style.position = "fixed";
-          frame.style.top = "50%";
-          frame.style.left = "50%";
-          frame.style.transform = "translate(-50%, -50%)";
-          frame.style.width = "70vw";
-          frame.style.height = "80vh";
-          frame.style.display = "flex";
-          frame.style.color = "#ffffff";
-        }
-        createSidebar() {
-          const sidebar = document.createElement("div");
-          sidebar.style.width = "20%";
-          sidebar.style.height = "80vh";
-          sidebar.style.backgroundColor = "#333";
-          sidebar.style.color = "#ffffff";
-          sidebar.style.padding = "10px";
-          sidebar.style.display = "flex";
-          sidebar.style.flexDirection = "column";
-          sidebar.style.gap = "10px";
-          const makeBtn = (label, id = "", bg = "#444") => {
-            const btn = document.createElement("button");
-            btn.textContent = label;
-            btn.style.padding = "8px";
-            btn.style.backgroundColor = bg;
-            btn.style.border = "none";
-            btn.style.borderRadius = "4px";
-            btn.style.color = "#fff";
-            btn.style.cursor = "pointer";
-            if (id) btn.id = id;
-            return btn;
-          };
-          this.sidebarButtons.proxyButton = makeBtn("Proxy", "", "#555");
-          this.sidebarButtons.proxyButton.classList.add("active-view");
-          this.sidebarButtons.notesButton = makeBtn("Notes");
-          this.sidebarButtons.calculatorButton = makeBtn("Calculator");
-          this.sidebarButtons.consoleButton = makeBtn("Console");
-          this.sidebarButtons.cloakingButton = makeBtn("Cloaking");
-          this.sidebarButtons.historyFloodButton = makeBtn("History Flood");
-          this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy");
-          this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
-          this.sidebarButtons.exploisButton = makeBtn("explois");
-          this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
-          this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
-          [
-            this.sidebarButtons.proxyButton,
-            this.sidebarButtons.notesButton,
-            this.sidebarButtons.calculatorButton,
-            this.sidebarButtons.consoleButton,
-            this.sidebarButtons.cloakingButton,
-            this.sidebarButtons.historyFloodButton,
-            this.sidebarButtons.corsProxyButton,
-            this.sidebarButtons.pocketBrowserButton,
-            this.sidebarButtons.exploisButton,
-            this.sidebarButtons.bookmarkletsButton,
-            this.sidebarButtons.hideButton
-          ].forEach((btn) => sidebar.appendChild(btn));
-          return sidebar;
-        }
-        createContent() {
-          const content = document.createElement("div");
-          content.style.flexGrow = "1";
-          content.style.display = "flex";
-          content.style.flexDirection = "column";
-          content.style.width = "100%";
-          content.style.height = "100%";
-          content.style.padding = "0";
-          this.views.proxyView = createProxyView();
-          this.views.notesView = createNotesView();
-          this.views.calculatorView = createCalculatorView();
-          this.views.consoleView = createConsoleView();
-          this.views.cloakingView = createCloakingView();
-          this.views.historyFloodView = createHistoryFloodView();
-          this.views.corsProxyView = createCorsProxyView();
-          this.views.pocketBrowserView = createPocketBrowserView();
-          this.views.scriptsView = createScriptsView();
-          this.views.bookmarkletsView = createBookmarkletsView();
-          Object.values(this.views).forEach((view) => content.appendChild(view));
-          this.setupSidebarEvents();
-          return content;
-        }
-        // --- Sidebar Button Events and View Switching ---
-        setupSidebarEvents() {
-          const v = this.views;
-          const b = this.sidebarButtons;
-          const hideAll = () => {
-            Object.values(v).forEach((view) => view.style.display = "none");
-          };
-          const setActiveButton = (activeBtn) => {
-            Object.values(b).forEach((btn) => {
-              if (btn && btn.style) {
-                btn.style.backgroundColor = "#444";
-                btn.classList && btn.classList.remove("active-view");
-              }
-            });
-            if (activeBtn) {
-              activeBtn.style.backgroundColor = "#555";
-              activeBtn.classList && activeBtn.classList.add("active-view");
-            }
-          };
-          b.proxyButton.addEventListener("click", () => {
-            hideAll();
-            v.proxyView.style.display = "flex";
-            setActiveButton(b.proxyButton);
-          });
-          b.notesButton.addEventListener("click", () => {
-            hideAll();
-            v.notesView.style.display = "block";
-            setActiveButton(b.notesButton);
-          });
-          b.calculatorButton.addEventListener("click", () => {
-            hideAll();
-            v.calculatorView.style.display = "block";
-            setActiveButton(b.calculatorButton);
-            this.initCalculator();
-          });
-          b.consoleButton.addEventListener("click", () => {
-            hideAll();
-            v.consoleView.style.display = "block";
-            setActiveButton(b.consoleButton);
-          });
-          b.cloakingButton.addEventListener("click", () => {
-            hideAll();
-            v.cloakingView.style.display = "block";
-            setActiveButton(b.cloakingButton);
-          });
-          b.historyFloodButton.addEventListener("click", () => {
-            hideAll();
-            v.historyFloodView.style.display = "block";
-            setActiveButton(b.historyFloodButton);
-          });
-          b.corsProxyButton.addEventListener("click", () => {
-            hideAll();
-            v.corsProxyView.style.display = "block";
-            setActiveButton(b.corsProxyButton);
-          });
-          b.pocketBrowserButton.addEventListener("click", () => {
-            hideAll();
-            v.pocketBrowserView.style.display = "block";
-            setActiveButton(b.pocketBrowserButton);
-          });
-          b.exploisButton.addEventListener("click", () => {
-            hideAll();
-            v.exploisView.style.display = "block";
-            setActiveButton(b.exploisButton);
-          });
-          b.bookmarkletsButton.addEventListener("click", () => {
-            hideAll();
-            v.bookmarkletsView.style.display = "block";
-            setActiveButton(b.bookmarkletsButton);
-          });
-        }
-        // --- Calculator Initialization ---
-        initCalculator() {
-          const calculatorView = this.views.calculatorView;
-          if (!calculatorView._initialized) {
-            const display = calculatorView.querySelector("#calcDisplay");
-            const buttons = calculatorView.querySelectorAll(".calc-btn");
-            let currentValue = "";
-            buttons.forEach((button) => {
-              button.style.padding = "10px";
-              button.style.fontSize = "16px";
-              button.style.cursor = "pointer";
-              button.addEventListener("click", () => {
-                const value = button.getAttribute("data-value");
-                if (value === "C") {
-                  currentValue = "";
-                } else if (value === "=") {
-                  try {
-                    currentValue = eval(currentValue).toString();
-                  } catch (e) {
-                    currentValue = "Error";
-                  }
-                } else {
-                  currentValue += value;
-                }
-                display.value = currentValue;
-              });
-            });
-            calculatorView._initialized = true;
+  console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
+  var ProxyClientApp = class {
+    constructor() {
+      this.frame = null;
+      this.views = {};
+      this.sidebarButtons = {};
+    }
+    launch() {
+      this.frame = document.createElement("div");
+      window.proxyFrame = this.frame;
+      this.setupFrameStyle();
+      const sidebar = this.createSidebar();
+      const content = this.createContent();
+      this.frame.appendChild(sidebar);
+      this.frame.appendChild(content);
+      document.body.innerHTML = "";
+      document.body.appendChild(this.frame);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "\\") {
+          if (window.proxyFrame) {
+            window.proxyFrame.style.display = window.proxyFrame.style.display === "none" ? "flex" : "none";
           }
         }
-      };
-      var app = new ProxyClientApp();
-      app.launch();
+      });
+      this.sidebarButtons.hideButton.addEventListener("click", () => {
+        this.frame.style.display = "none";
+      });
+      console.log(
+        "Application launched successfully. Press backslash (\\) to show if hidden."
+      );
     }
-  });
-  require_main();
+    setupFrameStyle() {
+      const frame = this.frame;
+      frame.style.position = "fixed";
+      frame.style.top = "50%";
+      frame.style.left = "50%";
+      frame.style.transform = "translate(-50%, -50%)";
+      frame.style.width = "70vw";
+      frame.style.height = "80vh";
+      frame.style.display = "flex";
+      frame.style.color = "#ffffff";
+    }
+    createSidebar() {
+      const sidebar = document.createElement("div");
+      sidebar.style.width = "20%";
+      sidebar.style.height = "80vh";
+      sidebar.style.backgroundColor = "#333";
+      sidebar.style.color = "#ffffff";
+      sidebar.style.padding = "10px";
+      sidebar.style.display = "flex";
+      sidebar.style.flexDirection = "column";
+      sidebar.style.gap = "10px";
+      const makeBtn = (label, id = "", bg = "#444") => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.style.padding = "8px";
+        btn.style.backgroundColor = bg;
+        btn.style.border = "none";
+        btn.style.borderRadius = "4px";
+        btn.style.color = "#fff";
+        btn.style.cursor = "pointer";
+        if (id) btn.id = id;
+        return btn;
+      };
+      this.sidebarButtons.proxyButton = makeBtn("Proxy", "", "#555");
+      this.sidebarButtons.proxyButton.classList.add("active-view");
+      this.sidebarButtons.notesButton = makeBtn("Notes");
+      this.sidebarButtons.calculatorButton = makeBtn("Calculator");
+      this.sidebarButtons.consoleButton = makeBtn("Console");
+      this.sidebarButtons.cloakingButton = makeBtn("Cloaking");
+      this.sidebarButtons.historyFloodButton = makeBtn("History Flood");
+      this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy");
+      this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
+      this.sidebarButtons.exploisButton = makeBtn("explois");
+      this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
+      this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
+      [
+        this.sidebarButtons.proxyButton,
+        this.sidebarButtons.notesButton,
+        this.sidebarButtons.calculatorButton,
+        this.sidebarButtons.consoleButton,
+        this.sidebarButtons.cloakingButton,
+        this.sidebarButtons.historyFloodButton,
+        this.sidebarButtons.corsProxyButton,
+        this.sidebarButtons.pocketBrowserButton,
+        this.sidebarButtons.exploisButton,
+        this.sidebarButtons.bookmarkletsButton,
+        this.sidebarButtons.hideButton
+      ].forEach((btn) => sidebar.appendChild(btn));
+      return sidebar;
+    }
+    createContent() {
+      const content = document.createElement("div");
+      content.style.flexGrow = "1";
+      content.style.display = "flex";
+      content.style.flexDirection = "column";
+      content.style.width = "100%";
+      content.style.height = "100%";
+      content.style.padding = "0";
+      this.views.proxyView = createProxyView();
+      this.views.notesView = createNotesView();
+      this.views.calculatorView = createCalculatorView();
+      this.views.consoleView = createConsoleView();
+      this.views.cloakingView = createCloakingView();
+      this.views.historyFloodView = createHistoryFloodView();
+      this.views.corsProxyView = createCorsProxyView();
+      this.views.pocketBrowserView = createPocketBrowserView();
+      this.views.exploisView = createscriptsView();
+      this.views.bookmarkletsView = createBookmarkletsView();
+      Object.values(this.views).forEach((view) => content.appendChild(view));
+      this.setupSidebarEvents();
+      return content;
+    }
+    // --- Sidebar Button Events and View Switching ---
+    setupSidebarEvents() {
+      const v = this.views;
+      const b = this.sidebarButtons;
+      const hideAll = () => {
+        Object.values(v).forEach((view) => view.style.display = "none");
+      };
+      const setActiveButton = (activeBtn) => {
+        Object.values(b).forEach((btn) => {
+          if (btn && btn.style) {
+            btn.style.backgroundColor = "#444";
+            btn.classList && btn.classList.remove("active-view");
+          }
+        });
+        if (activeBtn) {
+          activeBtn.style.backgroundColor = "#555";
+          activeBtn.classList && activeBtn.classList.add("active-view");
+        }
+      };
+      b.proxyButton.addEventListener("click", () => {
+        hideAll();
+        v.proxyView.style.display = "flex";
+        setActiveButton(b.proxyButton);
+      });
+      b.notesButton.addEventListener("click", () => {
+        hideAll();
+        v.notesView.style.display = "block";
+        setActiveButton(b.notesButton);
+      });
+      b.calculatorButton.addEventListener("click", () => {
+        hideAll();
+        v.calculatorView.style.display = "block";
+        setActiveButton(b.calculatorButton);
+        this.initCalculator();
+      });
+      b.consoleButton.addEventListener("click", () => {
+        hideAll();
+        v.consoleView.style.display = "block";
+        setActiveButton(b.consoleButton);
+      });
+      b.cloakingButton.addEventListener("click", () => {
+        hideAll();
+        v.cloakingView.style.display = "block";
+        setActiveButton(b.cloakingButton);
+      });
+      b.historyFloodButton.addEventListener("click", () => {
+        hideAll();
+        v.historyFloodView.style.display = "block";
+        setActiveButton(b.historyFloodButton);
+      });
+      b.corsProxyButton.addEventListener("click", () => {
+        hideAll();
+        v.corsProxyView.style.display = "block";
+        setActiveButton(b.corsProxyButton);
+      });
+      b.pocketBrowserButton.addEventListener("click", () => {
+        hideAll();
+        v.pocketBrowserView.style.display = "block";
+        setActiveButton(b.pocketBrowserButton);
+      });
+      b.exploisButton.addEventListener("click", () => {
+        hideAll();
+        v.exploisView.style.display = "block";
+        setActiveButton(b.exploisButton);
+      });
+      b.bookmarkletsButton.addEventListener("click", () => {
+        hideAll();
+        v.bookmarkletsView.style.display = "block";
+        setActiveButton(b.bookmarkletsButton);
+      });
+    }
+    // --- Calculator Initialization ---
+    initCalculator() {
+      const calculatorView = this.views.calculatorView;
+      if (!calculatorView._initialized) {
+        const display = calculatorView.querySelector("#calcDisplay");
+        const buttons = calculatorView.querySelectorAll(".calc-btn");
+        let currentValue = "";
+        buttons.forEach((button) => {
+          button.style.padding = "10px";
+          button.style.fontSize = "16px";
+          button.style.cursor = "pointer";
+          button.addEventListener("click", () => {
+            const value = button.getAttribute("data-value");
+            if (value === "C") {
+              currentValue = "";
+            } else if (value === "=") {
+              try {
+                const sanitizedValue = currentValue.replace(/[^0-9+\-*/.() ]/g, "");
+                if (sanitizedValue !== currentValue) {
+                  currentValue = "Invalid Input";
+                } else if (sanitizedValue.trim() === "") {
+                  currentValue = "";
+                } else {
+                  const result = Function('"use strict"; return (' + sanitizedValue + ")")();
+                  currentValue = typeof result === "number" && isFinite(result) ? result.toString() : "Error";
+                }
+              } catch (e) {
+                currentValue = "Error";
+              }
+            } else {
+              currentValue += value;
+            }
+            display.value = currentValue;
+          });
+        });
+        calculatorView._initialized = true;
+      }
+    }
+  };
+  var app = new ProxyClientApp();
+  app.launch();
 })();

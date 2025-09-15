@@ -6,7 +6,7 @@ import createCloakingView from "./views/cloaking.js";
 import createHistoryFloodView from "./views/historyFlood.js";
 import createCorsProxyView from "./views/corsProxy.js";
 import createPocketBrowserView from "./views/pocketBrowser.js";
-import createscriptsView from "./views/scripts.js";
+import createScriptsView from "./views/scripts.js";
 import createBookmarkletsView from "./views/bookmarklets.js";
 
 console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
@@ -144,7 +144,7 @@ class ProxyClientApp {
     this.views.historyFloodView = createHistoryFloodView();
     this.views.corsProxyView = createCorsProxyView();
     this.views.pocketBrowserView = createPocketBrowserView();
-    this.views.scriptsView = createScriptsView();
+    this.views.exploisView = createScriptsView();
     this.views.bookmarkletsView = createBookmarkletsView();
 
     // Add all views to content
@@ -261,7 +261,16 @@ class ProxyClientApp {
             currentValue = "";
           } else if (value === "=") {
             try {
-              currentValue = eval(currentValue).toString();
+              // Sanitize input to only allow safe mathematical expressions
+              const sanitizedValue = currentValue.replace(/[^0-9+\-*/.() ]/g, '');
+              if (sanitizedValue !== currentValue) {
+                currentValue = "Invalid Input";
+              } else if (sanitizedValue.trim() === "") {
+                currentValue = "";
+              } else {
+                const result = Function('"use strict"; return (' + sanitizedValue + ')')();
+                currentValue = (typeof result === 'number' && isFinite(result)) ? result.toString() : "Error";
+              }
             } catch (e) {
               currentValue = "Error";
             }
