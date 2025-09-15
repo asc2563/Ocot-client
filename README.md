@@ -1,7 +1,7 @@
 # Proxy Client Application
 
 ## Overview
-The Proxy Client is a web-based application designed to provide various functionalities, including proxy operations, note-taking, a calculator, a console for executing JavaScript code, cloaking features, history manipulation, CORS proxying, a pocket browser, and exploit tools. 
+The Proxy Client is a web-based application designed to provide various functionalities, including proxy operations, note-taking, a calculator, a console for executing JavaScript code, cloaking features, history manipulation, CORS proxying, a pocket browser, scripts, bookmarklets and a games list. 
 
 ## Features
 - **Proxy View**: Access and manage proxy operations.
@@ -14,6 +14,7 @@ The Proxy Client is a web-based application designed to provide various function
 - **Pocket Browser View**: A simple browser interface.
 - **Exploits View**: Various exploit-related functionalities.
 - **Bookmarklets View**: Access a collection of bookmarklets for quick actions.
+- **Games lisr View**: Access a collection of blocked, unblocked and cors proxy optimized games.
 
 ## Installation
 1. Clone the repository:
