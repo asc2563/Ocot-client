@@ -104,7 +104,7 @@ class ProxyClientApp {
     this.sidebarButtons.historyFloodButton = makeBtn("History Flood");
     this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy");
     this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
-    this.sidebarButtons.exploisButton = makeBtn("explois");
+    this.sidebarButtons.scriptsButton = makeBtn("scripts");
     this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
     this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
 
@@ -117,7 +117,7 @@ class ProxyClientApp {
       this.sidebarButtons.historyFloodButton,
       this.sidebarButtons.corsProxyButton,
       this.sidebarButtons.pocketBrowserButton,
-      this.sidebarButtons.exploisButton,
+      this.sidebarButtons.scriptsButton,
       this.sidebarButtons.bookmarkletsButton,
       this.sidebarButtons.hideButton,
     ].forEach((btn) => sidebar.appendChild(btn));
@@ -144,7 +144,7 @@ class ProxyClientApp {
     this.views.historyFloodView = createHistoryFloodView();
     this.views.corsProxyView = createCorsProxyView();
     this.views.pocketBrowserView = createPocketBrowserView();
-    this.views.exploisView = createScriptsView();
+    this.views.scriptsView = createScriptsView();
     this.views.bookmarkletsView = createBookmarkletsView();
 
     // Add all views to content
@@ -228,10 +228,10 @@ class ProxyClientApp {
       setActiveButton(b.pocketBrowserButton);
     });
 
-    b.exploisButton.addEventListener("click", () => {
+    b.scriptsButton.addEventListener("click", () => {
       hideAll();
-      v.exploisView.style.display = "block";
-      setActiveButton(b.exploisButton);
+      v.scriptsView.style.display = "block";
+      setActiveButton(b.scriptsButton);
     });
 
     b.bookmarkletsButton.addEventListener("click", () => {
@@ -262,14 +262,22 @@ class ProxyClientApp {
           } else if (value === "=") {
             try {
               // Sanitize input to only allow safe mathematical expressions
-              const sanitizedValue = currentValue.replace(/[^0-9+\-*/.() ]/g, '');
+              const sanitizedValue = currentValue.replace(
+                /[^0-9+\-*/.() ]/g,
+                ""
+              );
               if (sanitizedValue !== currentValue) {
                 currentValue = "Invalid Input";
               } else if (sanitizedValue.trim() === "") {
                 currentValue = "";
               } else {
-                const result = Function('"use strict"; return (' + sanitizedValue + ')')();
-                currentValue = (typeof result === 'number' && isFinite(result)) ? result.toString() : "Error";
+                const result = Function(
+                  '"use strict"; return (' + sanitizedValue + ")"
+                )();
+                currentValue =
+                  typeof result === "number" && isFinite(result)
+                    ? result.toString()
+                    : "Error";
               }
             } catch (e) {
               currentValue = "Error";

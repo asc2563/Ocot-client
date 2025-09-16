@@ -120,15 +120,19 @@
           /eval\s*\(/i,
           /Function\s*\(/i,
           /setTimeout\s*\(/i,
-          /setInterval\s*\(/i
+          /setInterval\s*\(/i,
         ];
-        const isDangerous = dangerousPatterns.some((pattern) => pattern.test(code));
+        const isDangerous = dangerousPatterns.some((pattern) =>
+          pattern.test(code)
+        );
         if (isDangerous) {
-          outputDiv.textContent = "Error: Potentially unsafe code detected. Please use safer alternatives.";
+          outputDiv.textContent =
+            "Error: Potentially unsafe code detected. Please use safer alternatives.";
           return;
         }
         const result = Function('"use strict"; return (' + code + ")")();
-        outputDiv.textContent = result !== void 0 ? String(result) : "Code executed successfully.";
+        outputDiv.textContent =
+          result !== void 0 ? String(result) : "Code executed successfully.";
       } catch (error) {
         outputDiv.textContent = `Error: ${error.name}: ${error.message}`;
       }
@@ -178,7 +182,9 @@
       const newTitle = titleInput.value;
       const newIcon = iconInput.value;
       function gcloak() {
-        const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
+        const link =
+          document.querySelector("link[rel*='icon']") ||
+          document.createElement("link");
         link.type = "image/x-icon";
         link.rel = "shortcut icon";
         link.href = newIcon || "default-icon.png";
@@ -302,12 +308,15 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
         return;
       }
       const proxy = "https://api.codetabs.com/v1/proxy?quest=";
-      fetch(proxy + url).then((response) => response.text()).then((text) => {
-        const newWindow = window.open();
-        newWindow.document.write(text);
-      }).catch((error) => {
-        alert(`Error fetching the URL: ${error.message}`);
-      });
+      fetch(proxy + url)
+        .then((response) => response.text())
+        .then((text) => {
+          const newWindow = window.open();
+          newWindow.document.write(text);
+        })
+        .catch((error) => {
+          alert(`Error fetching the URL: ${error.message}`);
+        });
     });
     corsProxyView.appendChild(corsInput);
     corsProxyView.appendChild(corsFetchButton);
@@ -339,7 +348,10 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       if (event.key === "Enter") {
         const url = urlBar.value.trim();
         if (url) {
-          pocketBrowserIframe.src = url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
+          pocketBrowserIframe.src =
+            url.startsWith("http://") || url.startsWith("https://")
+              ? url
+              : `https://${url}`;
         }
       }
     });
@@ -350,14 +362,14 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
 
   // src/views/scripts.js
   function createscriptsView() {
-    const exploisView = document.createElement("div");
-    exploisView.style.width = "100%";
-    exploisView.style.height = "100%";
-    exploisView.style.display = "none";
-    exploisView.style.backgroundColor = "#f0f0f0";
-    exploisView.style.color = "#333";
-    exploisView.style.padding = "20px";
-    exploisView.style.fontFamily = "Arial, sans-serif";
+    const scriptsView = document.createElement("div");
+    scriptsView.style.width = "100%";
+    scriptsView.style.height = "100%";
+    scriptsView.style.display = "none";
+    scriptsView.style.backgroundColor = "#f0f0f0";
+    scriptsView.style.color = "#333";
+    scriptsView.style.padding = "20px";
+    scriptsView.style.fontFamily = "Arial, sans-serif";
     const tabCloakButton = document.createElement("button");
     tabCloakButton.textContent = "Tab Cloak";
     tabCloakButton.style.padding = "8px";
@@ -370,7 +382,8 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       let url = prompt("Enter the URL to cloak:", "https://example.com");
       let win = window.open();
       let iframe = win.document.createElement("iframe");
-      iframe.style = "position:fixed;width:100vw;height:100vh;top:0px;left:0px;right:0px;bottom:0px;z-index:2147483647;background-color:white;border:none;";
+      iframe.style =
+        "position:fixed;width:100vw;height:100vh;top:0px;left:0px;right:0px;bottom:0px;z-index:2147483647;background-color:white;border:none;";
       if (url.includes("https://") || url.includes("http://")) {
         iframe.src = url;
       } else {
@@ -416,9 +429,10 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     blooketCheatsButton.style.cursor = "pointer";
     blooketCheatsButton.addEventListener("click", () => {
       try {
-        (function() {
+        (function () {
           let bkmkltscript = document.createElement("script");
-          bkmkltscript.src = "https://cdn.jsdelivr.net/gh/asc2563/proxys@master/blooketcheats.js";
+          bkmkltscript.src =
+            "https://cdn.jsdelivr.net/gh/asc2563/proxys@master/blooketcheats.js";
           document.body.appendChild(bkmkltscript);
         })();
       } catch (error) {
@@ -486,7 +500,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
           border: "1px solid white",
           textAlign: "center",
           cursor: "pointer",
-          display: "block"
+          display: "block",
         });
         elem.id = "elem";
         elem.textContent = "Z";
@@ -512,9 +526,9 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       pageEditorOffButton,
       blooketCheatsButton,
       fakeCrashButton,
-      emergencyTabSwitcherButton
-    ].forEach((btn) => exploisView.appendChild(btn));
-    return exploisView;
+      emergencyTabSwitcherButton,
+    ].forEach((btn) => scriptsView.appendChild(btn));
+    return scriptsView;
   }
 
   // src/views/bookmarklets.js
@@ -537,12 +551,12 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     const bookmarklets = [
       {
         name: "page editer",
-        url: "javascript: document.body.contentEditable = 'true';document.designMode = 'on';void 0;"
+        url: "javascript: document.body.contentEditable = 'true';document.designMode = 'on';void 0;",
       },
       { name: "YouTube", url: "https://www.youtube.com" },
       { name: "Wikipedia", url: "https://www.wikipedia.org" },
       { name: "Stack Overflow", url: "https://stackoverflow.com" },
-      { name: "GitHub", url: "https://github.com" }
+      { name: "GitHub", url: "https://github.com" },
     ];
     bookmarklets.forEach((bookmarklet) => {
       const anchor = document.createElement("a");
@@ -583,7 +597,8 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       document.addEventListener("keydown", (event) => {
         if (event.key === "\\") {
           if (window.proxyFrame) {
-            window.proxyFrame.style.display = window.proxyFrame.style.display === "none" ? "flex" : "none";
+            window.proxyFrame.style.display =
+              window.proxyFrame.style.display === "none" ? "flex" : "none";
           }
         }
       });
@@ -636,7 +651,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       this.sidebarButtons.historyFloodButton = makeBtn("History Flood");
       this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy");
       this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
-      this.sidebarButtons.exploisButton = makeBtn("explois");
+      this.sidebarButtons.scriptsButton = makeBtn("scripts");
       this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
       this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
       [
@@ -648,9 +663,9 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
         this.sidebarButtons.historyFloodButton,
         this.sidebarButtons.corsProxyButton,
         this.sidebarButtons.pocketBrowserButton,
-        this.sidebarButtons.exploisButton,
+        this.sidebarButtons.scriptsButton,
         this.sidebarButtons.bookmarkletsButton,
-        this.sidebarButtons.hideButton
+        this.sidebarButtons.hideButton,
       ].forEach((btn) => sidebar.appendChild(btn));
       return sidebar;
     }
@@ -670,7 +685,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       this.views.historyFloodView = createHistoryFloodView();
       this.views.corsProxyView = createCorsProxyView();
       this.views.pocketBrowserView = createPocketBrowserView();
-      this.views.exploisView = createscriptsView();
+      this.views.scriptsView = createscriptsView();
       this.views.bookmarkletsView = createBookmarkletsView();
       Object.values(this.views).forEach((view) => content.appendChild(view));
       this.setupSidebarEvents();
@@ -681,7 +696,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       const v = this.views;
       const b = this.sidebarButtons;
       const hideAll = () => {
-        Object.values(v).forEach((view) => view.style.display = "none");
+        Object.values(v).forEach((view) => (view.style.display = "none"));
       };
       const setActiveButton = (activeBtn) => {
         Object.values(b).forEach((btn) => {
@@ -736,10 +751,10 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
         v.pocketBrowserView.style.display = "block";
         setActiveButton(b.pocketBrowserButton);
       });
-      b.exploisButton.addEventListener("click", () => {
+      b.scriptsButton.addEventListener("click", () => {
         hideAll();
-        v.exploisView.style.display = "block";
-        setActiveButton(b.exploisButton);
+        v.scriptsView.style.display = "block";
+        setActiveButton(b.scriptsButton);
       });
       b.bookmarkletsButton.addEventListener("click", () => {
         hideAll();
@@ -764,14 +779,22 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
               currentValue = "";
             } else if (value === "=") {
               try {
-                const sanitizedValue = currentValue.replace(/[^0-9+\-*/.() ]/g, "");
+                const sanitizedValue = currentValue.replace(
+                  /[^0-9+\-*/.() ]/g,
+                  ""
+                );
                 if (sanitizedValue !== currentValue) {
                   currentValue = "Invalid Input";
                 } else if (sanitizedValue.trim() === "") {
                   currentValue = "";
                 } else {
-                  const result = Function('"use strict"; return (' + sanitizedValue + ")")();
-                  currentValue = typeof result === "number" && isFinite(result) ? result.toString() : "Error";
+                  const result = Function(
+                    '"use strict"; return (' + sanitizedValue + ")"
+                  )();
+                  currentValue =
+                    typeof result === "number" && isFinite(result)
+                      ? result.toString()
+                      : "Error";
                 }
               } catch (e) {
                 currentValue = "Error";
