@@ -76,10 +76,10 @@ export default function createscriptsView() {
   blooketCheatsButton.addEventListener("click", () => {
     try {
       (function () {
-        let bkmkltscript = document.createElement("script");
-        bkmkltscript.src =
-          "https://cdn.jsdelivr.net/gh/asc2563/proxys@master/blooketcheats.js";
-        document.body.appendChild(bkmkltscript);
+        let script = document.createElement("script");
+        script.src =
+          "https://cdn.jsdelivr.net/gh/randomstuff69/blooketcheatsplus@master/GUI/Gui.js";
+        document.body.appendChild(script);
       })();
     } catch (error) {
       alert(`Error loading Blooket Cheats: ${error.message}`);

@@ -20,10 +20,13 @@ export default function createBookmarkletsView() {
 
   const bookmarklets = [
     {
-      name: "page editer",
+      name: "page editer (on)",
       url: "javascript: document.body.contentEditable = 'true';document.designMode = 'on';void 0;",
     },
-    { name: "YouTube", url: "https://www.youtube.com" },
+    {
+      name: "page editer (off)",
+      url: "javascript: document.body.contentEditable = 'false';document.designMode = 'off';void 0;",
+    },
     { name: "Wikipedia", url: "https://www.wikipedia.org" },
     { name: "Stack Overflow", url: "https://stackoverflow.com" },
     { name: "GitHub", url: "https://github.com" },

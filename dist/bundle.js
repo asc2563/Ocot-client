@@ -417,9 +417,9 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     blooketCheatsButton.addEventListener("click", () => {
       try {
         (function() {
-          let bkmkltscript = document.createElement("script");
-          bkmkltscript.src = "https://cdn.jsdelivr.net/gh/asc2563/proxys@master/blooketcheats.js";
-          document.body.appendChild(bkmkltscript);
+          let script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/gh/randomstuff69/blooketcheatsplus@master/GUI/Gui.js";
+          document.body.appendChild(script);
         })();
       } catch (error) {
         alert(`Error loading Blooket Cheats: ${error.message}`);
@@ -536,10 +536,13 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     bookmarkletList.style.gap = "10px";
     const bookmarklets = [
       {
-        name: "page editer",
+        name: "page editer (on)",
         url: "javascript: document.body.contentEditable = 'true';document.designMode = 'on';void 0;"
       },
-      { name: "YouTube", url: "https://www.youtube.com" },
+      {
+        name: "page editer (off)",
+        url: "javascript: document.body.contentEditable = 'false';document.designMode = 'off';void 0;"
+      },
       { name: "Wikipedia", url: "https://www.wikipedia.org" },
       { name: "Stack Overflow", url: "https://stackoverflow.com" },
       { name: "GitHub", url: "https://github.com" }
