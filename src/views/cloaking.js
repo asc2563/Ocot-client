@@ -36,6 +36,9 @@ export default function createCloakingView() {
   applyButton.style.borderRadius = "4px";
   applyButton.style.cursor = "pointer";
 
+  // Store interval ID for cleanup
+  let cloakingInterval = null;
+
   applyButton.addEventListener("click", () => {
     const newTitle = titleInput.value;
     const newIcon = iconInput.value;
@@ -51,13 +54,43 @@ export default function createCloakingView() {
       document.getElementsByTagName("head")[0].appendChild(link);
     }
 
+    // Clear any existing interval to prevent multiple intervals
+    if (cloakingInterval) {
+      clearInterval(cloakingInterval);
+    }
+
     gcloak();
-    setInterval(gcloak, 1000);
+    // Set interval with a reasonable delay and store the ID for cleanup
+    cloakingInterval = setInterval(gcloak, 5000); // Reduced frequency to 5 seconds
+  });
+
+  // Add stop button for cloaking
+  const stopButton = document.createElement("button");
+  stopButton.textContent = "Stop Cloaking";
+  stopButton.style.padding = "10px";
+  stopButton.style.backgroundColor = "#dc3545";
+  stopButton.style.color = "#ffffff";
+  stopButton.style.border = "none";
+  stopButton.style.borderRadius = "4px";
+  stopButton.style.cursor = "pointer";
+  stopButton.style.marginLeft = "10px";
+
+  stopButton.addEventListener("click", () => {
+    if (cloakingInterval) {
+      clearInterval(cloakingInterval);
+      cloakingInterval = null;
+      alert("Cloaking stopped.");
+    }
   });
 
   cloakingView.appendChild(titleInput);
   cloakingView.appendChild(iconInput);
-  cloakingView.appendChild(applyButton);
+  
+  // Create a button container for better layout
+  const buttonContainer = document.createElement("div");
+  buttonContainer.appendChild(applyButton);
+  buttonContainer.appendChild(stopButton);
+  cloakingView.appendChild(buttonContainer);
 
   return cloakingView;
 }

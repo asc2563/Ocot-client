@@ -43,11 +43,32 @@ export default function createConsoleView() {
 
   runButton.addEventListener("click", () => {
     try {
-      const result = eval(consoleTextarea.value);
-      outputDiv.textContent =
-        result !== undefined ? result : "Code executed successfully.";
+      const code = consoleTextarea.value.trim();
+      if (!code) {
+        outputDiv.textContent = "No code to execute.";
+        return;
+      }
+      
+      // Basic input validation - reject potentially dangerous patterns
+      const dangerousPatterns = [
+        /document\.write/i,
+        /window\.location/i,
+        /eval\s*\(/i,
+        /Function\s*\(/i,
+        /setTimeout\s*\(/i,
+        /setInterval\s*\(/i
+      ];
+      
+      const isDangerous = dangerousPatterns.some(pattern => pattern.test(code));
+      if (isDangerous) {
+        outputDiv.textContent = "Error: Potentially unsafe code detected. Please use safer alternatives.";
+        return;
+      }
+      
+      const result = Function('"use strict"; return (' + code + ')')();
+      outputDiv.textContent = result !== undefined ? String(result) : "Code executed successfully.";
     } catch (error) {
-      outputDiv.textContent = `Error: ${error.message}`;
+      outputDiv.textContent = `Error: ${error.name}: ${error.message}`;
     }
   });
 
