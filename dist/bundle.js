@@ -120,19 +120,15 @@
           /eval\s*\(/i,
           /Function\s*\(/i,
           /setTimeout\s*\(/i,
-          /setInterval\s*\(/i,
+          /setInterval\s*\(/i
         ];
-        const isDangerous = dangerousPatterns.some((pattern) =>
-          pattern.test(code)
-        );
+        const isDangerous = dangerousPatterns.some((pattern) => pattern.test(code));
         if (isDangerous) {
-          outputDiv.textContent =
-            "Error: Potentially unsafe code detected. Please use safer alternatives.";
+          outputDiv.textContent = "Error: Potentially unsafe code detected. Please use safer alternatives.";
           return;
         }
         const result = Function('"use strict"; return (' + code + ")")();
-        outputDiv.textContent =
-          result !== void 0 ? String(result) : "Code executed successfully.";
+        outputDiv.textContent = result !== void 0 ? String(result) : "Code executed successfully.";
       } catch (error) {
         outputDiv.textContent = `Error: ${error.name}: ${error.message}`;
       }
@@ -182,9 +178,7 @@
       const newTitle = titleInput.value;
       const newIcon = iconInput.value;
       function gcloak() {
-        const link =
-          document.querySelector("link[rel*='icon']") ||
-          document.createElement("link");
+        const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
         link.type = "image/x-icon";
         link.rel = "shortcut icon";
         link.href = newIcon || "default-icon.png";
@@ -308,15 +302,12 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
         return;
       }
       const proxy = "https://api.codetabs.com/v1/proxy?quest=";
-      fetch(proxy + url)
-        .then((response) => response.text())
-        .then((text) => {
-          const newWindow = window.open();
-          newWindow.document.write(text);
-        })
-        .catch((error) => {
-          alert(`Error fetching the URL: ${error.message}`);
-        });
+      fetch(proxy + url).then((response) => response.text()).then((text) => {
+        const newWindow = window.open();
+        newWindow.document.write(text);
+      }).catch((error) => {
+        alert(`Error fetching the URL: ${error.message}`);
+      });
     });
     corsProxyView.appendChild(corsInput);
     corsProxyView.appendChild(corsFetchButton);
@@ -348,10 +339,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       if (event.key === "Enter") {
         const url = urlBar.value.trim();
         if (url) {
-          pocketBrowserIframe.src =
-            url.startsWith("http://") || url.startsWith("https://")
-              ? url
-              : `https://${url}`;
+          pocketBrowserIframe.src = url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
         }
       }
     });
@@ -382,8 +370,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       let url = prompt("Enter the URL to cloak:", "https://example.com");
       let win = window.open();
       let iframe = win.document.createElement("iframe");
-      iframe.style =
-        "position:fixed;width:100vw;height:100vh;top:0px;left:0px;right:0px;bottom:0px;z-index:2147483647;background-color:white;border:none;";
+      iframe.style = "position:fixed;width:100vw;height:100vh;top:0px;left:0px;right:0px;bottom:0px;z-index:2147483647;background-color:white;border:none;";
       if (url.includes("https://") || url.includes("http://")) {
         iframe.src = url;
       } else {
@@ -429,10 +416,9 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     blooketCheatsButton.style.cursor = "pointer";
     blooketCheatsButton.addEventListener("click", () => {
       try {
-        (function () {
+        (function() {
           let bkmkltscript = document.createElement("script");
-          bkmkltscript.src =
-            "https://cdn.jsdelivr.net/gh/asc2563/proxys@master/blooketcheats.js";
+          bkmkltscript.src = "https://cdn.jsdelivr.net/gh/asc2563/proxys@master/blooketcheats.js";
           document.body.appendChild(bkmkltscript);
         })();
       } catch (error) {
@@ -500,7 +486,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
           border: "1px solid white",
           textAlign: "center",
           cursor: "pointer",
-          display: "block",
+          display: "block"
         });
         elem.id = "elem";
         elem.textContent = "Z";
@@ -526,7 +512,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       pageEditorOffButton,
       blooketCheatsButton,
       fakeCrashButton,
-      emergencyTabSwitcherButton,
+      emergencyTabSwitcherButton
     ].forEach((btn) => scriptsView.appendChild(btn));
     return scriptsView;
   }
@@ -551,12 +537,12 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     const bookmarklets = [
       {
         name: "page editer",
-        url: "javascript: document.body.contentEditable = 'true';document.designMode = 'on';void 0;",
+        url: "javascript: document.body.contentEditable = 'true';document.designMode = 'on';void 0;"
       },
       { name: "YouTube", url: "https://www.youtube.com" },
       { name: "Wikipedia", url: "https://www.wikipedia.org" },
       { name: "Stack Overflow", url: "https://stackoverflow.com" },
-      { name: "GitHub", url: "https://github.com" },
+      { name: "GitHub", url: "https://github.com" }
     ];
     bookmarklets.forEach((bookmarklet) => {
       const anchor = document.createElement("a");
@@ -597,8 +583,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       document.addEventListener("keydown", (event) => {
         if (event.key === "\\") {
           if (window.proxyFrame) {
-            window.proxyFrame.style.display =
-              window.proxyFrame.style.display === "none" ? "flex" : "none";
+            window.proxyFrame.style.display = window.proxyFrame.style.display === "none" ? "flex" : "none";
           }
         }
       });
@@ -665,7 +650,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
         this.sidebarButtons.pocketBrowserButton,
         this.sidebarButtons.scriptsButton,
         this.sidebarButtons.bookmarkletsButton,
-        this.sidebarButtons.hideButton,
+        this.sidebarButtons.hideButton
       ].forEach((btn) => sidebar.appendChild(btn));
       return sidebar;
     }
@@ -696,7 +681,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
       const v = this.views;
       const b = this.sidebarButtons;
       const hideAll = () => {
-        Object.values(v).forEach((view) => (view.style.display = "none"));
+        Object.values(v).forEach((view) => view.style.display = "none");
       };
       const setActiveButton = (activeBtn) => {
         Object.values(b).forEach((btn) => {
@@ -791,10 +776,7 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
                   const result = Function(
                     '"use strict"; return (' + sanitizedValue + ")"
                   )();
-                  currentValue =
-                    typeof result === "number" && isFinite(result)
-                      ? result.toString()
-                      : "Error";
+                  currentValue = typeof result === "number" && isFinite(result) ? result.toString() : "Error";
                 }
               } catch (e) {
                 currentValue = "Error";
