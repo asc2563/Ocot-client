@@ -7,7 +7,9 @@ import createHistoryFloodView from "./views/historyFlood.js";
 import createCorsProxyView from "./views/corsProxy.js";
 import createPocketBrowserView from "./views/pocketBrowser.js";
 import createScriptsView from "./views/scripts.js";
+
 import createBookmarkletsView from "./views/bookmarklets.js";
+import { showGamesView } from "./views/games.js";
 
 console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
 
@@ -106,6 +108,8 @@ class ProxyClientApp {
     this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
     this.sidebarButtons.scriptsButton = makeBtn("scripts");
     this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
+
+    this.sidebarButtons.gamesButton = makeBtn("Games List");
     this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
 
     [
@@ -119,6 +123,7 @@ class ProxyClientApp {
       this.sidebarButtons.pocketBrowserButton,
       this.sidebarButtons.scriptsButton,
       this.sidebarButtons.bookmarkletsButton,
+      this.sidebarButtons.gamesButton,
       this.sidebarButtons.hideButton,
     ].forEach((btn) => sidebar.appendChild(btn));
 
@@ -146,6 +151,11 @@ class ProxyClientApp {
     this.views.pocketBrowserView = createPocketBrowserView();
     this.views.scriptsView = createScriptsView();
     this.views.bookmarkletsView = createBookmarkletsView();
+    // Games view
+    const gamesViewDiv = document.createElement("div");
+    gamesViewDiv.innerHTML = showGamesView();
+    gamesViewDiv.style.display = "none";
+    this.views.gamesView = gamesViewDiv;
 
     // Add all views to content
     Object.values(this.views).forEach((view) => content.appendChild(view));
@@ -238,6 +248,13 @@ class ProxyClientApp {
       hideAll();
       v.bookmarkletsView.style.display = "block";
       setActiveButton(b.bookmarkletsButton);
+    });
+
+    // Games List button
+    b.gamesButton.addEventListener("click", () => {
+      hideAll();
+      v.gamesView.style.display = "block";
+      setActiveButton(b.gamesButton);
     });
   }
 
