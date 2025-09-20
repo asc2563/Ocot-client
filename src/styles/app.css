@@ -1,3 +1,12 @@
+a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 /* CSS styles for the Proxy Client application */
 
 body {

@@ -1,4 +1,78 @@
 import { loadJson } from "../utils/helpers.js";
+import { gamesList as jsListFallback } from "../data/javascript/games.js";
+
+// Inject games view CSS if not already present
+function injectGamesCSS() {
+  if (document.getElementById("games-view-style")) return;
+  const style = document.createElement("style");
+  style.id = "games-view-style";
+  style.textContent = `
+    .games-view {
+      padding: 20px;
+      background: #23272f;
+      border-radius: 10px;
+      min-height: 400px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.15);
+    }
+    .games-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .games-tab {
+      padding: 10px 24px;
+      background: #2d323e;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      color: #fff;
+      font-size: 1rem;
+      import { loadJson } from "../utils/helpers.js";
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+    }
+    .games-tab.active, .games-tab:hover {
+      background: #007acc;
+      color: #fff;
+    }
+    .games-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+    .game-item {
+      background: #292d36;
+      border-radius: 8px;
+      padding: 18px 14px;
+      box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .game-item:hover {
+      box-shadow: 0 4px 16px 0 rgba(0,122,204,0.15);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .game-item a {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #00bfff;
+      margin-bottom: 4px;
+    }
+    .game-item a:hover {
+      color: #fff;
+    }
+    .game-item .game-type {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 2px;
+      text-transform: capitalize;
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 const TABS = [
   { key: "blocked", label: "Blocked" },
@@ -10,8 +84,13 @@ let gamesData = [];
 let activeTab = "unblocked";
 
 async function loadGames() {
-  // You can switch to the JS import if needed
-  gamesData = (await loadJson("/src/data/json/games.json")) || [];
+  // Try JSON first, fallback to JS import if needed
+  let loaded = await loadJson("src/data/json/games.json");
+  if (!loaded || !Array.isArray(loaded)) {
+    gamesData = jsListFallback;
+  } else {
+    gamesData = loaded;
+  }
   renderGames();
 }
 
@@ -43,12 +122,16 @@ function renderGames() {
     <div class="games-list">
       ${
         filtered.length === 0
-          ? "<p>No games found.</p>"
+          ? `<p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games found.</p>`
           : filtered
               .map(
                 (game) => `
         <div class="game-item">
           <a href="${game.url}" target="_blank">${game.title}</a>
+          <div class="game-type">${game.type.replace(
+            "cors-optimized",
+            "CORS Optimized"
+          )}</div>
         </div>
       `
               )
@@ -69,5 +152,6 @@ export function showGamesView() {
   `;
 }
 
-// Load games on first import
+// Load games and inject CSS on first import
+injectGamesCSS();
 loadGames();

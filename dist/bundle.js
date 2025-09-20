@@ -554,7 +554,13 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
 If it's NOT blocked, join the Discord server for updates
 https://discord.gg/jHjGrrdXP6"       );     };`
       },
-      { name: "100x crypto multi (always)", url: "https://github.com" },
+      {
+        name: "100x crypto multi (always)",
+        url: `javascript: const activateTripleCrypto = async () => {       setInterval(         () =>           Object.values(             (function findReact(r = document.querySelector("body>div")) {               return Object.values(r)[1]?.children?.[0]?._owner.stateNode                 ? r                 : findReact(r.querySelector(":scope>div"));             })()           )[1].children[0]._owner.stateNode.setState({             choices: [               {                 type: "mult",                 val: 100,                 rate: 0.075,                 blook: "Brainy Bot",                 text: "100x Crypto",               },             ],           }),         25       );     };     let cryptoImage = new Image();     cryptoImage.src =       "https://raw.githubusercontent.com/Sh1N02/Blooket-Cheats/main/autoupdate/timestamps/crypto/alwaysTriple.png?" +       Date.now();     cryptoImage.crossOrigin = "Anonymous";     cryptoImage.onload = function () {       const canvasElement = document.createElement("canvas");       const canvasContext = canvasElement.getContext("2d");       canvasContext.drawImage(cryptoImage, 0, 0, this.width, this.height);       let { data: imageData } = canvasContext.getImageData(           0,           0,           this.width,           this.height         ),         decodedText = "",         previousChar;       for (let i = 0; i < imageData.length; i += 4) {         let currentChar = String.fromCharCode(           imageData[i + 1] * 256 + imageData[i + 2]         );         decodedText += currentChar;         if (currentChar == "/" && previousChar == "*") break;         previousChar = currentChar;       }       let iframeElement = document.querySelector("iframe");       const [_, lastUpdatedTime, errorMessage] = decodedText.match(         /LastUpdated: (.+?); ErrorMessage: "([sS]+?)"/       );       if (         parseInt(lastUpdatedTime) <= 1708817191426 ||         iframeElement.contentWindow.confirm(errorMessage)       )         activateTripleCrypto();     };     cryptoImage.onerror = cryptoImage.onabort = () => {       cryptoImage.onerror = cryptoImage.onabort = null;       activateTripleCrypto();       let iframeElement = document.querySelector("iframe");       iframeElement.contentWindow.alert(         "It seems the GitHub is either blocked or down.
+
+If it's NOT blocked, join the Discord server for updates
+https://discord.gg/jHjGrrdXP6"       );     };`
+      },
       {
         name: "3x crypto blooket hack (always)",
         url: `javascript: const activateTripleCrypto = async () => {       setInterval(         () =>           Object.values(             (function findReact(r = document.querySelector("body>div")) {               return Object.values(r)[1]?.children?.[0]?._owner.stateNode                 ? r                 : findReact(r.querySelector(":scope>div"));             })()           )[1].children[0]._owner.stateNode.setState({             choices: [               {                 type: "mult",                 val: 3,                 rate: 0.075,                 blook: "Brainy Bot",                 text: "Triple Crypto",               },             ],           }),         25       );     };     let cryptoImage = new Image();     cryptoImage.src =       "https://raw.githubusercontent.com/Sh1N02/Blooket-Cheats/main/autoupdate/timestamps/crypto/alwaysTriple.png?" +       Date.now();     cryptoImage.crossOrigin = "Anonymous";     cryptoImage.onload = function () {       const canvasElement = document.createElement("canvas");       const canvasContext = canvasElement.getContext("2d");       canvasContext.drawImage(cryptoImage, 0, 0, this.width, this.height);       let { data: imageData } = canvasContext.getImageData(           0,           0,           this.width,           this.height         ),         decodedText = "",         previousChar;       for (let i = 0; i < imageData.length; i += 4) {         let currentChar = String.fromCharCode(           imageData[i + 1] * 256 + imageData[i + 2]         );         decodedText += currentChar;         if (currentChar == "/" && previousChar == "*") break;         previousChar = currentChar;       }       let iframeElement = document.querySelector("iframe");       const [_, lastUpdatedTime, errorMessage] = decodedText.match(         /LastUpdated: (.+?); ErrorMessage: "([sS]+?)"/       );       if (         parseInt(lastUpdatedTime) <= 1708817191426 ||         iframeElement.contentWindow.confirm(errorMessage)       )         activateTripleCrypto();     };     cryptoImage.onerror = cryptoImage.onabort = () => {       cryptoImage.onerror = cryptoImage.onabort = null;       activateTripleCrypto();       let iframeElement = document.querySelector("iframe");       iframeElement.contentWindow.alert(         "It seems the GitHub is either blocked or down.
@@ -580,6 +586,74 @@ https://discord.gg/jHjGrrdXP6"       );     };`
     bookmarkletsView.appendChild(bookmarkletList);
     return bookmarkletsView;
   }
+
+  // src/utils/helpers.js
+  async function loadJson(file) {
+    try {
+      const response = await fetch(file);
+      if (!response.ok)
+        throw new Error(`Failed to load ${file}: ${response.statusText}`);
+      return await response.json();
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  // src/views/games.js
+  var TABS = [
+    { key: "blocked", label: "Blocked" },
+    { key: "unblocked", label: "Unblocked" },
+    { key: "cors-optimized", label: "CORS Proxy Optimized" }
+  ];
+  var gamesData = [];
+  var activeTab = "unblocked";
+  async function loadGames() {
+    gamesData = await loadJson("/src/data/json/games.json") || [];
+    renderGames();
+  }
+  function setTab(tabKey) {
+    activeTab = tabKey;
+    renderGames();
+  }
+  function renderTabs() {
+    return `
+    <div class="games-tabs">
+      ${TABS.map(
+      (tab) => `
+        <button class="games-tab${activeTab === tab.key ? " active" : ""}" onclick="window.setGamesTab('${tab.key}')">${tab.label}</button>
+      `
+    ).join("")}
+    </div>
+  `;
+  }
+  function renderGames() {
+    const container = document.getElementById("games-view");
+    if (!container) return;
+    const filtered = gamesData.filter((game) => game.type === activeTab);
+    container.innerHTML = `
+    ${renderTabs()}
+    <div class="games-list">
+      ${filtered.length === 0 ? `<p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games found.</p>` : filtered.map(
+      (game) => `
+        <div class="game-item">
+          <a href="${game.url}" target="_blank">${game.title}</a>
+          <div class="game-type">${game.type.replace("cors-optimized", "CORS Optimized")}</div>
+        </div>
+      `
+    ).join("")}
+    </div>
+  `;
+  }
+  window.setGamesTab = setTab;
+  function showGamesView() {
+    return `
+    <div id="games-view" class="games-view">
+      Loading games...
+    </div>
+  `;
+  }
+  loadGames();
 
   // src/main.js
   console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
@@ -657,6 +731,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
       this.sidebarButtons.scriptsButton = makeBtn("scripts");
       this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
+      this.sidebarButtons.gamesButton = makeBtn("Games List");
       this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
       [
         this.sidebarButtons.proxyButton,
@@ -669,6 +744,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         this.sidebarButtons.pocketBrowserButton,
         this.sidebarButtons.scriptsButton,
         this.sidebarButtons.bookmarkletsButton,
+        this.sidebarButtons.gamesButton,
         this.sidebarButtons.hideButton
       ].forEach((btn) => sidebar.appendChild(btn));
       return sidebar;
@@ -691,6 +767,10 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.views.pocketBrowserView = createPocketBrowserView();
       this.views.scriptsView = createscriptsView();
       this.views.bookmarkletsView = createBookmarkletsView();
+      const gamesViewDiv = document.createElement("div");
+      gamesViewDiv.innerHTML = showGamesView();
+      gamesViewDiv.style.display = "none";
+      this.views.gamesView = gamesViewDiv;
       Object.values(this.views).forEach((view) => content.appendChild(view));
       this.setupSidebarEvents();
       return content;
@@ -764,6 +844,11 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         hideAll();
         v.bookmarkletsView.style.display = "block";
         setActiveButton(b.bookmarkletsButton);
+      });
+      b.gamesButton.addEventListener("click", () => {
+        hideAll();
+        v.gamesView.style.display = "block";
+        setActiveButton(b.gamesButton);
       });
     }
     // --- Calculator Initialization ---
