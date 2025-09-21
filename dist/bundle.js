@@ -2062,7 +2062,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      z-index: 10000;
+      z-index: 100000;
       font-size: 20px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
@@ -2125,6 +2125,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       frame.style.height = "80vh";
       frame.style.display = "flex";
       frame.style.color = "#ffffff";
+      frame.style.zIndex = "99999";
     }
     createSidebar() {
       const sidebar = document.createElement("div");
