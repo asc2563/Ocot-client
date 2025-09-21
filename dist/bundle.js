@@ -460,7 +460,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 100001;
     `;
       modal.innerHTML = `
       <div style="background: #23272f; padding: 24px; border-radius: 10px; width: 90%; max-width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
