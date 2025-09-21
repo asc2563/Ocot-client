@@ -1,4 +1,5 @@
 import { injectAppCSS } from "./css.js";
+import ProxySidebar from "./sidebar.js";
 import createProxyView from "./views/proxy.js";
 import createNotesView from "./views/notes.js";
 import createCalculatorView from "./views/calculator.js";
@@ -18,12 +19,16 @@ class ProxyClientApp {
   constructor() {
     this.frame = null;
     this.views = {};
+    this.sidebar = new ProxySidebar();
     this.sidebarButtons = {};
   }
 
   launch() {
     // Inject shared CSS
     injectAppCSS();
+
+    // Inject sidebar CSS
+    ProxySidebar.injectCSS();
 
     // Add app-specific CSS
     this.injectAppStyles();
@@ -33,13 +38,15 @@ class ProxyClientApp {
     window.proxyFrame = this.frame;
     this.setupFrameStyle();
 
-    // Sidebar
-    const sidebar = this.createSidebar();
+    // Create sidebar using the module
+    const sidebarElement = this.sidebar.createSidebar();
+    this.sidebar.addNavigationButtons();
+    this.sidebarButtons = this.sidebar.getButtons();
 
     // Content
     const content = this.createContent();
 
-    this.frame.appendChild(sidebar);
+    this.frame.appendChild(sidebarElement);
     this.frame.appendChild(content);
 
     // Append to existing page instead of clearing it
@@ -82,125 +89,6 @@ class ProxyClientApp {
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         border: 1px solid #404040;
         overflow: hidden;
-      }
-      
-      /* Sidebar Styling */
-      .proxy-sidebar {
-        background: #1e2228;
-        border-right: 1px solid #404040;
-        position: relative;
-      }
-      
-      .proxy-sidebar::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 1px;
-        height: 100%;
-        background: linear-gradient(180deg, transparent, #007acc, transparent);
-        opacity: 0.5;
-      }
-      
-      .sidebar-header {
-        padding: 20px 16px 16px;
-        border-bottom: 1px solid #404040;
-        margin-bottom: 16px;
-      }
-      
-      .sidebar-title {
-        color: #00bfff;
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: 0 0 4px 0;
-      }
-      
-      .sidebar-subtitle {
-        color: #aaa;
-        font-size: 0.8rem;
-        margin: 0;
-      }
-      
-      /* Sidebar Button Styling */
-      .sidebar-btn {
-        width: 100%;
-        padding: 12px 16px;
-        margin-bottom: 4px;
-        background: transparent;
-        border: none;
-        border-radius: 8px;
-        color: #d4d4d4;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        text-align: left;
-        transition: all 0.2s ease;
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .sidebar-btn:hover {
-        background: rgba(0, 122, 204, 0.1);
-        color: #00bfff;
-        transform: translateX(4px);
-      }
-      
-      .sidebar-btn.active {
-        background: #007acc;
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(0, 122, 204, 0.3);
-      }
-      
-      .sidebar-btn.active::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 3px;
-        height: 100%;
-        background: #00bfff;
-      }
-      
-      .sidebar-btn.hide-btn {
-        background: #dc3545;
-        color: #fff;
-        margin-top: auto;
-      }
-      
-      .sidebar-btn.hide-btn:hover {
-        background: #c82333;
-        transform: translateX(0);
-      }
-
-      .sidebar-btn.remove-btn {
-        background: #6f2232;
-        color: #fff;
-        margin-top: 8px;
-      }
-      
-      .sidebar-btn.remove-btn:hover {
-        background: #5a1a28;
-        transform: translateX(0);
-      }
-
-      /* Sidebar Scrollbar Styling */
-      .proxy-sidebar ::-webkit-scrollbar {
-        width: 8px;
-      }
-      
-      .proxy-sidebar ::-webkit-scrollbar-track {
-        background: #23272f;
-        border-radius: 4px;
-      }
-      
-      .proxy-sidebar ::-webkit-scrollbar-thumb {
-        background: #404040;
-        border-radius: 4px;
-        transition: background 0.2s;
-      }
-      
-      .proxy-sidebar ::-webkit-scrollbar-thumb:hover {
-        background: #525252;
       }
       
       /* Content Area Styling */
@@ -323,81 +211,6 @@ class ProxyClientApp {
     frame.style.zIndex = "99999";
   }
 
-  createSidebar() {
-    const sidebar = document.createElement("div");
-    sidebar.className = "proxy-sidebar";
-    sidebar.style.width = "280px";
-    sidebar.style.height = "100%";
-    sidebar.style.display = "flex";
-    sidebar.style.flexDirection = "column";
-    sidebar.style.padding = "0";
-
-    // Sidebar header
-    const header = document.createElement("div");
-    header.className = "sidebar-header";
-    header.innerHTML = `
-      <h1 class="sidebar-title">Proxy Client</h1>
-      <p class="sidebar-subtitle">by ASC2563</p>
-    `;
-
-    // Button container
-    const buttonContainer = document.createElement("div");
-    buttonContainer.style.flex = "1";
-    buttonContainer.style.padding = "0 16px";
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.flexDirection = "column";
-    buttonContainer.style.overflowY = "auto";
-    buttonContainer.style.overflowX = "hidden";
-
-    // Button factory
-    const makeBtn = (label, icon = "") => {
-      const btn = document.createElement("button");
-      btn.className = "sidebar-btn";
-      btn.innerHTML = icon ? `${icon} ${label}` : label;
-      return btn;
-    };
-
-    // Sidebar buttons with icons
-    this.sidebarButtons.proxyButton = makeBtn("Proxy", "🌐");
-    this.sidebarButtons.proxyButton.classList.add("active");
-    this.sidebarButtons.gamesButton = makeBtn("Games List", "🎮");
-    this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets", "🔖");
-    this.sidebarButtons.scriptsButton = makeBtn("Scripts", "📜");
-    this.sidebarButtons.notesButton = makeBtn("Notes", "📝");
-    this.sidebarButtons.calculatorButton = makeBtn("Calculator", "🧮");
-    this.sidebarButtons.consoleButton = makeBtn("Console", "💻");
-    this.sidebarButtons.cloakingButton = makeBtn("Cloaking", "🎭");
-    this.sidebarButtons.historyFloodButton = makeBtn("History Flood", "📚");
-    this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy", "🔄");
-    this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser", "🔍");
-    this.sidebarButtons.hideButton = makeBtn("Hide App", "❌");
-    this.sidebarButtons.hideButton.classList.add("hide-btn");
-    this.sidebarButtons.removeButton = makeBtn("Remove App", "🗑️");
-    this.sidebarButtons.removeButton.classList.add("remove-btn");
-
-    // Add buttons to container
-    [
-      this.sidebarButtons.proxyButton,
-      this.sidebarButtons.gamesButton,
-      this.sidebarButtons.bookmarkletsButton,
-      this.sidebarButtons.scriptsButton,
-      this.sidebarButtons.notesButton,
-      this.sidebarButtons.calculatorButton,
-      this.sidebarButtons.consoleButton,
-      this.sidebarButtons.cloakingButton,
-      this.sidebarButtons.historyFloodButton,
-      this.sidebarButtons.corsProxyButton,
-      this.sidebarButtons.pocketBrowserButton,
-      this.sidebarButtons.hideButton,
-      this.sidebarButtons.removeButton,
-    ].forEach((btn) => buttonContainer.appendChild(btn));
-
-    sidebar.appendChild(header);
-    sidebar.appendChild(buttonContainer);
-
-    return sidebar;
-  }
-
   createContent() {
     const content = document.createElement("div");
     content.className = "proxy-content";
@@ -459,83 +272,76 @@ class ProxyClientApp {
       Object.values(v).forEach((view) => (view.style.display = "none"));
     };
 
-    const setActiveButton = (activeBtn) => {
-      Object.values(b).forEach((btn) => {
-        if (btn && btn.classList) {
-          btn.classList.remove("active");
-        }
-      });
-      if (activeBtn && activeBtn.classList) {
-        activeBtn.classList.add("active");
-      }
+    const setActiveButton = (buttonKey) => {
+      this.sidebar.setActiveButton(buttonKey);
     };
 
     b.proxyButton.addEventListener("click", () => {
       hideAll();
       v.proxyView.style.display = "flex";
-      setActiveButton(b.proxyButton);
+      setActiveButton("proxyButton");
     });
 
     b.notesButton.addEventListener("click", () => {
       hideAll();
       v.notesView.style.display = "block";
-      setActiveButton(b.notesButton);
+      setActiveButton("notesButton");
     });
 
     b.calculatorButton.addEventListener("click", () => {
       hideAll();
       v.calculatorView.style.display = "block";
-      setActiveButton(b.calculatorButton);
+      setActiveButton("calculatorButton");
       this.initCalculator();
     });
 
     b.consoleButton.addEventListener("click", () => {
       hideAll();
       v.consoleView.style.display = "block";
-      setActiveButton(b.consoleButton);
+      setActiveButton("consoleButton");
     });
 
     b.cloakingButton.addEventListener("click", () => {
       hideAll();
       v.cloakingView.style.display = "block";
-      setActiveButton(b.cloakingButton);
+      setActiveButton("cloakingButton");
     });
 
     b.historyFloodButton.addEventListener("click", () => {
       hideAll();
       v.historyFloodView.style.display = "block";
-      setActiveButton(b.historyFloodButton);
+      setActiveButton("historyFloodButton");
     });
 
     b.corsProxyButton.addEventListener("click", () => {
       hideAll();
       v.corsProxyView.style.display = "block";
-      setActiveButton(b.corsProxyButton);
+      setActiveButton("corsProxyButton");
     });
 
     b.pocketBrowserButton.addEventListener("click", () => {
       hideAll();
       v.pocketBrowserView.style.display = "block";
-      setActiveButton(b.pocketBrowserButton);
+      setActiveButton("pocketBrowserButton");
     });
 
     b.scriptsButton.addEventListener("click", () => {
       hideAll();
       v.scriptsView.style.display = "block";
-      setActiveButton(b.scriptsButton);
+      setActiveButton("scriptsButton");
     });
 
     b.bookmarkletsButton.addEventListener("click", () => {
       hideAll();
       v.bookmarkletsView.style.display = "block";
-      setActiveButton(b.bookmarkletsButton);
+      setActiveButton("bookmarkletsButton");
     });
 
     // Games List button
     b.gamesButton.addEventListener("click", () => {
       hideAll();
       v.gamesView.style.display = "block";
-      setActiveButton(b.gamesButton);
+      setActiveButton("gamesButton");
     });
   }
 
