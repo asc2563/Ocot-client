@@ -42,10 +42,10 @@ class ProxyClientApp {
     this.frame.appendChild(sidebar);
     this.frame.appendChild(content);
 
-    document.body.innerHTML = "";
+    // Append to existing page instead of clearing it
     document.body.appendChild(this.frame);
 
-    // Create floating show button AFTER body is cleared
+    // Create floating show button
     this.createFloatingButton();
 
     // Keyboard shortcut to show/hide

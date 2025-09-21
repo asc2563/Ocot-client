@@ -160,7 +160,7 @@
     proxyView.style.height = "100%";
     proxyView.style.display = "flex";
     const iframe = document.createElement("iframe");
-    iframe.src = "https://portal.apai.shadowshark.ipv64.net/";
+    iframe.src = "https://example.com";
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
@@ -633,12 +633,10 @@ Math.sqrt(16);
           /document\.write/i,
           /window\.location/i,
           /eval\s*\(/i,
-          /Function\s*\(/i,
           /setTimeout\s*\(/i,
           /setInterval\s*\(/i,
           /alert\s*\(/i,
-          /confirm\s*\(/i,
-          /prompt\s*\(/i
+          /confirm\s*\(/i
         ];
         const isDangerous = dangerousPatterns.some(
           (pattern) => pattern.test(code)
@@ -651,7 +649,16 @@ Math.sqrt(16);
           return;
         }
         initializeConsole();
-        const result = Function('"use strict"; return (' + code + ")")();
+        let result;
+        try {
+          result = Function('"use strict"; return (' + code + ")")();
+        } catch (expressionError) {
+          try {
+            result = Function('"use strict"; ' + code)();
+          } catch (statementError) {
+            throw expressionError;
+          }
+        }
         if (result !== void 0) {
           addToOutput(`\u2190 ${formatValue(result)}`, "success");
         }
@@ -1888,7 +1895,6 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       const content = this.createContent();
       this.frame.appendChild(sidebar);
       this.frame.appendChild(content);
-      document.body.innerHTML = "";
       document.body.appendChild(this.frame);
       this.createFloatingButton();
       document.addEventListener("keydown", (event) => {
