@@ -1,22 +1,11 @@
 // Exported function to create the Bookmarklets view
+import { injectAppCSS } from "../css.js";
+
 export default function createBookmarkletsView() {
+  injectAppCSS();
+
   const bookmarkletsView = document.createElement("div");
-  bookmarkletsView.style.width = "100%";
-  bookmarkletsView.style.height = "100%";
-  bookmarkletsView.style.display = "none";
-  bookmarkletsView.style.backgroundColor = "#f0f0f0";
-  bookmarkletsView.style.color = "#333";
-  bookmarkletsView.style.padding = "20px";
-  bookmarkletsView.style.fontFamily = "Arial, sans-serif";
-
-  const title = document.createElement("h2");
-  title.textContent = "Bookmarklets";
-  bookmarkletsView.appendChild(title);
-
-  const bookmarkletList = document.createElement("div");
-  bookmarkletList.style.display = "flex";
-  bookmarkletList.style.flexDirection = "column";
-  bookmarkletList.style.gap = "10px";
+  bookmarkletsView.className = "games-view";
 
   const bookmarklets = [
     {
@@ -45,21 +34,54 @@ export default function createBookmarkletsView() {
     },
   ];
 
+  // Create the grid list
+  const list = document.createElement("div");
+  list.className = "games-list";
+
   bookmarklets.forEach((bookmarklet) => {
+    const item = document.createElement("div");
+    item.className = "game-item";
+    item.tabIndex = 0;
+
+    // Create anchor element properly
     const anchor = document.createElement("a");
     anchor.href = bookmarklet.url;
-    anchor.textContent = bookmarklet.name;
-    anchor.target = "_blank";
-    anchor.style.color = "#007acc";
-    anchor.style.textDecoration = "none";
-    anchor.style.padding = "5px";
-    anchor.style.border = "1px solid #ccc";
-    anchor.style.borderRadius = "4px";
-    anchor.style.backgroundColor = "#fff";
-    anchor.style.display = "inline-block";
-    bookmarkletList.appendChild(anchor);
+    anchor.draggable = true;
+    anchor.textContent = bookmarklet.name; // Explicitly set text content
+
+    const gameType = document.createElement("div");
+    gameType.className = "game-type";
+    gameType.textContent = "Bookmarklet";
+
+    item.appendChild(anchor);
+    item.appendChild(gameType);
+
+    // Prevent normal navigation but allow dragging
+    anchor.addEventListener("click", (e) => {
+      e.preventDefault();
+      // Copy to clipboard when clicked
+      navigator.clipboard.writeText(bookmarklet.url).then(() => {
+        const originalText = gameType.textContent;
+        gameType.textContent = "Copied!";
+        setTimeout(() => {
+          gameType.textContent = originalText;
+        }, 1200);
+      });
+    });
+
+    // Set up drag data for proper bookmarking
+    anchor.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/uri-list", bookmarklet.url);
+      e.dataTransfer.setData("text/plain", bookmarklet.url);
+      e.dataTransfer.setData(
+        "text/html",
+        `<a href="${bookmarklet.url}">${bookmarklet.name}</a>`
+      );
+    });
+
+    list.appendChild(item);
   });
 
-  bookmarkletsView.appendChild(bookmarkletList);
+  bookmarkletsView.appendChild(list);
   return bookmarkletsView;
 }
