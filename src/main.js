@@ -45,19 +45,21 @@ class ProxyClientApp {
     document.body.innerHTML = "";
     document.body.appendChild(this.frame);
 
+    // Create floating show button AFTER body is cleared
+    this.createFloatingButton();
+
     // Keyboard shortcut to show/hide
     document.addEventListener("keydown", (event) => {
       if (event.key === "\\") {
         if (window.proxyFrame) {
-          window.proxyFrame.style.display =
-            window.proxyFrame.style.display === "none" ? "flex" : "none";
+          this.toggleProxyClient();
         }
       }
     });
 
     // Hide button
     this.sidebarButtons.hideButton.addEventListener("click", () => {
-      this.frame.style.display = "none";
+      this.hideProxyClient();
     });
 
     console.log(
@@ -183,6 +185,75 @@ class ProxyClientApp {
       }
     `;
     document.head.appendChild(style);
+  }
+
+  createFloatingButton() {
+    console.log("Creating floating button...");
+    // Create floating button
+    this.floatingButton = document.createElement("div");
+    this.floatingButton.innerHTML = "🔧";
+    this.floatingButton.title = "Show Proxy Client (Press \\ to toggle)";
+    this.floatingButton.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #007acc, #0056b3);
+      border: 2px solid #004085;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10000;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      user-select: none;
+    `;
+
+    console.log("Floating button created, adding to body...");
+
+    // Hover effects
+    this.floatingButton.addEventListener("mouseenter", () => {
+      this.floatingButton.style.transform = "scale(1.1)";
+      this.floatingButton.style.boxShadow = "0 6px 16px rgba(0, 122, 204, 0.4)";
+    });
+
+    this.floatingButton.addEventListener("mouseleave", () => {
+      this.floatingButton.style.transform = "scale(1)";
+      this.floatingButton.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.3)";
+    });
+
+    // Click to show proxy client
+    this.floatingButton.addEventListener("click", () => {
+      console.log("Floating button clicked!");
+      this.showProxyClient();
+    });
+
+    document.body.appendChild(this.floatingButton);
+    console.log("Floating button added to body, should be visible now");
+  }
+
+  hideProxyClient() {
+    console.log("Hiding proxy client, showing floating button");
+    this.frame.style.display = "none";
+    this.floatingButton.style.display = "flex";
+  }
+
+  showProxyClient() {
+    console.log("Showing proxy client, hiding floating button");
+    this.frame.style.display = "flex";
+    this.floatingButton.style.display = "none";
+  }
+
+  toggleProxyClient() {
+    if (this.frame.style.display === "none") {
+      this.showProxyClient();
+    } else {
+      this.hideProxyClient();
+    }
   }
 
   setupFrameStyle() {
