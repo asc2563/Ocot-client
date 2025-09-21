@@ -168,12 +168,10 @@ Math.sqrt(16);
         /document\.write/i,
         /window\.location/i,
         /eval\s*\(/i,
-        /Function\s*\(/i,
         /setTimeout\s*\(/i,
         /setInterval\s*\(/i,
         /alert\s*\(/i,
         /confirm\s*\(/i,
-        /prompt\s*\(/i,
       ];
 
       const isDangerous = dangerousPatterns.some((pattern) =>
@@ -190,7 +188,19 @@ Math.sqrt(16);
       initializeConsole();
 
       // Execute the code
-      const result = Function('"use strict"; return (' + code + ")")();
+      let result;
+      try {
+        // First try as an expression (for simple expressions like 2+2, Math.sqrt(16))
+        result = Function('"use strict"; return (' + code + ")")();
+      } catch (expressionError) {
+        // If that fails, try as statements (for console.log, variable declarations, etc.)
+        try {
+          result = Function('"use strict"; ' + code)();
+        } catch (statementError) {
+          // If both fail, throw the original expression error (more helpful)
+          throw expressionError;
+        }
+      }
 
       // Show result if it's not undefined
       if (result !== undefined) {
