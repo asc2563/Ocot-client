@@ -160,6 +160,10 @@ class ProxyClientApp {
     // Add all views to content
     Object.values(this.views).forEach((view) => content.appendChild(view));
 
+    // Hide all views, then show only proxyView by default
+    Object.values(this.views).forEach((view) => (view.style.display = "none"));
+    if (this.views.proxyView) this.views.proxyView.style.display = "flex";
+
     // Setup sidebar button events
     this.setupSidebarEvents();
 
