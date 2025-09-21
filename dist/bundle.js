@@ -1,4 +1,158 @@
 (() => {
+  // src/css.js
+  function injectAppCSS() {
+    if (document.getElementById("app-shared-style")) return;
+    const style = document.createElement("style");
+    style.id = "app-shared-style";
+    style.textContent = `
+    /* --- Shared Card/Grid Styles --- */
+    .card-grid-view {
+      padding: 20px;
+      background: #23272f;
+      border-radius: 10px;
+      min-height: 400px;
+      max-height: calc(80vh - 40px);
+      overflow-y: auto;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.15);
+    }
+    .card-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+    .card-item {
+      background: #292d36;
+      border-radius: 8px;
+      padding: 18px 14px;
+      box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: box-shadow 0.2s, transform 0.2s;
+      cursor: pointer;
+      user-select: none;
+    }
+    .card-item:hover {
+      box-shadow: 0 4px 16px 0 rgba(0,122,204,0.15);
+      transform: translateY(-2px) scale(1.03);
+      background: #2d323e;
+    }
+    .card-item .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #00bfff;
+      margin-bottom: 4px;
+    }
+    .card-item .card-desc {
+      font-size: 0.95rem;
+      color: #aaa;
+      margin-bottom: 2px;
+    }
+    
+    /* --- Games View Specific --- */
+    .games-view {
+      padding: 20px;
+      background: #23272f;
+      border-radius: 10px;
+      min-height: 400px;
+      max-height: calc(80vh - 40px);
+      overflow-y: auto;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.15);
+    }
+    
+    /* Custom Scrollbar Styling */
+    .card-grid-view::-webkit-scrollbar,
+    .games-view::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .card-grid-view::-webkit-scrollbar-track,
+    .games-view::-webkit-scrollbar-track {
+      background: #1e1e1e;
+      border-radius: 4px;
+    }
+    
+    .card-grid-view::-webkit-scrollbar-thumb,
+    .games-view::-webkit-scrollbar-thumb {
+      background: #404040;
+      border-radius: 4px;
+    }
+    
+    .card-grid-view::-webkit-scrollbar-thumb:hover,
+    .games-view::-webkit-scrollbar-thumb:hover {
+      background: #007acc;
+    }
+    .games-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .games-tab {
+      padding: 10px 24px;
+      background: #2d323e;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+    }
+    .games-tab.active, .games-tab:hover {
+      background: #007acc;
+      color: #fff;
+    }
+    .games-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+    .game-item {
+      background: #292d36;
+      border-radius: 8px;
+      padding: 18px 14px;
+      box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .game-item:hover {
+      box-shadow: 0 4px 16px 0 rgba(0,122,204,0.15);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .game-item a {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #00bfff;
+      margin-bottom: 4px;
+      text-decoration: none;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      max-width: 100%;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .game-item a:hover {
+      color: #fff;
+    }
+    .game-item .game-type {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 2px;
+      text-transform: capitalize;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+  `;
+    document.head.appendChild(style);
+  }
+
   // src/views/proxy.js
   function createProxyView() {
     const proxyView = document.createElement("div");
@@ -16,335 +170,1258 @@
 
   // src/views/notes.js
   function createNotesView() {
+    injectAppCSS();
     const notesView = document.createElement("div");
-    notesView.style.width = "100%";
-    notesView.style.height = "100%";
-    notesView.style.display = "none";
-    notesView.style.backgroundColor = "#f5f5f5";
-    notesView.style.padding = "20px";
-    const notesTextarea = document.createElement("textarea");
-    notesTextarea.style.width = "100%";
-    notesTextarea.style.height = "100%";
-    notesTextarea.style.border = "1px solid #ddd";
-    notesTextarea.style.padding = "10px";
-    notesTextarea.placeholder = "Enter your notes here...";
-    notesView.appendChild(notesTextarea);
+    notesView.className = "card-grid-view";
+    const savedNotes = JSON.parse(
+      localStorage.getItem("proxyClientNotes") || "[]"
+    );
+    notesView.innerHTML = `
+    <div class="notes-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="color: #00bfff; margin: 0; font-size: 1.5rem;">Notes</h2>
+      <button id="add-note-btn" class="games-tab" style="border-radius: 6px;">Add Note</button>
+    </div>
+    <div id="notes-list" class="card-list"></div>
+  `;
+    const notesList = notesView.querySelector("#notes-list");
+    const addNoteBtn = notesView.querySelector("#add-note-btn");
+    function renderNotes() {
+      notesList.innerHTML = "";
+      if (savedNotes.length === 0) {
+        notesList.innerHTML = `
+        <div class="card-item" style="text-align: center; grid-column: 1 / -1;">
+          <div class="card-title">No Notes Yet</div>
+          <div class="card-desc">Click "Add Note" to create your first note</div>
+        </div>
+      `;
+        return;
+      }
+      savedNotes.forEach((note, index) => {
+        const noteItem = document.createElement("div");
+        noteItem.className = "card-item";
+        const preview = note.content.length > 100 ? note.content.substring(0, 100) + "..." : note.content;
+        const timestamp = new Date(note.timestamp).toLocaleDateString();
+        noteItem.innerHTML = `
+        <div class="card-title">${note.title || "Untitled Note"}</div>
+        <div class="card-desc">${preview}</div>
+        <div class="card-desc" style="margin-top: 8px; font-size: 0.8rem; color: #666;">
+          ${timestamp}
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+          <button class="edit-btn" data-index="${index}" style="padding: 4px 12px; background: #007acc; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 0.85rem;">Edit</button>
+          <button class="delete-btn" data-index="${index}" style="padding: 4px 12px; background: #d73a49; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 0.85rem;">Delete</button>
+        </div>
+      `;
+        notesList.appendChild(noteItem);
+      });
+    }
+    function showNoteEditor(noteIndex = null) {
+      const isEditing = noteIndex !== null;
+      const note = isEditing ? savedNotes[noteIndex] : { title: "", content: "" };
+      const modal = document.createElement("div");
+      modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    `;
+      modal.innerHTML = `
+      <div style="background: #23272f; padding: 24px; border-radius: 10px; width: 90%; max-width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <h3 style="color: #00bfff; margin: 0 0 16px 0;">${isEditing ? "Edit Note" : "New Note"}</h3>
+        <input type="text" id="note-title" placeholder="Note title..." value="${note.title}" 
+               style="width: 100%; padding: 12px; margin-bottom: 12px; background: #292d36; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 1rem;">
+        <textarea id="note-content" placeholder="Write your note here..." rows="10" 
+                  style="width: 100%; padding: 12px; margin-bottom: 16px; background: #292d36; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 1rem; resize: vertical;">${note.content}</textarea>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button id="cancel-btn" style="padding: 10px 20px; background: #404040; border: none; border-radius: 6px; color: white; cursor: pointer;">Cancel</button>
+          <button id="save-btn" style="padding: 10px 20px; background: #007acc; border: none; border-radius: 6px; color: white; cursor: pointer;">Save</button>
+        </div>
+      </div>
+    `;
+      document.body.appendChild(modal);
+      const titleInput = modal.querySelector("#note-title");
+      const contentTextarea = modal.querySelector("#note-content");
+      const cancelBtn = modal.querySelector("#cancel-btn");
+      const saveBtn = modal.querySelector("#save-btn");
+      titleInput.focus();
+      cancelBtn.onclick = () => document.body.removeChild(modal);
+      saveBtn.onclick = () => {
+        const title = titleInput.value.trim();
+        const content = contentTextarea.value.trim();
+        if (!title && !content) {
+          alert("Please enter a title or content for the note.");
+          return;
+        }
+        const noteData = {
+          title: title || "Untitled Note",
+          content,
+          timestamp: Date.now()
+        };
+        if (isEditing) {
+          savedNotes[noteIndex] = noteData;
+        } else {
+          savedNotes.unshift(noteData);
+        }
+        localStorage.setItem("proxyClientNotes", JSON.stringify(savedNotes));
+        renderNotes();
+        document.body.removeChild(modal);
+      };
+      modal.onclick = (e) => {
+        if (e.target === modal) document.body.removeChild(modal);
+      };
+    }
+    addNoteBtn.onclick = () => showNoteEditor();
+    notesList.onclick = (e) => {
+      if (e.target.classList.contains("edit-btn")) {
+        const index = parseInt(e.target.dataset.index);
+        showNoteEditor(index);
+      } else if (e.target.classList.contains("delete-btn")) {
+        const index = parseInt(e.target.dataset.index);
+        if (confirm("Are you sure you want to delete this note?")) {
+          savedNotes.splice(index, 1);
+          localStorage.setItem("proxyClientNotes", JSON.stringify(savedNotes));
+          renderNotes();
+        }
+      }
+    };
+    renderNotes();
     return notesView;
   }
 
   // src/views/calculator.js
   function createCalculatorView() {
+    injectAppCSS();
     const calculatorView = document.createElement("div");
-    calculatorView.style.width = "100%";
-    calculatorView.style.height = "100%";
-    calculatorView.style.display = "none";
-    calculatorView.style.backgroundColor = "#e0e0e0";
-    calculatorView.style.padding = "20px";
+    calculatorView.className = "card-grid-view";
     calculatorView.innerHTML = `
-		<div style="max-width: 300px; margin: 0 auto;">
-			<input type="text" id="calcDisplay" style="width: 100%; height: 40px; margin-bottom: 10px; text-align: right; font-size: 20px;" disabled>
-			<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;">
-				<button class="calc-btn" data-value="7">7</button>
-				<button class="calc-btn" data-value="8">8</button>
-				<button class="calc-btn" data-value="9">9</button>
-				<button class="calc-btn" data-value="/">/</button>
-				<button class="calc-btn" data-value="4">4</button>
-				<button class="calc-btn" data-value="5">5</button>
-				<button class="calc-btn" data-value="6">6</button>
-				<button class="calc-btn" data-value="*">*</button>
-				<button class="calc-btn" data-value="1">1</button>
-				<button class="calc-btn" data-value="2">2</button>
-				<button class="calc-btn" data-value="3">3</button>
-				<button class="calc-btn" data-value="-">-</button>
-				<button class="calc-btn" data-value="0">0</button>
-				<button class="calc-btn" data-value=".">.</button>
-				<button class="calc-btn" data-value="=">=</button>
-				<button class="calc-btn" data-value="+">+</button>
-				<button class="calc-btn" data-value="C" style="grid-column: span 4;">Clear</button>
-			</div>
-		</div>
-	`;
-    calculatorView._initialized = false;
+    <h2 style="color: #00bfff; margin: 0 0 20px 0; font-size: 1.5rem; text-align: center;">Calculator</h2>
+    <div style="max-width: 350px; margin: 0 auto;">
+      <input type="text" id="calcDisplay" 
+             style="width: 100%; height: 60px; margin-bottom: 20px; text-align: right; font-size: 24px; 
+                    background: #292d36; border: 2px solid #404040; border-radius: 8px; color: #fff; 
+                    padding: 0 16px; font-family: 'Courier New', monospace;" 
+             placeholder="0" disabled>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+        <button class="calc-btn operator" data-value="C" style="grid-column: span 2;">Clear</button>
+        <button class="calc-btn operator" data-value="backspace">\u232B</button>
+        <button class="calc-btn operator" data-value="/">/</button>
+        
+        <button class="calc-btn number" data-value="7">7</button>
+        <button class="calc-btn number" data-value="8">8</button>
+        <button class="calc-btn number" data-value="9">9</button>
+        <button class="calc-btn operator" data-value="*">\xD7</button>
+        
+        <button class="calc-btn number" data-value="4">4</button>
+        <button class="calc-btn number" data-value="5">5</button>
+        <button class="calc-btn number" data-value="6">6</button>
+        <button class="calc-btn operator" data-value="-">\u2212</button>
+        
+        <button class="calc-btn number" data-value="1">1</button>
+        <button class="calc-btn number" data-value="2">2</button>
+        <button class="calc-btn number" data-value="3">3</button>
+        <button class="calc-btn operator" data-value="+">+</button>
+        
+        <button class="calc-btn number" data-value="0" style="grid-column: span 2;">0</button>
+        <button class="calc-btn number" data-value=".">.</button>
+        <button class="calc-btn equals" data-value="=">=</button>
+      </div>
+    </div>
+  `;
+    const style = document.createElement("style");
+    style.textContent = `
+    .calc-btn {
+      height: 60px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .calc-btn.number {
+      background: #292d36;
+      color: #fff;
+      border: 1px solid #404040;
+    }
+    
+    .calc-btn.number:hover {
+      background: #353a45;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,122,204,0.15);
+    }
+    
+    .calc-btn.operator {
+      background: #007acc;
+      color: #fff;
+    }
+    
+    .calc-btn.operator:hover {
+      background: #0066a3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,122,204,0.3);
+    }
+    
+    .calc-btn.equals {
+      background: #28a745;
+      color: #fff;
+    }
+    
+    .calc-btn.equals:hover {
+      background: #218838;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+    }
+    
+    .calc-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+  `;
+    document.head.appendChild(style);
+    let currentInput = "";
+    let operator = "";
+    let previousInput = "";
+    let shouldResetDisplay = false;
+    const display = calculatorView.querySelector("#calcDisplay");
+    function updateDisplay(value = currentInput || "0") {
+      display.value = value;
+    }
+    function handleNumber(num) {
+      if (shouldResetDisplay) {
+        currentInput = "";
+        shouldResetDisplay = false;
+      }
+      currentInput += num;
+      updateDisplay();
+    }
+    function handleOperator(op) {
+      if (currentInput === "" && op !== "-") return;
+      if (previousInput !== "" && currentInput !== "" && operator !== "") {
+        calculate();
+      }
+      operator = op;
+      previousInput = currentInput;
+      currentInput = "";
+      shouldResetDisplay = true;
+    }
+    function calculate() {
+      if (previousInput === "" || currentInput === "" || operator === "") return;
+      let result;
+      const prev = parseFloat(previousInput);
+      const current = parseFloat(currentInput);
+      switch (operator) {
+        case "+":
+          result = prev + current;
+          break;
+        case "-":
+          result = prev - current;
+          break;
+        case "*":
+          result = prev * current;
+          break;
+        case "/":
+          result = current !== 0 ? prev / current : "Error";
+          break;
+        default:
+          return;
+      }
+      currentInput = result.toString();
+      operator = "";
+      previousInput = "";
+      shouldResetDisplay = true;
+      updateDisplay();
+    }
+    function clear() {
+      currentInput = "";
+      operator = "";
+      previousInput = "";
+      shouldResetDisplay = false;
+      updateDisplay();
+    }
+    function backspace() {
+      if (currentInput.length > 0) {
+        currentInput = currentInput.slice(0, -1);
+        updateDisplay();
+      }
+    }
+    calculatorView.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("calc-btn")) return;
+      const value = e.target.dataset.value;
+      if (value >= "0" && value <= "9" || value === ".") {
+        handleNumber(value);
+      } else if (["+", "-", "*", "/"].includes(value)) {
+        handleOperator(value);
+      } else if (value === "=") {
+        calculate();
+      } else if (value === "C") {
+        clear();
+      } else if (value === "backspace") {
+        backspace();
+      }
+    });
+    calculatorView.addEventListener("keydown", (e) => {
+      e.preventDefault();
+      if (e.key >= "0" && e.key <= "9" || e.key === ".") {
+        handleNumber(e.key);
+      } else if (["+", "-", "*", "/"].includes(e.key)) {
+        handleOperator(e.key);
+      } else if (e.key === "Enter" || e.key === "=") {
+        calculate();
+      } else if (e.key === "Escape" || e.key === "c" || e.key === "C") {
+        clear();
+      } else if (e.key === "Backspace") {
+        backspace();
+      }
+    });
+    calculatorView.tabIndex = 0;
+    setTimeout(() => {
+      calculatorView.focus();
+    }, 100);
     return calculatorView;
   }
 
   // src/views/console.js
   function createConsoleView() {
+    injectAppCSS();
     const consoleView = document.createElement("div");
-    consoleView.style.width = "100%";
-    consoleView.style.height = "100%";
-    consoleView.style.display = "none";
-    consoleView.style.backgroundColor = "#1e1e1e";
-    consoleView.style.color = "#ffffff";
-    consoleView.style.padding = "20px";
-    consoleView.style.fontFamily = "monospace";
-    const consoleTextarea = document.createElement("textarea");
-    consoleTextarea.style.width = "100%";
-    consoleTextarea.style.height = "80%";
-    consoleTextarea.style.backgroundColor = "#252526";
-    consoleTextarea.style.color = "#d4d4d4";
-    consoleTextarea.style.border = "1px solid #333";
-    consoleTextarea.style.padding = "10px";
-    consoleTextarea.style.fontFamily = "monospace";
-    consoleTextarea.style.fontSize = "14px";
-    consoleTextarea.placeholder = "Write JavaScript code here...";
-    const runButton = document.createElement("button");
-    runButton.textContent = "Run Code";
-    runButton.style.marginTop = "10px";
-    runButton.style.padding = "10px";
-    runButton.style.backgroundColor = "#007acc";
-    runButton.style.color = "#ffffff";
-    runButton.style.border = "none";
-    runButton.style.borderRadius = "4px";
-    runButton.style.cursor = "pointer";
-    const outputDiv = document.createElement("div");
-    outputDiv.style.marginTop = "10px";
-    outputDiv.style.padding = "10px";
-    outputDiv.style.backgroundColor = "#252526";
-    outputDiv.style.color = "#d4d4d4";
-    outputDiv.style.border = "1px solid #333";
-    outputDiv.style.height = "calc(20% - 20px)";
-    outputDiv.style.overflowY = "auto";
-    outputDiv.style.fontFamily = "monospace";
-    outputDiv.style.fontSize = "14px";
-    runButton.addEventListener("click", () => {
-      try {
-        const code = consoleTextarea.value.trim();
-        if (!code) {
-          outputDiv.textContent = "No code to execute.";
-          return;
+    consoleView.className = "card-grid-view";
+    consoleView.innerHTML = `
+    <div class="console-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="color: #00bfff; margin: 0; font-size: 1.5rem;">JavaScript Console</h2>
+      <div style="display: flex; gap: 10px;">
+        <button id="run-btn" class="games-tab" style="border-radius: 6px; background: #28a745;">\u25B6 Run</button>
+        <button id="clear-btn" class="games-tab" style="border-radius: 6px; background: #dc3545;">Clear</button>
+      </div>
+    </div>
+    
+    <div style="display: grid; grid-template-rows: 1fr auto 200px; gap: 16px; height: 500px;">
+      <div class="code-editor-container">
+        <div style="background: #292d36; border-radius: 8px 8px 0 0; padding: 8px 16px; border-bottom: 1px solid #404040;">
+          <span style="color: #00bfff; font-size: 0.9rem; font-weight: 600;">Code Editor</span>
+        </div>
+        <textarea id="code-input" 
+                  placeholder="// Write your JavaScript code here...
+console.log('Hello World!');
+Math.sqrt(16);
+[1,2,3].map(x => x * 2);"
+                  style="width: 100%; height: calc(100% - 40px); background: #1e1e1e; color: #d4d4d4; 
+                         border: none; border-radius: 0 0 8px 8px; padding: 16px; font-family: 'Consolas', 'Courier New', monospace; 
+                         font-size: 14px; resize: none; outline: none; line-height: 1.5;"></textarea>
+      </div>
+      
+      <div class="output-container">
+        <div style="background: #292d36; border-radius: 8px 8px 0 0; padding: 8px 16px; border-bottom: 1px solid #404040;">
+          <span style="color: #00bfff; font-size: 0.9rem; font-weight: 600;">Output</span>
+        </div>
+        <div id="output" 
+             style="width: 100%; height: calc(100% - 40px); background: #1a1a1a; color: #d4d4d4; 
+                    border: none; border-radius: 0 0 8px 8px; padding: 16px; font-family: 'Consolas', 'Courier New', monospace; 
+                    font-size: 14px; overflow-y: auto; white-space: pre-wrap;"></div>
+      </div>
+    </div>
+  `;
+    const style = document.createElement("style");
+    style.textContent = `
+    .code-editor-container, .output-container {
+      background: #292d36;
+      border-radius: 8px;
+      border: 1px solid #404040;
+      overflow: hidden;
+    }
+    
+    #code-input:focus {
+      box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.3);
+    }
+    
+    .console-output-line {
+      margin: 4px 0;
+      padding: 2px 0;
+    }
+    
+    .console-error {
+      color: #f85149;
+    }
+    
+    .console-warning {
+      color: #d29922;
+    }
+    
+    .console-success {
+      color: #56d364;
+    }
+    
+    .console-info {
+      color: #79c0ff;
+    }
+    
+    .console-timestamp {
+      color: #7d8590;
+      font-size: 12px;
+    }
+  `;
+    document.head.appendChild(style);
+    const codeInput = consoleView.querySelector("#code-input");
+    const output = consoleView.querySelector("#output");
+    const runBtn = consoleView.querySelector("#run-btn");
+    const clearBtn = consoleView.querySelector("#clear-btn");
+    let originalConsole = {};
+    let consoleOutput = [];
+    function initializeConsole() {
+      originalConsole.log = console.log;
+      originalConsole.error = console.error;
+      originalConsole.warn = console.warn;
+      originalConsole.info = console.info;
+      console.log = (...args) => {
+        originalConsole.log(...args);
+        addToOutput(args.map((arg) => formatValue(arg)).join(" "), "info");
+      };
+      console.error = (...args) => {
+        originalConsole.error(...args);
+        addToOutput(args.map((arg) => formatValue(arg)).join(" "), "error");
+      };
+      console.warn = (...args) => {
+        originalConsole.warn(...args);
+        addToOutput(args.map((arg) => formatValue(arg)).join(" "), "warning");
+      };
+      console.info = (...args) => {
+        originalConsole.info(...args);
+        addToOutput(args.map((arg) => formatValue(arg)).join(" "), "info");
+      };
+    }
+    function restoreConsole() {
+      console.log = originalConsole.log;
+      console.error = originalConsole.error;
+      console.warn = originalConsole.warn;
+      console.info = originalConsole.info;
+    }
+    function formatValue(value) {
+      if (typeof value === "string") return `"${value}"`;
+      if (typeof value === "object") {
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch {
+          return String(value);
         }
+      }
+      return String(value);
+    }
+    function addToOutput(message, type = "info") {
+      const timestamp = (/* @__PURE__ */ new Date()).toLocaleTimeString();
+      const line = document.createElement("div");
+      line.className = `console-output-line console-${type}`;
+      line.innerHTML = `<span class="console-timestamp">[${timestamp}]</span> ${message}`;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+    function executeCode() {
+      const code = codeInput.value.trim();
+      if (!code) {
+        addToOutput("No code to execute.", "warning");
+        return;
+      }
+      addToOutput(`> ${code}`, "info");
+      try {
         const dangerousPatterns = [
           /document\.write/i,
           /window\.location/i,
           /eval\s*\(/i,
           /Function\s*\(/i,
           /setTimeout\s*\(/i,
-          /setInterval\s*\(/i
+          /setInterval\s*\(/i,
+          /alert\s*\(/i,
+          /confirm\s*\(/i,
+          /prompt\s*\(/i
         ];
-        const isDangerous = dangerousPatterns.some((pattern) => pattern.test(code));
+        const isDangerous = dangerousPatterns.some(
+          (pattern) => pattern.test(code)
+        );
         if (isDangerous) {
-          outputDiv.textContent = "Error: Potentially unsafe code detected. Please use safer alternatives.";
+          addToOutput(
+            "Error: Potentially unsafe code detected. Please use safer alternatives.",
+            "error"
+          );
           return;
         }
+        initializeConsole();
         const result = Function('"use strict"; return (' + code + ")")();
-        outputDiv.textContent = result !== void 0 ? String(result) : "Code executed successfully.";
+        if (result !== void 0) {
+          addToOutput(`\u2190 ${formatValue(result)}`, "success");
+        }
       } catch (error) {
-        outputDiv.textContent = `Error: ${error.name}: ${error.message}`;
+        addToOutput(`Error: ${error.name}: ${error.message}`, "error");
+      } finally {
+        restoreConsole();
+      }
+    }
+    function clearOutput() {
+      output.innerHTML = "";
+      addToOutput("Console cleared.", "info");
+    }
+    runBtn.addEventListener("click", executeCode);
+    clearBtn.addEventListener("click", clearOutput);
+    codeInput.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        executeCode();
+      }
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const start = codeInput.selectionStart;
+        const end = codeInput.selectionEnd;
+        codeInput.value = codeInput.value.substring(0, start) + "  " + codeInput.value.substring(end);
+        codeInput.selectionStart = codeInput.selectionEnd = start + 2;
       }
     });
-    consoleView.appendChild(consoleTextarea);
-    consoleView.appendChild(runButton);
-    consoleView.appendChild(outputDiv);
+    addToOutput(
+      "JavaScript Console ready. Type your code above and click 'Run' or press Ctrl+Enter.",
+      "info"
+    );
     return consoleView;
   }
 
   // src/views/cloaking.js
   function createCloakingView() {
+    injectAppCSS();
     const cloakingView = document.createElement("div");
-    cloakingView.style.width = "100%";
-    cloakingView.style.height = "100%";
-    cloakingView.style.display = "none";
-    cloakingView.style.backgroundColor = "#f0f0f0";
-    cloakingView.style.color = "#333";
-    cloakingView.style.padding = "20px";
-    cloakingView.style.fontFamily = "Arial, sans-serif";
-    const titleInput = document.createElement("input");
-    titleInput.type = "text";
-    titleInput.placeholder = "Enter new tab title";
-    titleInput.style.width = "100%";
-    titleInput.style.marginBottom = "10px";
-    titleInput.style.padding = "10px";
-    titleInput.style.border = "1px solid #ccc";
-    titleInput.style.borderRadius = "4px";
-    const iconInput = document.createElement("input");
-    iconInput.type = "text";
-    iconInput.placeholder = "Enter new tab icon URL";
-    iconInput.style.width = "100%";
-    iconInput.style.marginBottom = "10px";
-    iconInput.style.padding = "10px";
-    iconInput.style.border = "1px solid #ccc";
-    iconInput.style.borderRadius = "4px";
-    const applyButton = document.createElement("button");
-    applyButton.textContent = "Apply Changes";
-    applyButton.style.padding = "10px";
-    applyButton.style.backgroundColor = "#007acc";
-    applyButton.style.color = "#ffffff";
-    applyButton.style.border = "none";
-    applyButton.style.borderRadius = "4px";
-    applyButton.style.cursor = "pointer";
+    cloakingView.className = "card-grid-view";
+    cloakingView.innerHTML = `
+    <div class="cloaking-header" style="margin-bottom: 30px;">
+      <h2 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1.5rem;">Tab Cloaking</h2>
+      <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Change your tab's title and icon to disguise this page</p>
+    </div>
+
+    <div class="cloaking-presets" style="margin-bottom: 30px;">
+      <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem;">Quick Presets</h3>
+      <div class="card-list" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="card-item preset-card" data-title="Google" data-icon="https://www.google.com/favicon.ico">
+          <div class="card-title">Google</div>
+          <div class="card-desc">Search engine homepage</div>
+        </div>
+        <div class="card-item preset-card" data-title="Gmail" data-icon="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico">
+          <div class="card-title">Gmail</div>
+          <div class="card-desc">Email service</div>
+        </div>
+        <div class="card-item preset-card" data-title="YouTube" data-icon="https://www.youtube.com/favicon.ico">
+          <div class="card-title">YouTube</div>
+          <div class="card-desc">Video platform</div>
+        </div>
+        <div class="card-item preset-card" data-title="Google Drive" data-icon="https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png">
+          <div class="card-title">Google Drive</div>
+          <div class="card-desc">Cloud storage</div>
+        </div>
+        <div class="card-item preset-card" data-title="Google Docs" data-icon="https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico">
+          <div class="card-title">Google Docs</div>
+          <div class="card-desc">Document editor</div>
+        </div>
+        <div class="card-item preset-card" data-title="Canvas" data-icon="https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico">
+          <div class="card-title">Canvas</div>
+          <div class="card-desc">Learning management</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cloaking-custom" style="margin-bottom: 20px;">
+      <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem;">Custom Cloaking</h3>
+      <div style="display: grid; gap: 16px;">
+        <div>
+          <label style="color: #00bfff; font-weight: 600; margin-bottom: 6px; display: block;">Tab Title</label>
+          <input type="text" id="title-input" placeholder="Enter new tab title (e.g., Google)" 
+                 style="width: 100%; padding: 12px; background: #292d36; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 1rem;">
+        </div>
+        <div>
+          <label style="color: #00bfff; font-weight: 600; margin-bottom: 6px; display: block;">Tab Icon URL</label>
+          <input type="text" id="icon-input" placeholder="Enter favicon URL (e.g., https://www.google.com/favicon.ico)" 
+                 style="width: 100%; padding: 12px; background: #292d36; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 1rem;">
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 8px;">
+          <button id="apply-btn" class="games-tab" style="border-radius: 6px; background: #28a745;">Apply Cloaking</button>
+          <button id="stop-btn" class="games-tab" style="border-radius: 6px; background: #dc3545;">Stop Cloaking</button>
+          <button id="reset-btn" class="games-tab" style="border-radius: 6px; background: #6c757d;">Reset to Original</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cloaking-status">
+      <div style="background: #292d36; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+        <h4 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1rem;">Status</h4>
+        <div id="status-display" style="color: #aaa; font-size: 0.9rem;">Ready to cloak</div>
+      </div>
+    </div>
+  `;
+    const titleInput = cloakingView.querySelector("#title-input");
+    const iconInput = cloakingView.querySelector("#icon-input");
+    const applyBtn = cloakingView.querySelector("#apply-btn");
+    const stopBtn = cloakingView.querySelector("#stop-btn");
+    const resetBtn = cloakingView.querySelector("#reset-btn");
+    const statusDisplay = cloakingView.querySelector("#status-display");
+    const presetCards = cloakingView.querySelectorAll(".preset-card");
     let cloakingInterval = null;
-    applyButton.addEventListener("click", () => {
-      const newTitle = titleInput.value;
-      const newIcon = iconInput.value;
+    let originalTitle = document.title;
+    let originalIcon = document.querySelector("link[rel*='icon']")?.href || "";
+    function updateStatus(message, type = "info") {
+      statusDisplay.textContent = message;
+      statusDisplay.style.color = type === "success" ? "#56d364" : type === "error" ? "#f85149" : type === "warning" ? "#d29922" : "#aaa";
+    }
+    function applyCloaking(title, iconUrl) {
       function gcloak() {
-        const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
-        link.type = "image/x-icon";
-        link.rel = "shortcut icon";
-        link.href = newIcon || "default-icon.png";
-        document.title = newTitle || "Default Title";
-        document.getElementsByTagName("head")[0].appendChild(link);
+        try {
+          if (title) {
+            document.title = title;
+          }
+          if (iconUrl) {
+            const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
+            link.type = "image/x-icon";
+            link.rel = "shortcut icon";
+            link.href = iconUrl;
+            if (!document.querySelector("link[rel*='icon']")) {
+              document.getElementsByTagName("head")[0].appendChild(link);
+            }
+          }
+        } catch (error) {
+          console.error("Cloaking error:", error);
+        }
       }
       if (cloakingInterval) {
         clearInterval(cloakingInterval);
       }
       gcloak();
-      cloakingInterval = setInterval(gcloak, 5e3);
-    });
-    const stopButton = document.createElement("button");
-    stopButton.textContent = "Stop Cloaking";
-    stopButton.style.padding = "10px";
-    stopButton.style.backgroundColor = "#dc3545";
-    stopButton.style.color = "#ffffff";
-    stopButton.style.border = "none";
-    stopButton.style.borderRadius = "4px";
-    stopButton.style.cursor = "pointer";
-    stopButton.style.marginLeft = "10px";
-    stopButton.addEventListener("click", () => {
+      cloakingInterval = setInterval(gcloak, 3e3);
+      updateStatus(
+        `Active: "${title || "Title unchanged"}" with custom icon`,
+        "success"
+      );
+    }
+    function stopCloaking() {
       if (cloakingInterval) {
         clearInterval(cloakingInterval);
         cloakingInterval = null;
-        alert("Cloaking stopped.");
+        updateStatus("Cloaking stopped", "warning");
+      } else {
+        updateStatus("No active cloaking to stop", "warning");
+      }
+    }
+    function resetToOriginal() {
+      stopCloaking();
+      document.title = originalTitle;
+      const currentIcon = document.querySelector("link[rel*='icon']");
+      if (currentIcon && originalIcon) {
+        currentIcon.href = originalIcon;
+      }
+      titleInput.value = "";
+      iconInput.value = "";
+      updateStatus("Reset to original title and icon", "info");
+    }
+    applyBtn.addEventListener("click", () => {
+      const title = titleInput.value.trim();
+      const iconUrl = iconInput.value.trim();
+      if (!title && !iconUrl) {
+        updateStatus("Please enter a title or icon URL", "error");
+        return;
+      }
+      applyCloaking(title, iconUrl);
+    });
+    stopBtn.addEventListener("click", stopCloaking);
+    resetBtn.addEventListener("click", resetToOriginal);
+    presetCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const title = card.dataset.title;
+        const icon = card.dataset.icon;
+        titleInput.value = title;
+        iconInput.value = icon;
+        applyCloaking(title, icon);
+      });
+    });
+    iconInput.addEventListener("input", () => {
+      const url = iconInput.value.trim();
+      if (url) {
+        try {
+          new URL(url);
+          iconInput.style.borderColor = "#28a745";
+        } catch {
+          iconInput.style.borderColor = "#dc3545";
+        }
+      } else {
+        iconInput.style.borderColor = "#404040";
       }
     });
-    cloakingView.appendChild(titleInput);
-    cloakingView.appendChild(iconInput);
-    const buttonContainer = document.createElement("div");
-    buttonContainer.appendChild(applyButton);
-    buttonContainer.appendChild(stopButton);
-    cloakingView.appendChild(buttonContainer);
+    window.addEventListener("beforeunload", () => {
+      if (cloakingInterval) {
+        clearInterval(cloakingInterval);
+      }
+    });
     return cloakingView;
   }
 
   // src/views/historyFlood.js
   function createHistoryFloodView() {
+    injectAppCSS();
     const historyFloodView = document.createElement("div");
-    historyFloodView.style.width = "100%";
-    historyFloodView.style.height = "100%";
-    historyFloodView.style.display = "none";
-    historyFloodView.style.backgroundColor = "#f0f0f0";
-    historyFloodView.style.color = "#333";
-    historyFloodView.style.padding = "20px";
-    historyFloodView.style.fontFamily = "Arial, sans-serif";
-    const floodInput = document.createElement("input");
-    floodInput.type = "number";
-    floodInput.placeholder = "Enter history flood amount";
-    floodInput.style.width = "100%";
-    floodInput.style.marginBottom = "10px";
-    floodInput.style.padding = "10px";
-    floodInput.style.border = "1px solid #ccc";
-    floodInput.style.borderRadius = "4px";
-    const floodButton = document.createElement("button");
-    floodButton.textContent = "Flood History";
-    floodButton.style.padding = "10px";
-    floodButton.style.backgroundColor = "#007acc";
-    floodButton.style.color = "#ffffff";
-    floodButton.style.border = "none";
-    floodButton.style.borderRadius = "4px";
-    floodButton.style.cursor = "pointer";
-    floodButton.addEventListener("click", () => {
-      const num = parseInt(floodInput.value, 10);
-      if (isNaN(num) || num <= 0) {
-        alert("Please enter a valid positive number.");
+    historyFloodView.className = "card-grid-view";
+    historyFloodView.innerHTML = `
+    <div class="flood-header" style="margin-bottom: 30px;">
+      <h2 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1.5rem;">History Flood</h2>
+      <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Add multiple entries of the current page to browser history</p>
+    </div>
+
+    <div class="flood-presets" style="margin-bottom: 30px;">
+      <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem;">Quick Amounts</h3>
+      <div class="card-list" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+        <div class="card-item preset-amount" data-amount="10">
+          <div class="card-title">10 Entries</div>
+          <div class="card-desc">Light flooding</div>
+        </div>
+        <div class="card-item preset-amount" data-amount="50">
+          <div class="card-title">50 Entries</div>
+          <div class="card-desc">Medium flooding</div>
+        </div>
+        <div class="card-item preset-amount" data-amount="100">
+          <div class="card-title">100 Entries</div>
+          <div class="card-desc">Heavy flooding</div>
+        </div>
+        <div class="card-item preset-amount" data-amount="500">
+          <div class="card-title">500 Entries</div>
+          <div class="card-desc">Extreme flooding</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flood-custom" style="margin-bottom: 20px;">
+      <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem;">Custom Amount</h3>
+      <div style="display: grid; gap: 16px;">
+        <div>
+          <label style="color: #00bfff; font-weight: 600; margin-bottom: 6px; display: block;">Number of History Entries</label>
+          <input type="number" id="flood-input" placeholder="Enter amount (1-1000)" min="1" max="1000"
+                 style="width: 100%; padding: 12px; background: #292d36; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 1rem;">
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 8px;">
+          <button id="flood-btn" class="games-tab" style="border-radius: 6px; background: #007acc;">Flood History</button>
+          <button id="clear-input-btn" class="games-tab" style="border-radius: 6px; background: #6c757d;">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flood-info" style="margin-bottom: 20px;">
+      <div style="background: #292d36; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+        <h4 style="color: #d29922; margin: 0 0 8px 0; font-size: 1rem;">\u26A0\uFE0F How History Flooding Works</h4>
+        <ul style="color: #aaa; font-size: 0.9rem; margin: 8px 0; padding-left: 20px;">
+          <li>Adds multiple entries of the current page to browser history</li>
+          <li>Makes it harder to navigate back using browser back button</li>
+          <li>Creates the appearance of visiting this page multiple times</li>
+          <li>Higher numbers create more difficulty going back</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flood-status">
+      <div style="background: #292d36; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+        <h4 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1rem;">Status</h4>
+        <div id="status-display" style="color: #aaa; font-size: 0.9rem;">Ready to flood history</div>
+      </div>
+    </div>
+  `;
+    const floodInput = historyFloodView.querySelector("#flood-input");
+    const floodBtn = historyFloodView.querySelector("#flood-btn");
+    const clearInputBtn = historyFloodView.querySelector("#clear-input-btn");
+    const statusDisplay = historyFloodView.querySelector("#status-display");
+    const presetCards = historyFloodView.querySelectorAll(".preset-amount");
+    function updateStatus(message, type = "info") {
+      statusDisplay.textContent = message;
+      statusDisplay.style.color = type === "success" ? "#56d364" : type === "error" ? "#f85149" : type === "warning" ? "#d29922" : "#aaa";
+    }
+    function floodHistory(amount) {
+      if (isNaN(amount) || amount <= 0 || amount > 1e3) {
+        updateStatus("Please enter a valid number between 1 and 1000", "error");
         return;
       }
-      let done = false;
-      const x = window.location.href;
-      for (let i = 1; i <= num; i++) {
-        history.pushState(0, 0, i === num ? x : i.toString());
-        if (i === num) {
-          done = true;
-        }
+      updateStatus(`Flooding history with ${amount} entries...`, "warning");
+      try {
+        let addEntries = function() {
+          const batchSize = Math.min(10, amount - completed);
+          for (let i = 0; i < batchSize; i++) {
+            completed++;
+            history.pushState(
+              { flood: true, entry: completed },
+              "",
+              completed === amount ? currentUrl : `${currentUrl}#flood-${completed}`
+            );
+          }
+          if (completed < amount) {
+            requestAnimationFrame(addEntries);
+            updateStatus(
+              `Progress: ${completed}/${amount} entries added`,
+              "warning"
+            );
+          } else {
+            history.pushState({ flood: true, final: true }, "", currentUrl);
+            updateStatus(
+              `Success! Added ${amount} ${amount === 1 ? "entry" : "entries"} to history. Current page now appears ${amount} times.`,
+              "success"
+            );
+          }
+        };
+        const currentUrl = window.location.href;
+        let completed = 0;
+        addEntries();
+      } catch (error) {
+        updateStatus(`Error: ${error.message}`, "error");
       }
-      if (done) {
-        alert(
-          `History Flooding Successful!
- ${window.location.href} 
-Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
+    }
+    floodBtn.addEventListener("click", () => {
+      const amount = parseInt(floodInput.value, 10);
+      floodHistory(amount);
+    });
+    clearInputBtn.addEventListener("click", () => {
+      floodInput.value = "";
+      updateStatus("Input cleared", "info");
+    });
+    presetCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const amount = parseInt(card.dataset.amount, 10);
+        floodInput.value = amount;
+        floodHistory(amount);
+      });
+    });
+    floodInput.addEventListener("input", () => {
+      const value = parseInt(floodInput.value, 10);
+      if (isNaN(value) || value <= 0) {
+        floodInput.style.borderColor = "#dc3545";
+      } else if (value > 1e3) {
+        floodInput.style.borderColor = "#d29922";
+        updateStatus("Warning: Maximum recommended is 1000 entries", "warning");
+      } else {
+        floodInput.style.borderColor = "#28a745";
+        updateStatus(
+          `Ready to add ${value} ${value === 1 ? "entry" : "entries"}`,
+          "info"
         );
       }
     });
-    historyFloodView.appendChild(floodInput);
-    historyFloodView.appendChild(floodButton);
+    floodInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        floodBtn.click();
+      }
+    });
     return historyFloodView;
   }
 
   // src/views/corsProxy.js
   function createCorsProxyView() {
+    injectAppCSS();
     const corsProxyView = document.createElement("div");
-    corsProxyView.style.width = "100%";
-    corsProxyView.style.height = "100%";
-    corsProxyView.style.display = "none";
-    corsProxyView.style.backgroundColor = "#f0f0f0";
-    corsProxyView.style.color = "#333";
-    corsProxyView.style.padding = "20px";
-    corsProxyView.style.fontFamily = "Arial, sans-serif";
-    const corsInput = document.createElement("input");
-    corsInput.type = "text";
-    corsInput.placeholder = "Enter URL with https://http";
-    corsInput.style.width = "100%";
-    corsInput.style.marginBottom = "10px";
-    corsInput.style.padding = "10px";
-    corsInput.style.border = "1px solid #ccc";
-    corsInput.style.borderRadius = "4px";
-    const corsFetchButton = document.createElement("button");
-    corsFetchButton.textContent = "Fetch via CORS Proxy";
-    corsFetchButton.style.padding = "10px";
-    corsFetchButton.style.backgroundColor = "#007acc";
-    corsFetchButton.style.color = "#ffffff";
-    corsFetchButton.style.border = "none";
-    corsFetchButton.style.borderRadius = "4px";
-    corsFetchButton.style.cursor = "pointer";
-    corsFetchButton.addEventListener("click", () => {
-      const url = corsInput.value;
-      if (!url.startsWith("http://") && !url.startsWith("https://")) {
-        alert("Please enter a valid URL starting with http:// or https://");
+    corsProxyView.className = "card-grid-view";
+    corsProxyView.innerHTML = `
+    <div class="proxy-header" style="margin-bottom: 30px;">
+      <h2 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1.5rem;">CORS Proxy</h2>
+      <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Access websites that normally block cross-origin requests</p>
+    </div>
+
+    <div class="proxy-presets" style="margin-bottom: 20px;">
+      <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem;">Quick Access</h3>
+      <div class="card-list" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+        <div class="card-item preset-site" data-url="https://httpbin.org/get">
+          <div class="card-title">Test API</div>
+          <div class="card-desc">httpbin.org/get - Test the proxy functionality</div>
+        </div>
+        <div class="card-item preset-site" data-url="https://jsonplaceholder.typicode.com/posts/1">
+          <div class="card-title">JSON API</div>
+          <div class="card-desc">JSONPlaceholder - Sample JSON data</div>
+        </div>
+        <div class="card-item preset-site" data-url="https://api.github.com/users/octocat">
+          <div class="card-title">GitHub API</div>
+          <div class="card-desc">GitHub user data example</div>
+        </div>
+        <div class="card-item preset-site" data-url="https://reqres.in/api/users">
+          <div class="card-title">ReqRes API</div>
+          <div class="card-desc">Sample REST API for testing</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="proxy-custom" style="margin-bottom: 20px;">
+      <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem;">Custom URL</h3>
+      <div style="display: grid; gap: 16px;">
+        <div>
+          <label style="color: #00bfff; font-weight: 600; margin-bottom: 6px; display: block;">Target URL</label>
+          <input type="text" id="url-input" placeholder="https://example.com/api/data" 
+                 style="width: 100%; padding: 12px; background: #292d36; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 1rem;">
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 8px;">
+          <button id="fetch-btn" class="games-tab" style="border-radius: 6px; background: #007acc;">Fetch via Proxy</button>
+          <button id="open-new-tab-btn" class="games-tab" style="border-radius: 6px; background: #28a745;">Open in New Tab</button>
+          <button id="clear-url-btn" class="games-tab" style="border-radius: 6px; background: #6c757d;">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="proxy-options" style="margin-bottom: 15px;">
+      <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem;">Proxy Settings</h3>
+      <div style="background: #292d36; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+        <div style="display: grid; gap: 12px;">
+          <div>
+            <label style="color: #00bfff; font-weight: 600; margin-bottom: 6px; display: block;">Proxy Service</label>
+            <select id="proxy-service" style="width: 100%; padding: 8px; background: #1e1e1e; border: 1px solid #404040; border-radius: 4px; color: #fff;">
+              <option value="https://api.codetabs.com/v1/proxy?quest=">CodeTabs Proxy</option>
+              <option value="https://cors-anywhere.herokuapp.com/">CORS Anywhere</option>
+              <option value="https://api.allorigins.win/get?url=">AllOrigins</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="json-format" style="margin: 0;">
+            <label for="json-format" style="color: #aaa; font-size: 0.9rem;">Try to format JSON response</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="proxy-status">
+      <div style="background: #292d36; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+        <h4 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1rem;">Status</h4>
+        <div id="status-display" style="color: #aaa; font-size: 0.9rem;">Ready to fetch URLs</div>
+        <div id="response-preview" style="margin-top: 12px; max-height: 200px; overflow-y: auto; background: #1e1e1e; padding: 12px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.85rem; color: #d4d4d4; display: none;"></div>
+      </div>
+    </div>
+  `;
+    const urlInput = corsProxyView.querySelector("#url-input");
+    const fetchBtn = corsProxyView.querySelector("#fetch-btn");
+    const openNewTabBtn = corsProxyView.querySelector("#open-new-tab-btn");
+    const clearUrlBtn = corsProxyView.querySelector("#clear-url-btn");
+    const proxyService = corsProxyView.querySelector("#proxy-service");
+    const jsonFormat = corsProxyView.querySelector("#json-format");
+    const statusDisplay = corsProxyView.querySelector("#status-display");
+    const responsePreview = corsProxyView.querySelector("#response-preview");
+    const presetCards = corsProxyView.querySelectorAll(".preset-site");
+    function updateStatus(message, type = "info") {
+      statusDisplay.textContent = message;
+      statusDisplay.style.color = type === "success" ? "#56d364" : type === "error" ? "#f85149" : type === "warning" ? "#d29922" : "#aaa";
+    }
+    function isValidUrl(string) {
+      try {
+        new URL(string);
+        return string.startsWith("http://") || string.startsWith("https://");
+      } catch (_) {
+        return false;
+      }
+    }
+    function formatResponse(text) {
+      if (!jsonFormat.checked) return text;
+      try {
+        const json = JSON.parse(text);
+        return JSON.stringify(json, null, 2);
+      } catch {
+        return text;
+      }
+    }
+    function showResponsePreview(text) {
+      responsePreview.textContent = formatResponse(text);
+      responsePreview.style.display = "block";
+    }
+    function hideResponsePreview() {
+      responsePreview.style.display = "none";
+    }
+    async function fetchViaProxy(url, openInNewTab = false) {
+      if (!isValidUrl(url)) {
+        updateStatus(
+          "Please enter a valid URL starting with http:// or https://",
+          "error"
+        );
         return;
       }
-      const proxy = "https://api.codetabs.com/v1/proxy?quest=";
-      fetch(proxy + url).then((response) => response.text()).then((text) => {
-        const newWindow = window.open();
-        newWindow.document.write(text);
-      }).catch((error) => {
-        alert(`Error fetching the URL: ${error.message}`);
+      const proxyUrl = proxyService.value;
+      const fullProxyUrl = proxyUrl + encodeURIComponent(url);
+      updateStatus(`Fetching ${url} via proxy...`, "warning");
+      hideResponsePreview();
+      try {
+        const response = await fetch(fullProxyUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const text = await response.text();
+        if (openInNewTab) {
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(text);
+            newWindow.document.close();
+            updateStatus(`Successfully opened ${url} in new tab`, "success");
+          } else {
+            updateStatus(
+              "Failed to open new tab - popup might be blocked",
+              "error"
+            );
+          }
+        } else {
+          showResponsePreview(text);
+          updateStatus(
+            `Successfully fetched ${url} (${text.length} characters)`,
+            "success"
+          );
+        }
+      } catch (error) {
+        updateStatus(`Error: ${error.message}`, "error");
+        hideResponsePreview();
+      }
+    }
+    fetchBtn.addEventListener("click", () => {
+      const url = urlInput.value.trim();
+      fetchViaProxy(url, false);
+    });
+    openNewTabBtn.addEventListener("click", () => {
+      const url = urlInput.value.trim();
+      fetchViaProxy(url, true);
+    });
+    clearUrlBtn.addEventListener("click", () => {
+      urlInput.value = "";
+      hideResponsePreview();
+      updateStatus("Input cleared", "info");
+    });
+    presetCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const url = card.dataset.url;
+        urlInput.value = url;
+        fetchViaProxy(url, false);
       });
     });
-    corsProxyView.appendChild(corsInput);
-    corsProxyView.appendChild(corsFetchButton);
+    urlInput.addEventListener("input", () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        urlInput.style.borderColor = "#404040";
+        updateStatus("Ready to fetch URLs", "info");
+      } else if (isValidUrl(url)) {
+        urlInput.style.borderColor = "#28a745";
+        updateStatus(`Ready to fetch: ${url}`, "info");
+      } else {
+        urlInput.style.borderColor = "#dc3545";
+        updateStatus(
+          "Please enter a valid URL (must start with http:// or https://)",
+          "error"
+        );
+      }
+    });
+    urlInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        fetchBtn.click();
+      }
+    });
+    proxyService.addEventListener("change", () => {
+      const serviceName = proxyService.options[proxyService.selectedIndex].text;
+      updateStatus(`Switched to ${serviceName}`, "info");
+    });
     return corsProxyView;
   }
 
   // src/views/pocketBrowser.js
   function createPocketBrowserView() {
+    injectAppCSS();
     const pocketBrowserView = document.createElement("div");
-    pocketBrowserView.style.width = "100%";
-    pocketBrowserView.style.height = "100%";
+    pocketBrowserView.style.cssText = `
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background-color: #23272f;
+    flex-direction: column;
+  `;
     pocketBrowserView.style.display = "none";
-    pocketBrowserView.style.backgroundColor = "#ffffff";
-    pocketBrowserView.style.flexDirection = "column";
+    const toolbar = document.createElement("div");
+    toolbar.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #292d36;
+    border-bottom: 1px solid #404040;
+  `;
+    const backBtn = document.createElement("button");
+    backBtn.innerHTML = "\u2B05\uFE0F";
+    backBtn.title = "Go Back";
+    backBtn.style.cssText = `
+    padding: 8px 12px;
+    background: #007acc;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  `;
+    const forwardBtn = document.createElement("button");
+    forwardBtn.innerHTML = "\u27A1\uFE0F";
+    forwardBtn.title = "Go Forward";
+    forwardBtn.style.cssText = `
+    padding: 8px 12px;
+    background: #007acc;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  `;
+    const refreshBtn = document.createElement("button");
+    refreshBtn.innerHTML = "\u{1F504}";
+    refreshBtn.title = "Refresh";
+    refreshBtn.style.cssText = `
+    padding: 8px 12px;
+    background: #28a745;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  `;
+    const homeBtn = document.createElement("button");
+    homeBtn.innerHTML = "\u{1F3E0}";
+    homeBtn.title = "Home";
+    homeBtn.style.cssText = `
+    padding: 8px 12px;
+    background: #6c757d;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  `;
     const urlBar = document.createElement("input");
     urlBar.type = "text";
     urlBar.placeholder = "Enter URL and press Enter";
-    urlBar.style.width = "100%";
-    urlBar.style.padding = "10px";
-    urlBar.style.border = "1px solid #ccc";
-    urlBar.style.boxSizing = "border-box";
-    urlBar.style.marginBottom = "10px";
+    urlBar.style.cssText = `
+    flex: 1;
+    padding: 10px 12px;
+    background: #1e1e1e;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  `;
+    const goBtn = document.createElement("button");
+    goBtn.innerHTML = "Go";
+    goBtn.style.cssText = `
+    padding: 10px 16px;
+    background: #007acc;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+  `;
+    [backBtn, forwardBtn, refreshBtn, homeBtn, goBtn].forEach((btn) => {
+      btn.addEventListener("mouseenter", () => {
+        if (btn === refreshBtn) btn.style.background = "#218838";
+        else if (btn === homeBtn) btn.style.background = "#5a6268";
+        else btn.style.background = "#0056b3";
+      });
+      btn.addEventListener("mouseleave", () => {
+        if (btn === refreshBtn) btn.style.background = "#28a745";
+        else if (btn === homeBtn) btn.style.background = "#6c757d";
+        else btn.style.background = "#007acc";
+      });
+    });
+    urlBar.addEventListener("focus", () => {
+      urlBar.style.borderColor = "#007acc";
+      urlBar.style.boxShadow = "0 0 0 2px rgba(0, 122, 204, 0.3)";
+    });
+    urlBar.addEventListener("blur", () => {
+      urlBar.style.borderColor = "#404040";
+      urlBar.style.boxShadow = "none";
+    });
+    toolbar.appendChild(backBtn);
+    toolbar.appendChild(forwardBtn);
+    toolbar.appendChild(refreshBtn);
+    toolbar.appendChild(homeBtn);
+    toolbar.appendChild(urlBar);
+    toolbar.appendChild(goBtn);
+    const iframeContainer = document.createElement("div");
+    iframeContainer.style.cssText = `
+    flex: 1;
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    min-height: 0;
+    height: calc(100% - 60px);
+  `;
     const pocketBrowserIframe = document.createElement("iframe");
     pocketBrowserIframe.src = "https://google.com?igu=1";
-    pocketBrowserIframe.style.width = "100%";
-    pocketBrowserIframe.style.height = "100%";
-    pocketBrowserIframe.style.border = "none";
-    urlBar.addEventListener("keypress", (event) => {
-      if (event.key === "Enter") {
-        const url = urlBar.value.trim();
-        if (url) {
-          pocketBrowserIframe.src = url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
-        }
+    pocketBrowserIframe.style.cssText = `
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  `;
+    iframeContainer.appendChild(pocketBrowserIframe);
+    let history2 = ["https://google.com?igu=1"];
+    let currentIndex = 0;
+    function updateUrl(url) {
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = `https://${url}`;
+      }
+      pocketBrowserIframe.src = url;
+      urlBar.value = url;
+      if (currentIndex < history2.length - 1) {
+        history2 = history2.slice(0, currentIndex + 1);
+      }
+      history2.push(url);
+      currentIndex = history2.length - 1;
+      updateButtonStates();
+    }
+    function updateButtonStates() {
+      backBtn.disabled = currentIndex <= 0;
+      forwardBtn.disabled = currentIndex >= history2.length - 1;
+      backBtn.style.opacity = backBtn.disabled ? "0.5" : "1";
+      forwardBtn.style.opacity = forwardBtn.disabled ? "0.5" : "1";
+      backBtn.style.cursor = backBtn.disabled ? "not-allowed" : "pointer";
+      forwardBtn.style.cursor = forwardBtn.disabled ? "not-allowed" : "pointer";
+    }
+    backBtn.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        const url = history2[currentIndex];
+        pocketBrowserIframe.src = url;
+        urlBar.value = url;
+        updateButtonStates();
       }
     });
-    pocketBrowserView.appendChild(urlBar);
-    pocketBrowserView.appendChild(pocketBrowserIframe);
+    forwardBtn.addEventListener("click", () => {
+      if (currentIndex < history2.length - 1) {
+        currentIndex++;
+        const url = history2[currentIndex];
+        pocketBrowserIframe.src = url;
+        urlBar.value = url;
+        updateButtonStates();
+      }
+    });
+    refreshBtn.addEventListener("click", () => {
+      pocketBrowserIframe.src = pocketBrowserIframe.src;
+    });
+    homeBtn.addEventListener("click", () => {
+      updateUrl("https://google.com?igu=1");
+    });
+    const navigateToUrl = () => {
+      const url = urlBar.value.trim();
+      if (url) {
+        updateUrl(url);
+      }
+    };
+    goBtn.addEventListener("click", navigateToUrl);
+    urlBar.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        navigateToUrl();
+      }
+    });
+    updateButtonStates();
+    pocketBrowserView.appendChild(toolbar);
+    pocketBrowserView.appendChild(iframeContainer);
     return pocketBrowserView;
   }
 
@@ -545,133 +1622,6 @@ Now Appears In Your History ${num} ${num === 1 ? "time." : "times."}`
     });
     scriptsView.appendChild(list);
     return scriptsView;
-  }
-
-  // src/css.js
-  function injectAppCSS() {
-    if (document.getElementById("app-shared-style")) return;
-    const style = document.createElement("style");
-    style.id = "app-shared-style";
-    style.textContent = `
-    /* --- Shared Card/Grid Styles --- */
-    .card-grid-view {
-      padding: 20px;
-      background: #23272f;
-      border-radius: 10px;
-      min-height: 400px;
-      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.15);
-    }
-    .card-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-      margin-top: 10px;
-    }
-    .card-item {
-      background: #292d36;
-      border-radius: 8px;
-      padding: 18px 14px;
-      box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      transition: box-shadow 0.2s, transform 0.2s;
-      cursor: pointer;
-      user-select: none;
-    }
-    .card-item:hover {
-      box-shadow: 0 4px 16px 0 rgba(0,122,204,0.15);
-      transform: translateY(-2px) scale(1.03);
-      background: #2d323e;
-    }
-    .card-item .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #00bfff;
-      margin-bottom: 4px;
-    }
-    .card-item .card-desc {
-      font-size: 0.95rem;
-      color: #aaa;
-      margin-bottom: 2px;
-    }
-    
-    /* --- Games View Specific --- */
-    .games-view {
-      padding: 20px;
-      background: #23272f;
-      border-radius: 10px;
-      min-height: 400px;
-      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.15);
-    }
-    .games-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .games-tab {
-      padding: 10px 24px;
-      background: #2d323e;
-      border: none;
-      border-radius: 6px 6px 0 0;
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      outline: none;
-    }
-    .games-tab.active, .games-tab:hover {
-      background: #007acc;
-      color: #fff;
-    }
-    .games-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-      margin-top: 10px;
-    }
-    .game-item {
-      background: #292d36;
-      border-radius: 8px;
-      padding: 18px 14px;
-      box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .game-item:hover {
-      box-shadow: 0 4px 16px 0 rgba(0,122,204,0.15);
-      transform: translateY(-2px) scale(1.03);
-    }
-    .game-item a {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #00bfff;
-      margin-bottom: 4px;
-      text-decoration: none;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      hyphens: auto;
-      max-width: 100%;
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .game-item a:hover {
-      color: #fff;
-    }
-    .game-item .game-type {
-      font-size: 0.85rem;
-      color: #aaa;
-      margin-top: 2px;
-      text-transform: capitalize;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-  `;
-    document.head.appendChild(style);
   }
 
   // src/views/bookmarklets.js
@@ -929,6 +1879,8 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.sidebarButtons = {};
     }
     launch() {
+      injectAppCSS();
+      this.injectAppStyles();
       this.frame = document.createElement("div");
       window.proxyFrame = this.frame;
       this.setupFrameStyle();
@@ -952,8 +1904,128 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         "Application launched successfully. Press backslash (\\) to show if hidden."
       );
     }
+    injectAppStyles() {
+      const style = document.createElement("style");
+      style.textContent = `
+      /* App Frame Styling */
+      .proxy-app-frame {
+        background: #23272f;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+        overflow: hidden;
+      }
+      
+      /* Sidebar Styling */
+      .proxy-sidebar {
+        background: #1e2228;
+        border-right: 1px solid #404040;
+        position: relative;
+      }
+      
+      .proxy-sidebar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 1px;
+        height: 100%;
+        background: linear-gradient(180deg, transparent, #007acc, transparent);
+        opacity: 0.5;
+      }
+      
+      .sidebar-header {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid #404040;
+        margin-bottom: 16px;
+      }
+      
+      .sidebar-title {
+        color: #00bfff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+      }
+      
+      .sidebar-subtitle {
+        color: #aaa;
+        font-size: 0.8rem;
+        margin: 0;
+      }
+      
+      /* Sidebar Button Styling */
+      .sidebar-btn {
+        width: 100%;
+        padding: 12px 16px;
+        margin-bottom: 4px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: #d4d4d4;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-align: left;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .sidebar-btn:hover {
+        background: rgba(0, 122, 204, 0.1);
+        color: #00bfff;
+        transform: translateX(4px);
+      }
+      
+      .sidebar-btn.active {
+        background: #007acc;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 122, 204, 0.3);
+      }
+      
+      .sidebar-btn.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 3px;
+        height: 100%;
+        background: #00bfff;
+      }
+      
+      .sidebar-btn.hide-btn {
+        background: #dc3545;
+        color: #fff;
+        margin-top: auto;
+      }
+      
+      .sidebar-btn.hide-btn:hover {
+        background: #c82333;
+        transform: translateX(0);
+      }
+      
+      /* Content Area Styling */
+      .proxy-content {
+        background: #23272f;
+        position: relative;
+      }
+      
+      .content-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 80%, rgba(0, 122, 204, 0.03) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(0, 191, 255, 0.03) 0%, transparent 50%);
+        pointer-events: none;
+      }
+    `;
+      document.head.appendChild(style);
+    }
     setupFrameStyle() {
       const frame = this.frame;
+      frame.className = "proxy-app-frame";
       frame.style.position = "fixed";
       frame.style.top = "50%";
       frame.style.left = "50%";
@@ -965,41 +2037,48 @@ https://discord.gg/jHjGrrdXP6"       );     };`
     }
     createSidebar() {
       const sidebar = document.createElement("div");
-      sidebar.style.width = "20%";
-      sidebar.style.height = "80vh";
-      sidebar.style.backgroundColor = "#333";
-      sidebar.style.color = "#ffffff";
-      sidebar.style.padding = "10px";
+      sidebar.className = "proxy-sidebar";
+      sidebar.style.width = "280px";
+      sidebar.style.height = "100%";
       sidebar.style.display = "flex";
       sidebar.style.flexDirection = "column";
-      sidebar.style.gap = "10px";
-      const makeBtn = (label, id = "", bg = "#444") => {
+      sidebar.style.padding = "0";
+      const header = document.createElement("div");
+      header.className = "sidebar-header";
+      header.innerHTML = `
+      <h1 class="sidebar-title">Proxy Client</h1>
+      <p class="sidebar-subtitle">by ASC2563</p>
+    `;
+      const buttonContainer = document.createElement("div");
+      buttonContainer.style.flex = "1";
+      buttonContainer.style.padding = "0 16px";
+      buttonContainer.style.display = "flex";
+      buttonContainer.style.flexDirection = "column";
+      const makeBtn = (label, icon = "") => {
         const btn = document.createElement("button");
-        btn.textContent = label;
-        btn.style.padding = "8px";
-        btn.style.backgroundColor = bg;
-        btn.style.border = "none";
-        btn.style.borderRadius = "4px";
-        btn.style.color = "#fff";
-        btn.style.cursor = "pointer";
-        if (id) btn.id = id;
+        btn.className = "sidebar-btn";
+        btn.innerHTML = icon ? `${icon} ${label}` : label;
         return btn;
       };
-      this.sidebarButtons.proxyButton = makeBtn("Proxy", "", "#555");
-      this.sidebarButtons.proxyButton.classList.add("active-view");
-      this.sidebarButtons.notesButton = makeBtn("Notes");
-      this.sidebarButtons.calculatorButton = makeBtn("Calculator");
-      this.sidebarButtons.consoleButton = makeBtn("Console");
-      this.sidebarButtons.cloakingButton = makeBtn("Cloaking");
-      this.sidebarButtons.historyFloodButton = makeBtn("History Flood");
-      this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy");
-      this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser");
-      this.sidebarButtons.scriptsButton = makeBtn("scripts");
-      this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets");
-      this.sidebarButtons.gamesButton = makeBtn("Games List");
-      this.sidebarButtons.hideButton = makeBtn("Hide All", "hideFrame", "#700");
+      this.sidebarButtons.proxyButton = makeBtn("Proxy", "\u{1F310}");
+      this.sidebarButtons.proxyButton.classList.add("active");
+      this.sidebarButtons.gamesButton = makeBtn("Games List", "\u{1F3AE}");
+      this.sidebarButtons.bookmarkletsButton = makeBtn("Bookmarklets", "\u{1F516}");
+      this.sidebarButtons.scriptsButton = makeBtn("Scripts", "\u{1F4DC}");
+      this.sidebarButtons.notesButton = makeBtn("Notes", "\u{1F4DD}");
+      this.sidebarButtons.calculatorButton = makeBtn("Calculator", "\u{1F9EE}");
+      this.sidebarButtons.consoleButton = makeBtn("Console", "\u{1F4BB}");
+      this.sidebarButtons.cloakingButton = makeBtn("Cloaking", "\u{1F3AD}");
+      this.sidebarButtons.historyFloodButton = makeBtn("History Flood", "\u{1F4DA}");
+      this.sidebarButtons.corsProxyButton = makeBtn("CORS Proxy", "\u{1F504}");
+      this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser", "\u{1F50D}");
+      this.sidebarButtons.hideButton = makeBtn("Hide App", "\u274C");
+      this.sidebarButtons.hideButton.classList.add("hide-btn");
       [
         this.sidebarButtons.proxyButton,
+        this.sidebarButtons.gamesButton,
+        this.sidebarButtons.bookmarkletsButton,
+        this.sidebarButtons.scriptsButton,
         this.sidebarButtons.notesButton,
         this.sidebarButtons.calculatorButton,
         this.sidebarButtons.consoleButton,
@@ -1007,21 +2086,25 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         this.sidebarButtons.historyFloodButton,
         this.sidebarButtons.corsProxyButton,
         this.sidebarButtons.pocketBrowserButton,
-        this.sidebarButtons.scriptsButton,
-        this.sidebarButtons.bookmarkletsButton,
-        this.sidebarButtons.gamesButton,
         this.sidebarButtons.hideButton
-      ].forEach((btn) => sidebar.appendChild(btn));
+      ].forEach((btn) => buttonContainer.appendChild(btn));
+      sidebar.appendChild(header);
+      sidebar.appendChild(buttonContainer);
       return sidebar;
     }
     createContent() {
       const content = document.createElement("div");
+      content.className = "proxy-content";
       content.style.flexGrow = "1";
       content.style.display = "flex";
       content.style.flexDirection = "column";
       content.style.width = "100%";
       content.style.height = "100%";
       content.style.padding = "0";
+      content.style.position = "relative";
+      const overlay = document.createElement("div");
+      overlay.className = "content-overlay";
+      content.appendChild(overlay);
       this.views.proxyView = createProxyView();
       this.views.notesView = createNotesView();
       this.views.calculatorView = createCalculatorView();
@@ -1036,7 +2119,11 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       gamesViewDiv.innerHTML = showGamesView();
       gamesViewDiv.style.display = "none";
       this.views.gamesView = gamesViewDiv;
-      Object.values(this.views).forEach((view) => content.appendChild(view));
+      Object.values(this.views).forEach((view) => {
+        view.style.position = "relative";
+        view.style.zIndex = "1";
+        content.appendChild(view);
+      });
       Object.values(this.views).forEach((view) => view.style.display = "none");
       if (this.views.proxyView) this.views.proxyView.style.display = "flex";
       this.setupSidebarEvents();
@@ -1051,14 +2138,12 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       };
       const setActiveButton = (activeBtn) => {
         Object.values(b).forEach((btn) => {
-          if (btn && btn.style) {
-            btn.style.backgroundColor = "#444";
-            btn.classList && btn.classList.remove("active-view");
+          if (btn && btn.classList) {
+            btn.classList.remove("active");
           }
         });
-        if (activeBtn) {
-          activeBtn.style.backgroundColor = "#555";
-          activeBtn.classList && activeBtn.classList.add("active-view");
+        if (activeBtn && activeBtn.classList) {
+          activeBtn.classList.add("active");
         }
       };
       b.proxyButton.addEventListener("click", () => {

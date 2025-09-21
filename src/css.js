@@ -10,6 +10,8 @@ export function injectAppCSS() {
       background: #23272f;
       border-radius: 10px;
       min-height: 400px;
+      max-height: calc(80vh - 40px);
+      overflow-y: auto;
       box-shadow: 0 2px 12px 0 rgba(0,0,0,0.15);
     }
     .card-list {
@@ -53,7 +55,32 @@ export function injectAppCSS() {
       background: #23272f;
       border-radius: 10px;
       min-height: 400px;
+      max-height: calc(80vh - 40px);
+      overflow-y: auto;
       box-shadow: 0 2px 12px 0 rgba(0,0,0,0.15);
+    }
+    
+    /* Custom Scrollbar Styling */
+    .card-grid-view::-webkit-scrollbar,
+    .games-view::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .card-grid-view::-webkit-scrollbar-track,
+    .games-view::-webkit-scrollbar-track {
+      background: #1e1e1e;
+      border-radius: 4px;
+    }
+    
+    .card-grid-view::-webkit-scrollbar-thumb,
+    .games-view::-webkit-scrollbar-thumb {
+      background: #404040;
+      border-radius: 4px;
+    }
+    
+    .card-grid-view::-webkit-scrollbar-thumb:hover,
+    .games-view::-webkit-scrollbar-thumb:hover {
+      background: #007acc;
     }
     .games-tabs {
       display: flex;
