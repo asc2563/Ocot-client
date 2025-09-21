@@ -35,7 +35,35 @@ The Proxy Client is a web-based application designed to provide various function
 
 ## Usage
 
-To launch the application, open `index.html` in a web browser. Use the sidebar to navigate between different views.
+Use the sidebar to navigate between different views.
+
+### File
+
+To launch the application, open `index.html` in a web browser.
+
+### Bookmarklet
+
+Run one of these bookmarklets:
+
+```js
+javascript:fetch("https://cdn.jsdelivr.net/gh/asc2563/proxy-client2.0Rewrite@latest/dist/bundle.js").then(data=>%7Bdata.text().then(text=>%7Beval(text)%7D)%7D);
+```
+
+Or
+
+```js
+javascript: (function () {
+  let script = document.createElement("script");
+  script.src =
+    "https://cdn.jsdelivr.net/gh/asc2563/proxy-client2.0Rewrite@latest/dist/bundle.js";
+  script.onerror = function () {
+    console.error("Failed to load proxy client script");
+  };
+  document.head.appendChild(script);
+})();
+```
+
+Note: if one doesn't work try the other one.
 
 ## Contributing
 
