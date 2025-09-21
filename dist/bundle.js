@@ -2024,6 +2024,26 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         background: #5a1a28;
         transform: translateX(0);
       }
+
+      /* Sidebar Scrollbar Styling */
+      .proxy-sidebar ::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      .proxy-sidebar ::-webkit-scrollbar-track {
+        background: #23272f;
+        border-radius: 4px;
+      }
+      
+      .proxy-sidebar ::-webkit-scrollbar-thumb {
+        background: #404040;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+      
+      .proxy-sidebar ::-webkit-scrollbar-thumb:hover {
+        background: #525252;
+      }
       
       /* Content Area Styling */
       .proxy-content {
@@ -2146,6 +2166,8 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       buttonContainer.style.padding = "0 16px";
       buttonContainer.style.display = "flex";
       buttonContainer.style.flexDirection = "column";
+      buttonContainer.style.overflowY = "auto";
+      buttonContainer.style.overflowX = "hidden";
       const makeBtn = (label, icon = "") => {
         const btn = document.createElement("button");
         btn.className = "sidebar-btn";
