@@ -1901,6 +1901,9 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.sidebarButtons.hideButton.addEventListener("click", () => {
         this.hideProxyClient();
       });
+      this.sidebarButtons.removeButton.addEventListener("click", () => {
+        this.removeProxyClient();
+      });
       console.log(
         "Application launched successfully. Press backslash (\\) to show if hidden."
       );
@@ -2004,6 +2007,17 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         background: #c82333;
         transform: translateX(0);
       }
+
+      .sidebar-btn.remove-btn {
+        background: #6f2232;
+        color: #fff;
+        margin-top: 8px;
+      }
+      
+      .sidebar-btn.remove-btn:hover {
+        background: #5a1a28;
+        transform: translateX(0);
+      }
       
       /* Content Area Styling */
       .proxy-content {
@@ -2081,6 +2095,19 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         this.hideProxyClient();
       }
     }
+    removeProxyClient() {
+      console.log("Completely removing proxy client from page");
+      if (this.frame && this.frame.parentNode) {
+        this.frame.parentNode.removeChild(this.frame);
+      }
+      if (this.floatingButton && this.floatingButton.parentNode) {
+        this.floatingButton.parentNode.removeChild(this.floatingButton);
+      }
+      this.frame = null;
+      this.floatingButton = null;
+      window.proxyFrame = null;
+      console.log("Proxy client completely removed");
+    }
     setupFrameStyle() {
       const frame = this.frame;
       frame.className = "proxy-app-frame";
@@ -2132,6 +2159,8 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser", "\u{1F50D}");
       this.sidebarButtons.hideButton = makeBtn("Hide App", "\u274C");
       this.sidebarButtons.hideButton.classList.add("hide-btn");
+      this.sidebarButtons.removeButton = makeBtn("Remove App", "\u{1F5D1}\uFE0F");
+      this.sidebarButtons.removeButton.classList.add("remove-btn");
       [
         this.sidebarButtons.proxyButton,
         this.sidebarButtons.gamesButton,
@@ -2144,7 +2173,8 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         this.sidebarButtons.historyFloodButton,
         this.sidebarButtons.corsProxyButton,
         this.sidebarButtons.pocketBrowserButton,
-        this.sidebarButtons.hideButton
+        this.sidebarButtons.hideButton,
+        this.sidebarButtons.removeButton
       ].forEach((btn) => buttonContainer.appendChild(btn));
       sidebar.appendChild(header);
       sidebar.appendChild(buttonContainer);

@@ -62,6 +62,11 @@ class ProxyClientApp {
       this.hideProxyClient();
     });
 
+    // Remove button - completely destroy the app
+    this.sidebarButtons.removeButton.addEventListener("click", () => {
+      this.removeProxyClient();
+    });
+
     console.log(
       "Application launched successfully. Press backslash (\\) to show if hidden."
     );
@@ -166,6 +171,17 @@ class ProxyClientApp {
         background: #c82333;
         transform: translateX(0);
       }
+
+      .sidebar-btn.remove-btn {
+        background: #6f2232;
+        color: #fff;
+        margin-top: 8px;
+      }
+      
+      .sidebar-btn.remove-btn:hover {
+        background: #5a1a28;
+        transform: translateX(0);
+      }
       
       /* Content Area Styling */
       .proxy-content {
@@ -256,6 +272,23 @@ class ProxyClientApp {
     }
   }
 
+  removeProxyClient() {
+    console.log("Completely removing proxy client from page");
+    // Remove the main frame
+    if (this.frame && this.frame.parentNode) {
+      this.frame.parentNode.removeChild(this.frame);
+    }
+    // Remove the floating button
+    if (this.floatingButton && this.floatingButton.parentNode) {
+      this.floatingButton.parentNode.removeChild(this.floatingButton);
+    }
+    // Clear references
+    this.frame = null;
+    this.floatingButton = null;
+    window.proxyFrame = null;
+    console.log("Proxy client completely removed");
+  }
+
   setupFrameStyle() {
     const frame = this.frame;
     frame.className = "proxy-app-frame";
@@ -316,6 +349,8 @@ class ProxyClientApp {
     this.sidebarButtons.pocketBrowserButton = makeBtn("Pocket Browser", "🔍");
     this.sidebarButtons.hideButton = makeBtn("Hide App", "❌");
     this.sidebarButtons.hideButton.classList.add("hide-btn");
+    this.sidebarButtons.removeButton = makeBtn("Remove App", "🗑️");
+    this.sidebarButtons.removeButton.classList.add("remove-btn");
 
     // Add buttons to container
     [
@@ -331,6 +366,7 @@ class ProxyClientApp {
       this.sidebarButtons.corsProxyButton,
       this.sidebarButtons.pocketBrowserButton,
       this.sidebarButtons.hideButton,
+      this.sidebarButtons.removeButton,
     ].forEach((btn) => buttonContainer.appendChild(btn));
 
     sidebar.appendChild(header);
