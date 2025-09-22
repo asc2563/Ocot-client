@@ -151,13 +151,94 @@ class ProxyClientApp {
     });
 
     // Click to show proxy client
-    this.floatingButton.addEventListener("click", () => {
-      console.log("Floating button clicked!");
-      this.showProxyClient();
+    this.floatingButton.addEventListener("click", (e) => {
+      // Only trigger click if it wasn't a drag
+      if (!this.isDragging) {
+        console.log("Floating button clicked!");
+        this.showProxyClient();
+      }
     });
+
+    // Add drag functionality
+    this.addDragFunctionality();
 
     document.body.appendChild(this.floatingButton);
     console.log("Floating button added to body, should be visible now");
+  }
+
+  addDragFunctionality() {
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
+
+    // Track dragging state for click prevention
+    this.isDragging = false;
+
+    this.floatingButton.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      this.isDragging = false; // Reset for this interaction
+
+      // Get initial positions
+      startX = e.clientX;
+      startY = e.clientY;
+
+      // Get current button position
+      const rect = this.floatingButton.getBoundingClientRect();
+      initialX = rect.left;
+      initialY = rect.top;
+
+      // Change cursor and disable transitions
+      this.floatingButton.style.cursor = "grabbing";
+      this.floatingButton.style.transition = "none";
+
+      // Prevent text selection
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+
+      // Calculate movement
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+
+      // If moved enough, consider it a drag
+      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+        this.isDragging = true;
+      }
+
+      // Calculate new position
+      let newX = initialX + deltaX;
+      let newY = initialY + deltaY;
+
+      // Keep button within screen bounds
+      const buttonSize = 50; // Button width/height
+      const maxX = window.innerWidth - buttonSize;
+      const maxY = window.innerHeight - buttonSize;
+
+      newX = Math.max(0, Math.min(newX, maxX));
+      newY = Math.max(0, Math.min(newY, maxY));
+
+      // Update button position
+      this.floatingButton.style.left = newX + "px";
+      this.floatingButton.style.top = newY + "px";
+      this.floatingButton.style.right = "auto";
+      this.floatingButton.style.bottom = "auto";
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isDragging = false;
+
+        // Restore cursor and transitions
+        this.floatingButton.style.cursor = "pointer";
+        this.floatingButton.style.transition = "all 0.3s ease";
+
+        // Small delay to prevent click event after drag
+        setTimeout(() => {
+          this.isDragging = false;
+        }, 100);
+      }
+    });
   }
 
   hideProxyClient() {

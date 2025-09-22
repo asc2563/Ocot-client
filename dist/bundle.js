@@ -2213,12 +2213,61 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         this.floatingButton.style.transform = "scale(1)";
         this.floatingButton.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.3)";
       });
-      this.floatingButton.addEventListener("click", () => {
-        console.log("Floating button clicked!");
-        this.showProxyClient();
+      this.floatingButton.addEventListener("click", (e) => {
+        if (!this.isDragging) {
+          console.log("Floating button clicked!");
+          this.showProxyClient();
+        }
       });
+      this.addDragFunctionality();
       document.body.appendChild(this.floatingButton);
       console.log("Floating button added to body, should be visible now");
+    }
+    addDragFunctionality() {
+      let isDragging = false;
+      let startX, startY, initialX, initialY;
+      this.isDragging = false;
+      this.floatingButton.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        this.isDragging = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = this.floatingButton.getBoundingClientRect();
+        initialX = rect.left;
+        initialY = rect.top;
+        this.floatingButton.style.cursor = "grabbing";
+        this.floatingButton.style.transition = "none";
+        e.preventDefault();
+      });
+      document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+          this.isDragging = true;
+        }
+        let newX = initialX + deltaX;
+        let newY = initialY + deltaY;
+        const buttonSize = 50;
+        const maxX = window.innerWidth - buttonSize;
+        const maxY = window.innerHeight - buttonSize;
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        this.floatingButton.style.left = newX + "px";
+        this.floatingButton.style.top = newY + "px";
+        this.floatingButton.style.right = "auto";
+        this.floatingButton.style.bottom = "auto";
+      });
+      document.addEventListener("mouseup", () => {
+        if (isDragging) {
+          isDragging = false;
+          this.floatingButton.style.cursor = "pointer";
+          this.floatingButton.style.transition = "all 0.3s ease";
+          setTimeout(() => {
+            this.isDragging = false;
+          }, 100);
+        }
+      });
     }
     hideProxyClient() {
       console.log("Hiding proxy client, showing floating button");
