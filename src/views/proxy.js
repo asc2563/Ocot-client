@@ -5,7 +5,7 @@ export default function createProxyView() {
   proxyView.style.height = "100%";
   proxyView.style.display = "flex";
   const iframe = document.createElement("iframe");
-  iframe.src = "https://example.com"; // Example proxy URL
+  iframe.src = "https://core.lab.infosv.ro"; // Example proxy URL
   iframe.style.width = "100%";
   iframe.style.height = "100%";
   iframe.style.border = "none";
