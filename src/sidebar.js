@@ -83,6 +83,7 @@ export class ProxySidebar {
       { key: "historyFloodButton", label: "History Flood", icon: "🌊" },
       { key: "corsProxyButton", label: "CORS Proxy", icon: "🔄" },
       { key: "pocketBrowserButton", label: "Pocket Browser", icon: "🔍" },
+      { key: "settingsButton", label: "Settings", icon: "⚙️" },
     ];
 
     // Create navigation buttons
