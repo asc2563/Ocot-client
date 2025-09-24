@@ -32,7 +32,7 @@ function injectGamesCSS() {
       outline: none;
     }
     .games-tab.active, .games-tab:hover {
-      background: #007acc;
+      background: var(--accent-color, #007acc);
       color: #fff;
     }
     .games-list {
@@ -106,7 +106,7 @@ function renderTabs() {
         (tab) => `
         <button class="games-tab${
           activeTab === tab.key ? " active" : ""
-        }" onclick="window.setGamesTab('${tab.key}')">${tab.label}</button>
+        }" data-tab-key="${tab.key}">${tab.label}</button>
       `
       ).join("")}
     </div>
@@ -139,10 +139,30 @@ function renderGames() {
       }
     </div>
   `;
+
+  // Set up event delegation for tab clicks
+  setupTabEventListeners();
 }
 
-// Expose tab switcher for inline onclick
-window.setGamesTab = setTab;
+function setupTabEventListeners() {
+  const container = document.getElementById("games-view");
+  if (!container) return;
+
+  // Remove existing listeners to prevent duplicates
+  container.removeEventListener("click", handleTabClick);
+  container.addEventListener("click", handleTabClick);
+}
+
+function handleTabClick(event) {
+  if (event.target.classList.contains("games-tab")) {
+    const tabKey = event.target.getAttribute("data-tab-key");
+    if (tabKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      setTab(tabKey);
+    }
+  }
+}
 
 export function showGamesView() {
   return `

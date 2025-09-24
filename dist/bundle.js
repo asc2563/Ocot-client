@@ -3180,7 +3180,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       outline: none;
     }
     .games-tab.active, .games-tab:hover {
-      background: #007acc;
+      background: var(--accent-color, #007acc);
       color: #fff;
     }
     .games-list {
@@ -3246,7 +3246,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
     <div class="games-tabs">
       ${TABS.map(
       (tab) => `
-        <button class="games-tab${activeTab === tab.key ? " active" : ""}" onclick="window.setGamesTab('${tab.key}')">${tab.label}</button>
+        <button class="games-tab${activeTab === tab.key ? " active" : ""}" data-tab-key="${tab.key}">${tab.label}</button>
       `
     ).join("")}
     </div>
@@ -3272,8 +3272,24 @@ https://discord.gg/jHjGrrdXP6"       );     };`
     ).join("")}
     </div>
   `;
+    setupTabEventListeners();
   }
-  window.setGamesTab = setTab;
+  function setupTabEventListeners() {
+    const container = document.getElementById("games-view");
+    if (!container) return;
+    container.removeEventListener("click", handleTabClick);
+    container.addEventListener("click", handleTabClick);
+  }
+  function handleTabClick(event) {
+    if (event.target.classList.contains("games-tab")) {
+      const tabKey = event.target.getAttribute("data-tab-key");
+      if (tabKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        setTab(tabKey);
+      }
+    }
+  }
   function showGamesView() {
     return `
     <div id="games-view" class="games-view">
