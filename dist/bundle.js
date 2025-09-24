@@ -552,7 +552,7 @@
           Press <kbd style="background: #404040; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to hide/show the client
         </p>
         <p style="margin: 0;">
-          Need help? Check out each tool's individual features by exploring the sidebar options.
+          Need help? Check out each tool's individual features by exploring the sidebar options Or check settings and scroll down. 
         </p>
       </div>
       
@@ -785,6 +785,10 @@
             <p style="margin: 0 0 6px 0;">
               \u2022 The Notes feature saves automatically to local storage
             </p>
+            
+            <div style="background: #2a1f3d; border-radius: 6px; padding: 12px; margin-top: 16px; border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">Important:</strong> For Utopia links (in the proxy), before using go to settings and turn off hidden mode.
+            </div>
             
             <div style="background: #23272f; border-radius: 6px; padding: 12px; margin-top: 16px; border-left: 4px solid #00bfff;">
               <strong style="color: #00bfff;">Note:</strong> This help section will be expanded with more detailed documentation and troubleshooting guides in future updates.

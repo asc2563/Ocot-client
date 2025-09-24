@@ -228,6 +228,10 @@ export default function createSettingsView() {
               • The Notes feature saves automatically to local storage
             </p>
             
+            <div style="background: #2a1f3d; border-radius: 6px; padding: 12px; margin-top: 16px; border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">Important:</strong> For Utopia links (in the proxy), before using go to settings and turn off hidden mode.
+            </div>
+            
             <div style="background: #23272f; border-radius: 6px; padding: 12px; margin-top: 16px; border-left: 4px solid #00bfff;">
               <strong style="color: #00bfff;">Note:</strong> This help section will be expanded with more detailed documentation and troubleshooting guides in future updates.
             </div>

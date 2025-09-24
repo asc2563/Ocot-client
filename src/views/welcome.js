@@ -135,7 +135,7 @@ export default function createWelcomeView() {
           Press <kbd style="background: #404040; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to hide/show the client
         </p>
         <p style="margin: 0;">
-          Need help? Check out each tool's individual features by exploring the sidebar options.
+          Need help? Check out each tool's individual features by exploring the sidebar options Or check settings and scroll down. 
         </p>
       </div>
       
