@@ -65,6 +65,16 @@ export default function createSettingsView() {
             <div style="color: #fff; font-weight: 600;">Matrix Green</div>
             <div style="color: #aaa; font-size: 0.85rem;">Terminal inspired</div>
           </div>
+          
+          <div class="theme-option" data-theme="red" style="background: #292d36; border: 2px solid #404040; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;">
+            <div class="theme-preview" style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <div style="width: 20px; height: 20px; background: #3d1f1f; border-radius: 4px;"></div>
+              <div style="width: 20px; height: 20px; background: #dc2626; border-radius: 4px;"></div>
+              <div style="width: 20px; height: 20px; background: #4a2929; border-radius: 4px;"></div>
+            </div>
+            <div style="color: #fff; font-weight: 600;">Crimson Red</div>
+            <div style="color: #aaa; font-size: 0.85rem;">Bold and striking</div>
+          </div>
         </div>
       </div>
 
@@ -196,138 +206,162 @@ export default function createSettingsView() {
 // Theme management functions
 function setupSettingsEventListeners() {
   // Theme selection
-  const themeOptions = document.querySelectorAll('.theme-option');
-  themeOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      const theme = option.getAttribute('data-theme');
+  const themeOptions = document.querySelectorAll(".theme-option");
+  themeOptions.forEach((option) => {
+    option.addEventListener("click", () => {
+      const theme = option.getAttribute("data-theme");
       applyTheme(theme);
-      
+
       // Update active theme selection
-      themeOptions.forEach(opt => opt.style.borderColor = '#404040');
-      option.style.borderColor = '#00bfff';
-      
+      themeOptions.forEach((opt) => (opt.style.borderColor = "#404040"));
+      option.style.borderColor = "#00bfff";
+
       // Save theme preference
-      localStorage.setItem('proxyClientTheme', theme);
+      localStorage.setItem("proxyClientTheme", theme);
     });
   });
 
   // Load saved theme on startup
-  const savedTheme = localStorage.getItem('proxyClientTheme') || 'default';
+  const savedTheme = localStorage.getItem("proxyClientTheme") || "default";
   applyTheme(savedTheme);
-  
+
   // Highlight saved theme
-  const savedThemeOption = document.querySelector(`[data-theme="${savedTheme}"]`);
+  const savedThemeOption = document.querySelector(
+    `[data-theme="${savedTheme}"]`
+  );
   if (savedThemeOption) {
-    savedThemeOption.style.borderColor = '#00bfff';
+    savedThemeOption.style.borderColor = "#00bfff";
   }
 
   // Browser settings
-  const saveButton = document.getElementById('save-browser-settings');
-  const resetButton = document.getElementById('reset-browser-settings');
-  
+  const saveButton = document.getElementById("save-browser-settings");
+  const resetButton = document.getElementById("reset-browser-settings");
+
   if (saveButton) {
-    saveButton.addEventListener('click', saveBrowserSettings);
+    saveButton.addEventListener("click", saveBrowserSettings);
   }
-  
+
   if (resetButton) {
-    resetButton.addEventListener('click', resetBrowserSettings);
+    resetButton.addEventListener("click", resetBrowserSettings);
   }
-  
+
   // Load saved browser settings
   loadBrowserSettings();
 }
 
 function applyTheme(themeName) {
   const root = document.documentElement;
-  
+
   switch (themeName) {
-    case 'blue':
-      root.style.setProperty('--bg-primary', '#1a1f2e');
-      root.style.setProperty('--bg-secondary', '#2a3040');
-      root.style.setProperty('--accent-color', '#0066cc');
-      root.style.setProperty('--accent-hover', '#0052a3');
+    case "blue":
+      root.style.setProperty("--bg-primary", "#1a1f2e");
+      root.style.setProperty("--bg-secondary", "#2a3040");
+      root.style.setProperty("--accent-color", "#0066cc");
+      root.style.setProperty("--accent-hover", "#0052a3");
+      root.style.setProperty("--accent-color-rgb", "0, 102, 204");
       break;
-    case 'purple':
-      root.style.setProperty('--bg-primary', '#2a1f3d');
-      root.style.setProperty('--bg-secondary', '#3d2a54');
-      root.style.setProperty('--accent-color', '#8b5cf6');
-      root.style.setProperty('--accent-hover', '#7c3aed');
+    case "purple":
+      root.style.setProperty("--bg-primary", "#2a1f3d");
+      root.style.setProperty("--bg-secondary", "#3d2a54");
+      root.style.setProperty("--accent-color", "#8b5cf6");
+      root.style.setProperty("--accent-hover", "#7c3aed");
+      root.style.setProperty("--accent-color-rgb", "139, 92, 246");
       break;
-    case 'green':
-      root.style.setProperty('--bg-primary', '#1f2f1f');
-      root.style.setProperty('--bg-secondary', '#2d3f2d');
-      root.style.setProperty('--accent-color', '#10b981');
-      root.style.setProperty('--accent-hover', '#059669');
+    case "green":
+      root.style.setProperty("--bg-primary", "#1f2f1f");
+      root.style.setProperty("--bg-secondary", "#2d3f2d");
+      root.style.setProperty("--accent-color", "#10b981");
+      root.style.setProperty("--accent-hover", "#059669");
+      root.style.setProperty("--accent-color-rgb", "16, 185, 129");
+      break;
+    case "red":
+      root.style.setProperty("--bg-primary", "#3d1f1f");
+      root.style.setProperty("--bg-secondary", "#4a2929");
+      root.style.setProperty("--accent-color", "#dc2626");
+      root.style.setProperty("--accent-hover", "#b91c1c");
+      root.style.setProperty("--accent-color-rgb", "220, 38, 38");
       break;
     default: // default theme
-      root.style.setProperty('--bg-primary', '#23272f');
-      root.style.setProperty('--bg-secondary', '#292d36');
-      root.style.setProperty('--accent-color', '#007acc');
-      root.style.setProperty('--accent-hover', '#005a9e');
+      root.style.setProperty("--bg-primary", "#23272f");
+      root.style.setProperty("--bg-secondary", "#292d36");
+      root.style.setProperty("--accent-color", "#007acc");
+      root.style.setProperty("--accent-hover", "#005a9e");
+      root.style.setProperty("--accent-color-rgb", "0, 122, 204");
       break;
   }
-  
+
   // Apply theme colors to existing elements
   updateThemeColors();
 }
 
 function updateThemeColors() {
   const root = document.documentElement;
-  const bgPrimary = root.style.getPropertyValue('--bg-primary') || '#23272f';
-  const bgSecondary = root.style.getPropertyValue('--bg-secondary') || '#292d36';
-  const accentColor = root.style.getPropertyValue('--accent-color') || '#007acc';
-  
+  const bgPrimary = root.style.getPropertyValue("--bg-primary") || "#23272f";
+  const bgSecondary =
+    root.style.getPropertyValue("--bg-secondary") || "#292d36";
+  const accentColor =
+    root.style.getPropertyValue("--accent-color") || "#007acc";
+
   // Update main app elements
-  const appFrame = document.querySelector('.proxy-app-frame');
-  const sidebar = document.querySelector('.proxy-sidebar');
-  const content = document.querySelector('.proxy-content');
-  
+  const appFrame = document.querySelector(".proxy-app-frame");
+  const sidebar = document.querySelector(".proxy-sidebar");
+  const content = document.querySelector(".proxy-content");
+
   if (appFrame) {
     appFrame.style.background = bgPrimary;
   }
-  
+
   if (content) {
     content.style.background = bgPrimary;
   }
-  
+
   // Update all card-based views
-  const cardViews = document.querySelectorAll('.card-grid-view');
-  cardViews.forEach(view => {
+  const cardViews = document.querySelectorAll(".card-grid-view");
+  cardViews.forEach((view) => {
     view.style.background = bgPrimary;
   });
-  
+
   // Update card items
-  const cardItems = document.querySelectorAll('.card-item, .game-item, .script-item');
-  cardItems.forEach(item => {
+  const cardItems = document.querySelectorAll(
+    ".card-item, .game-item, .script-item"
+  );
+  cardItems.forEach((item) => {
     item.style.background = bgSecondary;
   });
-  
+
   // Update active buttons
-  const activeButtons = document.querySelectorAll('.sidebar-btn.active, .games-tab.active');
-  activeButtons.forEach(btn => {
+  const activeButtons = document.querySelectorAll(
+    ".sidebar-btn.active, .games-tab.active"
+  );
+  activeButtons.forEach((btn) => {
     btn.style.background = accentColor;
   });
 }
 
 function saveBrowserSettings() {
   const settings = {
-    homepage: document.getElementById('homepage-input')?.value || 'https://www.google.com',
-    enableHistory: document.getElementById('enable-history')?.checked || true,
-    enableBookmarks: document.getElementById('enable-bookmarks')?.checked || true,
-    enablePopupBlocker: document.getElementById('enable-popup-blocker')?.checked || true,
-    enableSafeSearch: document.getElementById('enable-safe-search')?.checked || false,
-    userAgent: document.getElementById('user-agent-select')?.value || 'default'
+    homepage:
+      document.getElementById("homepage-input")?.value ||
+      "https://www.google.com?igu=1",
+    enableHistory: document.getElementById("enable-history")?.checked || true,
+    enableBookmarks:
+      document.getElementById("enable-bookmarks")?.checked || true,
+    enablePopupBlocker:
+      document.getElementById("enable-popup-blocker")?.checked || true,
+    enableSafeSearch:
+      document.getElementById("enable-safe-search")?.checked || false,
+    userAgent: document.getElementById("user-agent-select")?.value || "default",
   };
-  
-  localStorage.setItem('pocketBrowserSettings', JSON.stringify(settings));
-  
+
+  localStorage.setItem("pocketBrowserSettings", JSON.stringify(settings));
+
   // Show confirmation
-  const saveButton = document.getElementById('save-browser-settings');
+  const saveButton = document.getElementById("save-browser-settings");
   if (saveButton) {
     const originalText = saveButton.innerHTML;
-    saveButton.innerHTML = '✅ Saved!';
-    saveButton.style.background = '#28a745';
-    
+    saveButton.innerHTML = "✅ Saved!";
+    saveButton.style.background = "#28a745";
+
     setTimeout(() => {
       saveButton.innerHTML = originalText;
     }, 2000);
@@ -336,38 +370,38 @@ function saveBrowserSettings() {
 
 function resetBrowserSettings() {
   const defaults = {
-    homepage: 'https://www.google.com',
+    homepage: "https://www.google.com",
     enableHistory: true,
     enableBookmarks: true,
     enablePopupBlocker: true,
     enableSafeSearch: false,
-    userAgent: 'default'
+    userAgent: "default",
   };
-  
+
   // Update UI
-  const homepageInput = document.getElementById('homepage-input');
-  const historyCheck = document.getElementById('enable-history');
-  const bookmarksCheck = document.getElementById('enable-bookmarks');
-  const popupCheck = document.getElementById('enable-popup-blocker');
-  const safeSearchCheck = document.getElementById('enable-safe-search');
-  const userAgentSelect = document.getElementById('user-agent-select');
-  
+  const homepageInput = document.getElementById("homepage-input");
+  const historyCheck = document.getElementById("enable-history");
+  const bookmarksCheck = document.getElementById("enable-bookmarks");
+  const popupCheck = document.getElementById("enable-popup-blocker");
+  const safeSearchCheck = document.getElementById("enable-safe-search");
+  const userAgentSelect = document.getElementById("user-agent-select");
+
   if (homepageInput) homepageInput.value = defaults.homepage;
   if (historyCheck) historyCheck.checked = defaults.enableHistory;
   if (bookmarksCheck) bookmarksCheck.checked = defaults.enableBookmarks;
   if (popupCheck) popupCheck.checked = defaults.enablePopupBlocker;
   if (safeSearchCheck) safeSearchCheck.checked = defaults.enableSafeSearch;
   if (userAgentSelect) userAgentSelect.value = defaults.userAgent;
-  
+
   // Save defaults
-  localStorage.setItem('pocketBrowserSettings', JSON.stringify(defaults));
-  
+  localStorage.setItem("pocketBrowserSettings", JSON.stringify(defaults));
+
   // Show confirmation
-  const resetButton = document.getElementById('reset-browser-settings');
+  const resetButton = document.getElementById("reset-browser-settings");
   if (resetButton) {
     const originalText = resetButton.innerHTML;
-    resetButton.innerHTML = '✅ Reset Complete';
-    
+    resetButton.innerHTML = "✅ Reset Complete";
+
     setTimeout(() => {
       resetButton.innerHTML = originalText;
     }, 2000);
@@ -375,35 +409,39 @@ function resetBrowserSettings() {
 }
 
 function loadBrowserSettings() {
-  const saved = localStorage.getItem('pocketBrowserSettings');
+  const saved = localStorage.getItem("pocketBrowserSettings");
   if (!saved) return;
-  
+
   try {
     const settings = JSON.parse(saved);
-    
-    const homepageInput = document.getElementById('homepage-input');
-    const historyCheck = document.getElementById('enable-history');
-    const bookmarksCheck = document.getElementById('enable-bookmarks');
-    const popupCheck = document.getElementById('enable-popup-blocker');
-    const safeSearchCheck = document.getElementById('enable-safe-search');
-    const userAgentSelect = document.getElementById('user-agent-select');
-    
-    if (homepageInput) homepageInput.value = settings.homepage || 'https://www.google.com';
+
+    const homepageInput = document.getElementById("homepage-input");
+    const historyCheck = document.getElementById("enable-history");
+    const bookmarksCheck = document.getElementById("enable-bookmarks");
+    const popupCheck = document.getElementById("enable-popup-blocker");
+    const safeSearchCheck = document.getElementById("enable-safe-search");
+    const userAgentSelect = document.getElementById("user-agent-select");
+
+    if (homepageInput)
+      homepageInput.value = settings.homepage || "https://www.google.com";
     if (historyCheck) historyCheck.checked = settings.enableHistory !== false;
-    if (bookmarksCheck) bookmarksCheck.checked = settings.enableBookmarks !== false;
+    if (bookmarksCheck)
+      bookmarksCheck.checked = settings.enableBookmarks !== false;
     if (popupCheck) popupCheck.checked = settings.enablePopupBlocker !== false;
-    if (safeSearchCheck) safeSearchCheck.checked = settings.enableSafeSearch === true;
-    if (userAgentSelect) userAgentSelect.value = settings.userAgent || 'default';
+    if (safeSearchCheck)
+      safeSearchCheck.checked = settings.enableSafeSearch === true;
+    if (userAgentSelect)
+      userAgentSelect.value = settings.userAgent || "default";
   } catch (e) {
-    console.warn('Failed to load browser settings:', e);
+    console.warn("Failed to load browser settings:", e);
   }
 }
 
 // Export utility functions for use by pocket browser
 export function getPocketBrowserSettings() {
-  const saved = localStorage.getItem('pocketBrowserSettings');
+  const saved = localStorage.getItem("pocketBrowserSettings");
   if (!saved) return null;
-  
+
   try {
     return JSON.parse(saved);
   } catch (e) {

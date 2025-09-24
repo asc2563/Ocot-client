@@ -1,5 +1,6 @@
 import { injectAppCSS } from "./css.js";
 import ProxySidebar from "./sidebar.js";
+import createWelcomeView from "./views/welcome.js";
 import createProxyView from "./views/proxy.js";
 import createNotesView from "./views/notes.js";
 import createCalculatorView from "./views/calculator.js";
@@ -44,6 +45,15 @@ class ProxyClientApp {
     this.sidebar.addNavigationButtons();
     this.sidebarButtons = this.sidebar.getButtons();
 
+    // Don't set any initial active button since we're showing welcome view
+    this.sidebar.setActiveButton(null);
+
+    // Add click event to header for returning to welcome
+    const sidebarHeader = this.sidebar.getHeader();
+    sidebarHeader.addEventListener("click", () => {
+      this.showWelcomeView();
+    });
+
     // Content
     const content = this.createContent();
 
@@ -61,6 +71,20 @@ class ProxyClientApp {
       if (event.key === "\\") {
         if (window.proxyFrame) {
           this.toggleProxyClient();
+        }
+      }
+    });
+
+    // Clear active button when clicking outside the proxy client
+    document.addEventListener("click", (event) => {
+      // Check if click is outside the proxy client frame
+      if (this.frame && this.frame.style.display !== "none") {
+        const clickedInsideFrame = this.frame.contains(event.target);
+
+        if (!clickedInsideFrame) {
+          // Clear all active button states (except settings which is handled in the method)
+          console.log("Clicking outside - clearing active buttons");
+          this.sidebar.setActiveButton(null);
         }
       }
     });
@@ -279,6 +303,16 @@ class ProxyClientApp {
     console.log("Proxy client completely removed");
   }
 
+  // Show welcome view (called when clicking header)
+  showWelcomeView() {
+    // Hide all views
+    Object.values(this.views).forEach((view) => (view.style.display = "none"));
+    // Show welcome view
+    if (this.views.welcomeView) this.views.welcomeView.style.display = "flex";
+    // Clear active button since welcome doesn't have a sidebar button
+    this.sidebar.setActiveButton(null);
+  }
+
   setupFrameStyle() {
     const frame = this.frame;
     frame.className = "proxy-app-frame";
@@ -310,6 +344,7 @@ class ProxyClientApp {
     content.appendChild(overlay);
 
     // Views
+    this.views.welcomeView = createWelcomeView();
     this.views.proxyView = createProxyView();
     this.views.notesView = createNotesView();
     this.views.calculatorView = createCalculatorView();
@@ -335,9 +370,9 @@ class ProxyClientApp {
       content.appendChild(view);
     });
 
-    // Hide all views, then show only proxyView by default
+    // Hide all views, then show only welcomeView by default
     Object.values(this.views).forEach((view) => (view.style.display = "none"));
-    if (this.views.proxyView) this.views.proxyView.style.display = "flex";
+    if (this.views.welcomeView) this.views.welcomeView.style.display = "flex";
 
     // Setup sidebar button events
     this.setupSidebarEvents();

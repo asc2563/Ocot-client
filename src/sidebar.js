@@ -37,10 +37,16 @@ export class ProxySidebar {
   createHeader() {
     const header = document.createElement("div");
     header.className = "sidebar-header";
+    header.style.cursor = "pointer";
+    header.title = "Click to return to welcome screen";
     header.innerHTML = `
       <h1 class="sidebar-title">Proxy Client</h1>
       <p class="sidebar-subtitle">by ASC2563</p>
     `;
+
+    // Store reference for external event binding
+    this.headerElement = header;
+
     return header;
   }
 
@@ -72,7 +78,7 @@ export class ProxySidebar {
   addNavigationButtons() {
     // Main navigation buttons
     const navButtons = [
-      { key: "proxyButton", label: "Proxy", icon: "🌐", active: true },
+      { key: "proxyButton", label: "Proxy", icon: "🌐" },
       { key: "gamesButton", label: "Games List", icon: "🎮" },
       { key: "bookmarkletsButton", label: "Bookmarklets", icon: "🔖" },
       { key: "scriptsButton", label: "Scripts", icon: "📜" },
@@ -83,7 +89,7 @@ export class ProxySidebar {
       { key: "historyFloodButton", label: "History Flood", icon: "🌊" },
       { key: "corsProxyButton", label: "CORS Proxy", icon: "🔄" },
       { key: "pocketBrowserButton", label: "Pocket Browser", icon: "🔍" },
-      { key: "settingsButton", label: "Settings", icon: "⚙️" },
+      { key: "settingsButton", label: "Settings", icon: "⚙️", active: true },
     ];
 
     // Create navigation buttons
@@ -108,16 +114,32 @@ export class ProxySidebar {
     return this.buttons;
   }
 
+  // Get header element for external event binding
+  getHeader() {
+    return this.headerElement;
+  }
+
   // Set active button
   setActiveButton(buttonKey) {
-    // Remove active class from all buttons
-    Object.values(this.buttons).forEach((btn) => {
-      btn.classList.remove("active");
+    console.log("setActiveButton called with:", buttonKey);
+
+    // Remove active class from all buttons except settings
+    Object.entries(this.buttons).forEach(([key, btn]) => {
+      if (key !== "settingsButton") {
+        console.log("Removing active from:", key);
+        btn.classList.remove("active");
+      }
     });
 
-    // Add active class to selected button
-    if (this.buttons[buttonKey]) {
+    // Add active class to selected button (if it exists and is not null)
+    if (buttonKey && this.buttons[buttonKey]) {
+      console.log("Adding active to:", buttonKey);
       this.buttons[buttonKey].classList.add("active");
+    }
+
+    // Always keep settings button active
+    if (this.buttons.settingsButton) {
+      this.buttons.settingsButton.classList.add("active");
     }
   }
 
@@ -154,10 +176,17 @@ export class ProxySidebar {
         border-bottom: 1px solid #404040;
         text-align: center;
         background: linear-gradient(135deg, #23272f, #2a2e37);
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-header:hover {
+        background: linear-gradient(135deg, #2a2e37, #323641);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(var(--accent-color-rgb, 0, 191, 255), 0.1);
       }
 
       .sidebar-title {
-        color: #00bfff;
+        color: var(--accent-color);
         font-size: 1.4rem;
         font-weight: 700;
         margin: 0 0 4px 0;
@@ -192,15 +221,15 @@ export class ProxySidebar {
       }
 
       .sidebar-btn:hover {
-        background: rgba(0, 122, 204, 0.1);
-        color: #00bfff;
+        background: rgba(var(--accent-color-rgb, 0, 122, 204), 0.1);
+        color: var(--accent-color);
         transform: translateX(4px);
       }
 
       .sidebar-btn.active {
-        background: #007acc;
+        background: var(--accent-color);
         color: #fff;
-        box-shadow: 0 2px 8px rgba(0, 122, 204, 0.3);
+        box-shadow: 0 2px 8px rgba(var(--accent-color-rgb, 0, 122, 204), 0.3);
       }
 
       .sidebar-btn.active::before {
@@ -210,7 +239,7 @@ export class ProxySidebar {
         top: 0;
         width: 3px;
         height: 100%;
-        background: #00bfff;
+        background: var(--accent-color);
       }
 
       .sidebar-btn.hide-btn {

@@ -10,6 +10,7 @@ export function injectAppCSS() {
       --bg-secondary: #292d36;
       --accent-color: #007acc;
       --accent-hover: #005a9e;
+      --accent-color-rgb: 0, 122, 204;
       --text-primary: #fff;
       --text-secondary: #aaa;
       --border-color: #404040;

@@ -11,6 +11,7 @@
       --bg-secondary: #292d36;
       --accent-color: #007acc;
       --accent-hover: #005a9e;
+      --accent-color-rgb: 0, 122, 204;
       --text-primary: #fff;
       --text-secondary: #aaa;
       --border-color: #404040;
@@ -192,10 +193,13 @@
     createHeader() {
       const header = document.createElement("div");
       header.className = "sidebar-header";
+      header.style.cursor = "pointer";
+      header.title = "Click to return to welcome screen";
       header.innerHTML = `
       <h1 class="sidebar-title">Proxy Client</h1>
       <p class="sidebar-subtitle">by ASC2563</p>
     `;
+      this.headerElement = header;
       return header;
     }
     // Create scrollable button container
@@ -221,7 +225,7 @@
     // Add all navigation buttons
     addNavigationButtons() {
       const navButtons = [
-        { key: "proxyButton", label: "Proxy", icon: "\u{1F310}", active: true },
+        { key: "proxyButton", label: "Proxy", icon: "\u{1F310}" },
         { key: "gamesButton", label: "Games List", icon: "\u{1F3AE}" },
         { key: "bookmarkletsButton", label: "Bookmarklets", icon: "\u{1F516}" },
         { key: "scriptsButton", label: "Scripts", icon: "\u{1F4DC}" },
@@ -232,7 +236,7 @@
         { key: "historyFloodButton", label: "History Flood", icon: "\u{1F30A}" },
         { key: "corsProxyButton", label: "CORS Proxy", icon: "\u{1F504}" },
         { key: "pocketBrowserButton", label: "Pocket Browser", icon: "\u{1F50D}" },
-        { key: "settingsButton", label: "Settings", icon: "\u2699\uFE0F" }
+        { key: "settingsButton", label: "Settings", icon: "\u2699\uFE0F", active: true }
       ];
       navButtons.forEach(({ key, label, icon, active }) => {
         this.buttons[key] = this.createButton(label, icon);
@@ -250,13 +254,25 @@
     getButtons() {
       return this.buttons;
     }
+    // Get header element for external event binding
+    getHeader() {
+      return this.headerElement;
+    }
     // Set active button
     setActiveButton(buttonKey) {
-      Object.values(this.buttons).forEach((btn) => {
-        btn.classList.remove("active");
+      console.log("setActiveButton called with:", buttonKey);
+      Object.entries(this.buttons).forEach(([key, btn]) => {
+        if (key !== "settingsButton") {
+          console.log("Removing active from:", key);
+          btn.classList.remove("active");
+        }
       });
-      if (this.buttons[buttonKey]) {
+      if (buttonKey && this.buttons[buttonKey]) {
+        console.log("Adding active to:", buttonKey);
         this.buttons[buttonKey].classList.add("active");
+      }
+      if (this.buttons.settingsButton) {
+        this.buttons.settingsButton.classList.add("active");
       }
     }
     // Add custom button
@@ -290,10 +306,17 @@
         border-bottom: 1px solid #404040;
         text-align: center;
         background: linear-gradient(135deg, #23272f, #2a2e37);
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-header:hover {
+        background: linear-gradient(135deg, #2a2e37, #323641);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(var(--accent-color-rgb, 0, 191, 255), 0.1);
       }
 
       .sidebar-title {
-        color: #00bfff;
+        color: var(--accent-color);
         font-size: 1.4rem;
         font-weight: 700;
         margin: 0 0 4px 0;
@@ -328,15 +351,15 @@
       }
 
       .sidebar-btn:hover {
-        background: rgba(0, 122, 204, 0.1);
-        color: #00bfff;
+        background: rgba(var(--accent-color-rgb, 0, 122, 204), 0.1);
+        color: var(--accent-color);
         transform: translateX(4px);
       }
 
       .sidebar-btn.active {
-        background: #007acc;
+        background: var(--accent-color);
         color: #fff;
-        box-shadow: 0 2px 8px rgba(0, 122, 204, 0.3);
+        box-shadow: 0 2px 8px rgba(var(--accent-color-rgb, 0, 122, 204), 0.3);
       }
 
       .sidebar-btn.active::before {
@@ -346,7 +369,7 @@
         top: 0;
         width: 3px;
         height: 100%;
-        background: #00bfff;
+        background: var(--accent-color);
       }
 
       .sidebar-btn.hide-btn {
@@ -395,6 +418,148 @@
     }
   };
   var sidebar_default = ProxySidebar;
+
+  // src/views/welcome.js
+  function createWelcomeView() {
+    injectAppCSS();
+    const welcomeView = document.createElement("div");
+    welcomeView.className = "card-grid-view";
+    welcomeView.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 40px 20px;
+    overflow-y: auto;
+    height: 100%;
+  `;
+    welcomeView.innerHTML = `
+    <div style="max-width: 800px; width: 100%;">
+      <!-- Welcome Header -->
+      <div style="margin-bottom: 40px;">
+        <div style="font-size: 4rem; margin-bottom: 16px;">\u{1F527}</div>
+        <h1 style="color: #00bfff; font-size: 2.5rem; margin: 0 0 12px 0; font-weight: 700;">
+          Welcome to Proxy Client
+        </h1>
+        <p style="color: #7d8590; font-size: 1.2rem; margin: 0; line-height: 1.5;">
+          by ASC2563 \u2022 Your ultimate web proxy toolkit
+        </p>
+      </div>
+
+      <!-- Feature Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        
+        <!-- Proxy Tools Card -->
+        <div class="card-item" style="padding: 24px; text-align: left;">
+          <div style="display: flex; align-items: center; margin-bottom: 16px;">
+            <span style="font-size: 2rem; margin-right: 12px;">\u{1F310}</span>
+            <h3 style="color: #00bfff; margin: 0; font-size: 1.3rem;">Proxy Tools</h3>
+          </div>
+          <p style="color: #d4d4d4; margin: 0 0 12px 0; line-height: 1.5;">
+            Access blocked websites and bypass restrictions with our powerful proxy system.
+          </p>
+          <ul style="color: #7d8590; margin: 0; padding-left: 20px; font-size: 0.9rem;">
+            <li>Web proxy with custom settings</li>
+            <li>CORS proxy for API requests</li>
+            <li>History flooding protection</li>
+          </ul>
+        </div>
+
+        <!-- Games & Entertainment Card -->
+        <div class="card-item" style="padding: 24px; text-align: left;">
+          <div style="display: flex; align-items: center; margin-bottom: 16px;">
+            <span style="font-size: 2rem; margin-right: 12px;">\u{1F3AE}</span>
+            <h3 style="color: #00bfff; margin: 0; font-size: 1.3rem;">Games & Fun</h3>
+          </div>
+          <p style="color: #d4d4d4; margin: 0 0 12px 0; line-height: 1.5;">
+            Access a curated list of unblocked games and entertainment sites.
+          </p>
+          <ul style="color: #7d8590; margin: 0; padding-left: 20px; font-size: 0.9rem;">
+            <li>Unblocked games collection</li>
+            <li>Educational content</li>
+            <li>Entertainment platforms</li>
+          </ul>
+        </div>
+
+        <!-- Developer Tools Card -->
+        <div class="card-item" style="padding: 24px; text-align: left;">
+          <div style="display: flex; align-items: center; margin-bottom: 16px;">
+            <span style="font-size: 2rem; margin-right: 12px;">\u{1F4BB}</span>
+            <h3 style="color: #00bfff; margin: 0; font-size: 1.3rem;">Developer Tools</h3>
+          </div>
+          <p style="color: #d4d4d4; margin: 0 0 12px 0; line-height: 1.5;">
+            Built-in tools for development, testing, and productivity.
+          </p>
+          <ul style="color: #7d8590; margin: 0; padding-left: 20px; font-size: 0.9rem;">
+            <li>JavaScript console</li>
+            <li>Calculator with advanced functions</li>
+            <li>Notes and bookmarklets</li>
+          </ul>
+        </div>
+
+        <!-- Privacy & Security Card -->
+        <div class="card-item" style="padding: 24px; text-align: left;">
+          <div style="display: flex; align-items: center; margin-bottom: 16px;">
+            <span style="font-size: 2rem; margin-right: 12px;">\u{1F3AD}</span>
+            <h3 style="color: #00bfff; margin: 0; font-size: 1.3rem;">Privacy & Security</h3>
+          </div>
+          <p style="color: #d4d4d4; margin: 0 0 12px 0; line-height: 1.5;">
+            Advanced privacy tools to protect your browsing and identity.
+          </p>
+          <ul style="color: #7d8590; margin: 0; padding-left: 20px; font-size: 0.9rem;">
+            <li>Tab cloaking and disguise</li>
+            <li>Pocket browser for isolation</li>
+            <li>Custom scripts and automation</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Quick Start Section -->
+      <div style="background: #292d36; border-radius: 12px; padding: 32px; margin-bottom: 32px; border: 1px solid #404040;">
+        <h2 style="color: #00bfff; margin: 0 0 20px 0; font-size: 1.5rem;">\u{1F680} Quick Start</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; text-align: left;">
+          
+          <div>
+            <h4 style="color: #d4d4d4; margin: 0 0 8px 0; font-size: 1.1rem;">1. Choose a Tool</h4>
+            <p style="color: #7d8590; margin: 0; font-size: 0.9rem;">
+              Click any option in the sidebar to access different features and tools.
+            </p>
+          </div>
+          
+          <div>
+            <h4 style="color: #d4d4d4; margin: 0 0 8px 0; font-size: 1.1rem;">2. Browse Safely</h4>
+            <p style="color: #7d8590; margin: 0; font-size: 0.9rem;">
+              Use the proxy tab to access blocked websites securely and anonymously.
+            </p>
+          </div>
+          
+          <div>
+            <h4 style="color: #d4d4d4; margin: 0 0 8px 0; font-size: 1.1rem;">3. Stay Hidden</h4>
+            <p style="color: #7d8590; margin: 0; font-size: 0.9rem;">
+              Press \\ to hide the client or use cloaking tools for extra privacy.
+            </p>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div style="color: #7d8590; font-size: 0.9rem; line-height: 1.6;">
+        <p style="margin: 0 0 12px 0;">
+          <strong style="color: #00bfff;">Keyboard Shortcuts:</strong> 
+          Press <kbd style="background: #404040; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to hide/show the client
+        </p>
+        <p style="margin: 0;">
+          Need help? Check out each tool's individual features by exploring the sidebar options.
+        </p>
+      </div>
+      
+    </div>
+  `;
+    return welcomeView;
+  }
 
   // src/views/proxy.js
   function createProxyView() {
@@ -1528,6 +1693,16 @@ Math.sqrt(16);
             <div style="color: #fff; font-weight: 600;">Matrix Green</div>
             <div style="color: #aaa; font-size: 0.85rem;">Terminal inspired</div>
           </div>
+          
+          <div class="theme-option" data-theme="red" style="background: #292d36; border: 2px solid #404040; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;">
+            <div class="theme-preview" style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <div style="width: 20px; height: 20px; background: #3d1f1f; border-radius: 4px;"></div>
+              <div style="width: 20px; height: 20px; background: #dc2626; border-radius: 4px;"></div>
+              <div style="width: 20px; height: 20px; background: #4a2929; border-radius: 4px;"></div>
+            </div>
+            <div style="color: #fff; font-weight: 600;">Crimson Red</div>
+            <div style="color: #aaa; font-size: 0.85rem;">Bold and striking</div>
+          </div>
         </div>
       </div>
 
@@ -1665,7 +1840,9 @@ Math.sqrt(16);
     });
     const savedTheme = localStorage.getItem("proxyClientTheme") || "default";
     applyTheme(savedTheme);
-    const savedThemeOption = document.querySelector(`[data-theme="${savedTheme}"]`);
+    const savedThemeOption = document.querySelector(
+      `[data-theme="${savedTheme}"]`
+    );
     if (savedThemeOption) {
       savedThemeOption.style.borderColor = "#00bfff";
     }
@@ -1687,24 +1864,35 @@ Math.sqrt(16);
         root.style.setProperty("--bg-secondary", "#2a3040");
         root.style.setProperty("--accent-color", "#0066cc");
         root.style.setProperty("--accent-hover", "#0052a3");
+        root.style.setProperty("--accent-color-rgb", "0, 102, 204");
         break;
       case "purple":
         root.style.setProperty("--bg-primary", "#2a1f3d");
         root.style.setProperty("--bg-secondary", "#3d2a54");
         root.style.setProperty("--accent-color", "#8b5cf6");
         root.style.setProperty("--accent-hover", "#7c3aed");
+        root.style.setProperty("--accent-color-rgb", "139, 92, 246");
         break;
       case "green":
         root.style.setProperty("--bg-primary", "#1f2f1f");
         root.style.setProperty("--bg-secondary", "#2d3f2d");
         root.style.setProperty("--accent-color", "#10b981");
         root.style.setProperty("--accent-hover", "#059669");
+        root.style.setProperty("--accent-color-rgb", "16, 185, 129");
+        break;
+      case "red":
+        root.style.setProperty("--bg-primary", "#3d1f1f");
+        root.style.setProperty("--bg-secondary", "#4a2929");
+        root.style.setProperty("--accent-color", "#dc2626");
+        root.style.setProperty("--accent-hover", "#b91c1c");
+        root.style.setProperty("--accent-color-rgb", "220, 38, 38");
         break;
       default:
         root.style.setProperty("--bg-primary", "#23272f");
         root.style.setProperty("--bg-secondary", "#292d36");
         root.style.setProperty("--accent-color", "#007acc");
         root.style.setProperty("--accent-hover", "#005a9e");
+        root.style.setProperty("--accent-color-rgb", "0, 122, 204");
         break;
     }
     updateThemeColors();
@@ -1727,18 +1915,22 @@ Math.sqrt(16);
     cardViews.forEach((view) => {
       view.style.background = bgPrimary;
     });
-    const cardItems = document.querySelectorAll(".card-item, .game-item, .script-item");
+    const cardItems = document.querySelectorAll(
+      ".card-item, .game-item, .script-item"
+    );
     cardItems.forEach((item) => {
       item.style.background = bgSecondary;
     });
-    const activeButtons = document.querySelectorAll(".sidebar-btn.active, .games-tab.active");
+    const activeButtons = document.querySelectorAll(
+      ".sidebar-btn.active, .games-tab.active"
+    );
     activeButtons.forEach((btn) => {
       btn.style.background = accentColor;
     });
   }
   function saveBrowserSettings() {
     const settings = {
-      homepage: document.getElementById("homepage-input")?.value || "https://www.google.com",
+      homepage: document.getElementById("homepage-input")?.value || "https://www.google.com?igu=1",
       enableHistory: document.getElementById("enable-history")?.checked || true,
       enableBookmarks: document.getElementById("enable-bookmarks")?.checked || true,
       enablePopupBlocker: document.getElementById("enable-popup-blocker")?.checked || true,
@@ -1798,12 +1990,16 @@ Math.sqrt(16);
       const popupCheck = document.getElementById("enable-popup-blocker");
       const safeSearchCheck = document.getElementById("enable-safe-search");
       const userAgentSelect = document.getElementById("user-agent-select");
-      if (homepageInput) homepageInput.value = settings.homepage || "https://www.google.com";
+      if (homepageInput)
+        homepageInput.value = settings.homepage || "https://www.google.com";
       if (historyCheck) historyCheck.checked = settings.enableHistory !== false;
-      if (bookmarksCheck) bookmarksCheck.checked = settings.enableBookmarks !== false;
+      if (bookmarksCheck)
+        bookmarksCheck.checked = settings.enableBookmarks !== false;
       if (popupCheck) popupCheck.checked = settings.enablePopupBlocker !== false;
-      if (safeSearchCheck) safeSearchCheck.checked = settings.enableSafeSearch === true;
-      if (userAgentSelect) userAgentSelect.value = settings.userAgent || "default";
+      if (safeSearchCheck)
+        safeSearchCheck.checked = settings.enableSafeSearch === true;
+      if (userAgentSelect)
+        userAgentSelect.value = settings.userAgent || "default";
     } catch (e) {
       console.warn("Failed to load browser settings:", e);
     }
@@ -2493,6 +2689,11 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       const sidebarElement = this.sidebar.createSidebar();
       this.sidebar.addNavigationButtons();
       this.sidebarButtons = this.sidebar.getButtons();
+      this.sidebar.setActiveButton(null);
+      const sidebarHeader = this.sidebar.getHeader();
+      sidebarHeader.addEventListener("click", () => {
+        this.showWelcomeView();
+      });
       const content = this.createContent();
       this.frame.appendChild(sidebarElement);
       this.frame.appendChild(content);
@@ -2502,6 +2703,15 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         if (event.key === "\\") {
           if (window.proxyFrame) {
             this.toggleProxyClient();
+          }
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (this.frame && this.frame.style.display !== "none") {
+          const clickedInsideFrame = this.frame.contains(event.target);
+          if (!clickedInsideFrame) {
+            console.log("Clicking outside - clearing active buttons");
+            this.sidebar.setActiveButton(null);
           }
         }
       });
@@ -2665,6 +2875,12 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       window.proxyFrame = null;
       console.log("Proxy client completely removed");
     }
+    // Show welcome view (called when clicking header)
+    showWelcomeView() {
+      Object.values(this.views).forEach((view) => view.style.display = "none");
+      if (this.views.welcomeView) this.views.welcomeView.style.display = "flex";
+      this.sidebar.setActiveButton(null);
+    }
     setupFrameStyle() {
       const frame = this.frame;
       frame.className = "proxy-app-frame";
@@ -2691,6 +2907,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       const overlay = document.createElement("div");
       overlay.className = "content-overlay";
       content.appendChild(overlay);
+      this.views.welcomeView = createWelcomeView();
       this.views.proxyView = createProxyView();
       this.views.notesView = createNotesView();
       this.views.calculatorView = createCalculatorView();
@@ -2712,7 +2929,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         content.appendChild(view);
       });
       Object.values(this.views).forEach((view) => view.style.display = "none");
-      if (this.views.proxyView) this.views.proxyView.style.display = "flex";
+      if (this.views.welcomeView) this.views.welcomeView.style.display = "flex";
       this.setupSidebarEvents();
       return content;
     }
