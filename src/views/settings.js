@@ -586,6 +586,17 @@ function saveProxySettings() {
 
   localStorage.setItem("proxyClientProxySettings", JSON.stringify(settings));
 
+  console.log("Settings: Saved proxy settings", settings);
+
+  // Dispatch custom event for immediate proxy tab reload
+  window.dispatchEvent(
+    new CustomEvent("proxySettingsChanged", {
+      detail: settings,
+    })
+  );
+
+  console.log("Settings: Dispatched proxySettingsChanged event");
+
   // Show confirmation
   const saveProxyButton = document.getElementById("save-proxy-settings");
   if (saveProxyButton) {
@@ -617,6 +628,17 @@ function resetProxySettings() {
 
   // Save defaults
   localStorage.setItem("proxyClientProxySettings", JSON.stringify(defaults));
+
+  console.log("Settings: Reset proxy settings to defaults", defaults);
+
+  // Dispatch custom event for immediate proxy tab reload
+  window.dispatchEvent(
+    new CustomEvent("proxySettingsChanged", {
+      detail: defaults,
+    })
+  );
+
+  console.log("Settings: Dispatched proxySettingsChanged event for reset");
 
   // Show confirmation
   const resetProxyButton = document.getElementById("reset-proxy-settings");

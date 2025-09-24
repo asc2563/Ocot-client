@@ -1060,6 +1060,13 @@
       customUrl: customProxyUrl?.value?.trim() || ""
     };
     localStorage.setItem("proxyClientProxySettings", JSON.stringify(settings));
+    console.log("Settings: Saved proxy settings", settings);
+    window.dispatchEvent(
+      new CustomEvent("proxySettingsChanged", {
+        detail: settings
+      })
+    );
+    console.log("Settings: Dispatched proxySettingsChanged event");
     const saveProxyButton = document.getElementById("save-proxy-settings");
     if (saveProxyButton) {
       const originalText = saveProxyButton.innerHTML;
@@ -1083,6 +1090,13 @@
     if (customProxyUrl) customProxyUrl.value = defaults.customUrl;
     if (customProxyInput) customProxyInput.style.display = "none";
     localStorage.setItem("proxyClientProxySettings", JSON.stringify(defaults));
+    console.log("Settings: Reset proxy settings to defaults", defaults);
+    window.dispatchEvent(
+      new CustomEvent("proxySettingsChanged", {
+        detail: defaults
+      })
+    );
+    console.log("Settings: Dispatched proxySettingsChanged event for reset");
     const resetProxyButton = document.getElementById("reset-proxy-settings");
     if (resetProxyButton) {
       const originalText = resetProxyButton.innerHTML;
@@ -1162,6 +1176,27 @@
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
+    function reloadProxyIframe() {
+      const currentSettings = getProxySettings();
+      const newUrl = currentSettings.url || "https://core.lab.infosv.ro";
+      if (iframe.src !== newUrl) {
+        console.log("Proxy: Reloading iframe due to settings change", {
+          oldUrl: iframe.src,
+          newUrl
+        });
+        iframe.src = newUrl;
+      }
+    }
+    window.addEventListener("storage", (e) => {
+      if (e.key === "proxyClientProxySettings") {
+        console.log("Proxy: Storage event detected for proxy settings");
+        reloadProxyIframe();
+      }
+    });
+    window.addEventListener("proxySettingsChanged", (e) => {
+      console.log("Proxy: Settings changed event received", e.detail);
+      reloadProxyIframe();
+    });
     proxyView.appendChild(iframe);
     return proxyView;
   }
