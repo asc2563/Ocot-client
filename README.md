@@ -1,8 +1,8 @@
-# Proxy Client Application
+# Ocot Client Application
 
 ## Overview
 
-The Proxy Client is a web-based application designed to provide various functionalities, including proxy operations, note-taking, a calculator, a console for executing JavaScript code, cloaking features, history manipulation, CORS proxying, a pocket browser, scripts, bookmarklets and a games list.
+The Ocot Client is a web-based application designed to provide various functionalities, including proxy operations, note-taking, a calculator, a console for executing JavaScript code, cloaking features, history manipulation, CORS proxying, a pocket browser, scripts, bookmarklets and a games list.
 
 ## Features
 
@@ -57,7 +57,7 @@ javascript: (function () {
   script.src =
     "https://cdn.jsdelivr.net/gh/asc2563/proxy-client2.0Rewrite@latest/dist/bundle.js";
   script.onerror = function () {
-    console.error("Failed to load proxy client script");
+    console.error("Failed to load Ocot Client script");
   };
   document.head.appendChild(script);
 })();

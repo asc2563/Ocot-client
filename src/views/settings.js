@@ -12,7 +12,7 @@ export default function createSettingsView() {
   settingsView.innerHTML = `
     <div class="settings-header" style="margin-bottom: 30px;">
       <h2 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1.5rem;">Settings</h2>
-      <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Customize your Proxy Client experience</p>
+      <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Customize your Ocot Client experience</p>
     </div>
 
     <div class="settings-content" style="display: flex; flex-direction: column; gap: 30px;">
@@ -23,7 +23,7 @@ export default function createSettingsView() {
           🎨 Themes
         </h3>
         <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
-          Customize the appearance of your Proxy Client
+          Customize the appearance of your Ocot Client
         </p>
         <div class="theme-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
           <div class="theme-option" data-theme="default" style="background: #292d36; border: 2px solid #404040; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;">
@@ -200,7 +200,7 @@ export default function createSettingsView() {
           <div style="color: #aaa; line-height: 1.6;">
             <h4 style="color: #00bfff; margin: 0 0 12px 0; font-size: 1.1rem;">Getting Started</h4>
             <p style="margin: 0 0 12px 0;">
-              Welcome to Proxy Client! This powerful tool provides various utilities for web browsing and productivity.
+              Welcome to Ocot Client! This powerful tool provides various utilities for web browsing and productivity.
             </p>
             
             <h4 style="color: #00bfff; margin: 16px 0 12px 0; font-size: 1.1rem;">Features Overview</h4>
@@ -214,7 +214,7 @@ export default function createSettingsView() {
             
             <h4 style="color: #00bfff; margin: 16px 0 12px 0; font-size: 1.1rem;">Keyboard Shortcuts</h4>
             <p style="margin: 0 0 12px 0;">
-              • Press <kbd style="background: #23272f; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to show/hide the Proxy Client
+              • Press <kbd style="background: #23272f; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to show/hide the Ocot Client
             </p>
             
             <h4 style="color: #00bfff; margin: 16px 0 12px 0; font-size: 1.1rem;">Tips & Tricks</h4>

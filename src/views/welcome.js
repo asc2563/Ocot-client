@@ -23,7 +23,7 @@ export default function createWelcomeView() {
       <div style="margin-bottom: 40px;">
         <div style="font-size: 4rem; margin-bottom: 16px;">🔧</div>
         <h1 style="color: #00bfff; font-size: 2.5rem; margin: 0 0 12px 0; font-weight: 700;">
-          Welcome to Proxy Client
+          Welcome to Ocot Client
         </h1>
         <p style="color: #7d8590; font-size: 1.2rem; margin: 0; line-height: 1.5;">
           by ASC2563 • Your ultimate web proxy toolkit

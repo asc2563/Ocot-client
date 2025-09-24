@@ -1,4 +1,4 @@
-// Sidebar UI Module for Proxy Client
+// Sidebar UI Module for Ocot Client
 // Handles all sidebar-related functionality and styling
 
 export class ProxySidebar {
@@ -40,7 +40,7 @@ export class ProxySidebar {
     header.style.cursor = "pointer";
     header.title = "Click to return to welcome screen";
     header.innerHTML = `
-      <h1 class="sidebar-title">Proxy Client</h1>
+      <h1 class="sidebar-title">Ocot Client</h1>
       <p class="sidebar-subtitle">by ASC2563</p>
     `;
 

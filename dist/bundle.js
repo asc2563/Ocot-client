@@ -196,7 +196,7 @@
       header.style.cursor = "pointer";
       header.title = "Click to return to welcome screen";
       header.innerHTML = `
-      <h1 class="sidebar-title">Proxy Client</h1>
+      <h1 class="sidebar-title">Ocot Client</h1>
       <p class="sidebar-subtitle">by ASC2563</p>
     `;
       this.headerElement = header;
@@ -440,7 +440,7 @@
       <div style="margin-bottom: 40px;">
         <div style="font-size: 4rem; margin-bottom: 16px;">\u{1F527}</div>
         <h1 style="color: #00bfff; font-size: 2.5rem; margin: 0 0 12px 0; font-weight: 700;">
-          Welcome to Proxy Client
+          Welcome to Ocot Client
         </h1>
         <p style="color: #7d8590; font-size: 1.2rem; margin: 0; line-height: 1.5;">
           by ASC2563 \u2022 Your ultimate web proxy toolkit
@@ -570,7 +570,7 @@
     settingsView.innerHTML = `
     <div class="settings-header" style="margin-bottom: 30px;">
       <h2 style="color: #00bfff; margin: 0 0 8px 0; font-size: 1.5rem;">Settings</h2>
-      <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Customize your Proxy Client experience</p>
+      <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Customize your Ocot Client experience</p>
     </div>
 
     <div class="settings-content" style="display: flex; flex-direction: column; gap: 30px;">
@@ -581,7 +581,7 @@
           \u{1F3A8} Themes
         </h3>
         <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
-          Customize the appearance of your Proxy Client
+          Customize the appearance of your Ocot Client
         </p>
         <div class="theme-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
           <div class="theme-option" data-theme="default" style="background: #292d36; border: 2px solid #404040; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;">
@@ -758,7 +758,7 @@
           <div style="color: #aaa; line-height: 1.6;">
             <h4 style="color: #00bfff; margin: 0 0 12px 0; font-size: 1.1rem;">Getting Started</h4>
             <p style="margin: 0 0 12px 0;">
-              Welcome to Proxy Client! This powerful tool provides various utilities for web browsing and productivity.
+              Welcome to Ocot Client! This powerful tool provides various utilities for web browsing and productivity.
             </p>
             
             <h4 style="color: #00bfff; margin: 16px 0 12px 0; font-size: 1.1rem;">Features Overview</h4>
@@ -772,7 +772,7 @@
             
             <h4 style="color: #00bfff; margin: 16px 0 12px 0; font-size: 1.1rem;">Keyboard Shortcuts</h4>
             <p style="margin: 0 0 12px 0;">
-              \u2022 Press <kbd style="background: #23272f; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to show/hide the Proxy Client
+              \u2022 Press <kbd style="background: #23272f; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to show/hide the Ocot Client
             </p>
             
             <h4 style="color: #00bfff; margin: 16px 0 12px 0; font-size: 1.1rem;">Tips & Tricks</h4>
@@ -3281,7 +3281,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
   loadGames();
 
   // src/main.js
-  console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
+  console.log("\n\nNow launching ASC2563's Ocot Client...\n\n");
   var ProxyClientApp = class {
     constructor() {
       this.frame = null;
@@ -3370,7 +3370,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       console.log("Creating floating button...");
       this.floatingButton = document.createElement("div");
       this.floatingButton.innerHTML = "\u{1F527}";
-      this.floatingButton.title = "Show Proxy Client (Press \\ to toggle)";
+      this.floatingButton.title = "Show Ocot Client (Press \\ to toggle)";
       this.floatingButton.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -3456,12 +3456,12 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       });
     }
     hideProxyClient() {
-      console.log("Hiding proxy client, showing floating button");
+      console.log("Hiding Ocot Client, showing floating button");
       this.frame.style.display = "none";
       this.floatingButton.style.display = "flex";
     }
     showProxyClient() {
-      console.log("Showing proxy client, hiding floating button");
+      console.log("Showing Ocot Client, hiding floating button");
       this.frame.style.display = "flex";
       this.floatingButton.style.display = "none";
     }
@@ -3473,7 +3473,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       }
     }
     removeProxyClient() {
-      console.log("Completely removing proxy client from page");
+      console.log("Completely removing Ocot Client from page");
       if (this.frame && this.frame.parentNode) {
         this.frame.parentNode.removeChild(this.frame);
       }
@@ -3483,7 +3483,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.frame = null;
       this.floatingButton = null;
       window.proxyFrame = null;
-      console.log("Proxy client completely removed");
+      console.log("Ocot Client completely removed");
     }
     // Show welcome view (called when clicking header)
     showWelcomeView() {

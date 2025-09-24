@@ -1,7 +1,7 @@
 {
   "name": "proxy-client",
   "version": "1.0.0",
-  "description": "A Proxy Client application with various functionalities.",
+  "description": "A Ocot Client application with various functionalities.",
   "main": "src/main.js",
   "scripts": {
     "start": "npx http-server -p 8080",

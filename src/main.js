@@ -15,7 +15,7 @@ import createSettingsView from "./views/settings.js";
 import createBookmarkletsView from "./views/bookmarklets.js";
 import { showGamesView } from "./views/games.js";
 
-console.log("\n\nNow launching ASC2563's Proxy Client...\n\n");
+console.log("\n\nNow launching ASC2563's Ocot Client...\n\n");
 
 class ProxyClientApp {
   constructor() {
@@ -75,9 +75,9 @@ class ProxyClientApp {
       }
     });
 
-    // Clear active button when clicking outside the proxy client
+    // Clear active button when clicking outside the Ocot Client
     document.addEventListener("click", (event) => {
-      // Check if click is outside the proxy client frame
+      // Check if click is outside the Ocot Client frame
       if (this.frame && this.frame.style.display !== "none") {
         const clickedInsideFrame = this.frame.contains(event.target);
 
@@ -141,7 +141,7 @@ class ProxyClientApp {
     // Create floating button
     this.floatingButton = document.createElement("div");
     this.floatingButton.innerHTML = "🔧";
-    this.floatingButton.title = "Show Proxy Client (Press \\ to toggle)";
+    this.floatingButton.title = "Show Ocot Client (Press \\ to toggle)";
     this.floatingButton.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -175,7 +175,7 @@ class ProxyClientApp {
       this.floatingButton.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.3)";
     });
 
-    // Click to show proxy client
+    // Click to show Ocot Client
     this.floatingButton.addEventListener("click", (e) => {
       // Only trigger click if it wasn't a drag
       if (!this.isDragging) {
@@ -267,13 +267,13 @@ class ProxyClientApp {
   }
 
   hideProxyClient() {
-    console.log("Hiding proxy client, showing floating button");
+    console.log("Hiding Ocot Client, showing floating button");
     this.frame.style.display = "none";
     this.floatingButton.style.display = "flex";
   }
 
   showProxyClient() {
-    console.log("Showing proxy client, hiding floating button");
+    console.log("Showing Ocot Client, hiding floating button");
     this.frame.style.display = "flex";
     this.floatingButton.style.display = "none";
   }
@@ -287,7 +287,7 @@ class ProxyClientApp {
   }
 
   removeProxyClient() {
-    console.log("Completely removing proxy client from page");
+    console.log("Completely removing Ocot Client from page");
     // Remove the main frame
     if (this.frame && this.frame.parentNode) {
       this.frame.parentNode.removeChild(this.frame);
@@ -300,7 +300,7 @@ class ProxyClientApp {
     this.frame = null;
     this.floatingButton = null;
     window.proxyFrame = null;
-    console.log("Proxy client completely removed");
+    console.log("Ocot Client completely removed");
   }
 
   // Show welcome view (called when clicking header)
