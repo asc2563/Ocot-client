@@ -9,6 +9,7 @@ import createHistoryFloodView from "./views/historyFlood.js";
 import createCorsProxyView from "./views/corsProxy.js";
 import createPocketBrowserView from "./views/pocketBrowser.js";
 import createScriptsView from "./views/scripts.js";
+import createSettingsView from "./views/settings.js";
 
 import createBookmarkletsView from "./views/bookmarklets.js";
 import { showGamesView } from "./views/games.js";
@@ -84,16 +85,16 @@ class ProxyClientApp {
     style.textContent = `
       /* App Frame Styling */
       .proxy-app-frame {
-        background: #23272f;
+        background: var(--bg-primary);
         border-radius: 12px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        border: 1px solid #404040;
+        border: 1px solid var(--border-color);
         overflow: hidden;
       }
       
       /* Content Area Styling */
       .proxy-content {
-        background: #23272f;
+        background: var(--bg-primary);
         position: relative;
       }
       
@@ -318,6 +319,7 @@ class ProxyClientApp {
     this.views.corsProxyView = createCorsProxyView();
     this.views.pocketBrowserView = createPocketBrowserView();
     this.views.scriptsView = createScriptsView();
+    this.views.settingsView = createSettingsView();
     this.views.bookmarkletsView = createBookmarkletsView();
 
     // Games view
@@ -410,6 +412,12 @@ class ProxyClientApp {
       hideAll();
       v.scriptsView.style.display = "block";
       setActiveButton("scriptsButton");
+    });
+
+    b.settingsButton.addEventListener("click", () => {
+      hideAll();
+      v.settingsView.style.display = "block";
+      setActiveButton("settingsButton");
     });
 
     b.bookmarkletsButton.addEventListener("click", () => {

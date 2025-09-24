@@ -4,10 +4,21 @@ export function injectAppCSS() {
   const style = document.createElement("style");
   style.id = "app-shared-style";
   style.textContent = `
+    /* CSS Variables for theming */
+    :root {
+      --bg-primary: #23272f;
+      --bg-secondary: #292d36;
+      --accent-color: #007acc;
+      --accent-hover: #005a9e;
+      --text-primary: #fff;
+      --text-secondary: #aaa;
+      --border-color: #404040;
+    }
+
     /* --- Shared Card/Grid Styles --- */
     .card-grid-view {
       padding: 20px;
-      background: #23272f;
+      background: var(--bg-primary);
       border-radius: 10px;
       min-height: 400px;
       max-height: calc(80vh - 40px);
@@ -21,7 +32,7 @@ export function injectAppCSS() {
       margin-top: 10px;
     }
     .card-item {
-      background: #292d36;
+      background: var(--bg-secondary);
       border-radius: 8px;
       padding: 18px 14px;
       box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);
@@ -80,7 +91,7 @@ export function injectAppCSS() {
     
     .card-grid-view::-webkit-scrollbar-thumb:hover,
     .games-view::-webkit-scrollbar-thumb:hover {
-      background: #007acc;
+      background: var(--accent-color);
     }
     .games-tabs {
       display: flex;
@@ -89,18 +100,18 @@ export function injectAppCSS() {
     }
     .games-tab {
       padding: 10px 24px;
-      background: #2d323e;
+      background: var(--bg-secondary);
       border: none;
       border-radius: 6px 6px 0 0;
-      color: #fff;
+      color: var(--text-primary);
       font-size: 1rem;
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
       outline: none;
     }
     .games-tab.active, .games-tab:hover {
-      background: #007acc;
-      color: #fff;
+      background: var(--accent-color);
+      color: var(--text-primary);
     }
     .games-list {
       display: grid;
@@ -109,7 +120,7 @@ export function injectAppCSS() {
       margin-top: 10px;
     }
     .game-item {
-      background: #292d36;
+      background: var(--bg-secondary);
       border-radius: 8px;
       padding: 18px 14px;
       box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);

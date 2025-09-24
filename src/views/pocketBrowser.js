@@ -1,4 +1,5 @@
 import { injectAppCSS } from "../css.js";
+import { getPocketBrowserSettings } from "./settings.js";
 
 // Exported function to create the Pocket Browser view
 export default function createPocketBrowserView() {
@@ -159,8 +160,12 @@ export default function createPocketBrowserView() {
     height: calc(100% - 60px);
   `;
 
+  // Get saved settings
+  const settings = getPocketBrowserSettings();
+  const defaultHomepage = settings?.homepage || "https://google.com?igu=1";
+
   const pocketBrowserIframe = document.createElement("iframe");
-  pocketBrowserIframe.src = "https://google.com?igu=1";
+  pocketBrowserIframe.src = defaultHomepage;
   pocketBrowserIframe.style.cssText = `
     width: 100%;
     height: 100%;
@@ -171,7 +176,7 @@ export default function createPocketBrowserView() {
   iframeContainer.appendChild(pocketBrowserIframe);
 
   // Navigation history
-  let history = ["https://google.com?igu=1"];
+  let history = [defaultHomepage];
   let currentIndex = 0;
 
   function updateUrl(url) {
@@ -234,7 +239,7 @@ export default function createPocketBrowserView() {
   });
 
   homeBtn.addEventListener("click", () => {
-    updateUrl("https://google.com?igu=1");
+    updateUrl(defaultHomepage);
   });
 
   const navigateToUrl = () => {
