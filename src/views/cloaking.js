@@ -25,9 +25,9 @@ export default function createCloakingView() {
           <div class="card-title">Gmail</div>
           <div class="card-desc">Email service</div>
         </div>
-        <div class="card-item preset-card" data-title="YouTube" data-icon="https://www.youtube.com/favicon.ico">
-          <div class="card-title">YouTube</div>
-          <div class="card-desc">Video platform</div>
+        <div class="card-item preset-card" data-title="Clever | Portal" data-icon="https://assets.clever.com/launchpad/c4a9bd82e/favicon.ico">
+          <div class="card-title">Clever</div>
+          <div class="card-desc">Education platform</div>
         </div>
         <div class="card-item preset-card" data-title="Google Drive" data-icon="https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png">
           <div class="card-title">Google Drive</div>
