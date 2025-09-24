@@ -846,6 +846,25 @@
     }
     loadBrowserSettings();
     loadProxySettings();
+    const browserInputs = [
+      "homepage-input",
+      "enable-history",
+      "enable-bookmarks",
+      "enable-popup-blocker",
+      "enable-safe-search",
+      "user-agent-select"
+    ];
+    browserInputs.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        if (element.type === "checkbox") {
+          element.addEventListener("change", saveBrowserSettings);
+        } else {
+          element.addEventListener("change", saveBrowserSettings);
+          element.addEventListener("input", saveBrowserSettings);
+        }
+      }
+    });
   }
   function applyTheme(themeName) {
     const root = document.documentElement;
@@ -922,13 +941,18 @@
   function saveBrowserSettings() {
     const settings = {
       homepage: document.getElementById("homepage-input")?.value || "https://www.google.com?igu=1",
-      enableHistory: document.getElementById("enable-history")?.checked || true,
-      enableBookmarks: document.getElementById("enable-bookmarks")?.checked || true,
-      enablePopupBlocker: document.getElementById("enable-popup-blocker")?.checked || true,
-      enableSafeSearch: document.getElementById("enable-safe-search")?.checked || false,
+      enableHistory: document.getElementById("enable-history")?.checked ?? true,
+      enableBookmarks: document.getElementById("enable-bookmarks")?.checked ?? true,
+      enablePopupBlocker: document.getElementById("enable-popup-blocker")?.checked ?? true,
+      enableSafeSearch: document.getElementById("enable-safe-search")?.checked ?? false,
       userAgent: document.getElementById("user-agent-select")?.value || "default"
     };
     localStorage.setItem("pocketBrowserSettings", JSON.stringify(settings));
+    console.log("Settings: Saved browser settings", settings);
+    window.dispatchEvent(new CustomEvent("pocketBrowserSettingsChanged", {
+      detail: settings
+    }));
+    console.log("Settings: Dispatched pocketBrowserSettingsChanged event");
     const saveButton = document.getElementById("save-browser-settings");
     if (saveButton) {
       const originalText = saveButton.innerHTML;
@@ -1101,11 +1125,22 @@
   }
   function getPocketBrowserSettings() {
     const saved = localStorage.getItem("pocketBrowserSettings");
-    if (!saved) return null;
+    const defaults = {
+      homepage: "https://www.google.com",
+      enableHistory: true,
+      enableBookmarks: true,
+      enablePopupBlocker: true,
+      enableSafeSearch: false,
+      userAgent: "default"
+    };
+    if (!saved) {
+      return defaults;
+    }
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      return { ...defaults, ...parsed };
     } catch (e) {
-      return null;
+      return defaults;
     }
   }
 
@@ -2183,6 +2218,20 @@ Math.sqrt(16);
   // src/views/pocketBrowser.js
   function createPocketBrowserView() {
     injectAppCSS();
+    let browserConfig = null;
+    try {
+      browserConfig = getPocketBrowserSettings();
+    } catch (e) {
+      console.warn("Could not load pocket browser settings");
+    }
+    const browserSettings = browserConfig || {
+      homepage: "https://google.com?igu=1",
+      enableHistory: true,
+      enableBookmarks: true,
+      enablePopupBlocker: true,
+      enableSafeSearch: false,
+      userAgent: "default"
+    };
     const pocketBrowserView = document.createElement("div");
     pocketBrowserView.style.cssText = `
     width: 100%;
@@ -2253,6 +2302,34 @@ Math.sqrt(16);
     font-size: 14px;
     transition: background 0.2s;
   `;
+    const bookmarksBtn = document.createElement("button");
+    bookmarksBtn.innerHTML = "\u2B50";
+    bookmarksBtn.title = "Bookmarks";
+    bookmarksBtn.style.cssText = `
+    padding: 8px 12px;
+    background: #ffc107;
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    display: ${browserSettings.enableBookmarks ? "block" : "none"};
+  `;
+    const historyBtn = document.createElement("button");
+    historyBtn.innerHTML = "\u{1F4CB}";
+    historyBtn.title = "Session History";
+    historyBtn.style.cssText = `
+    padding: 8px 12px;
+    background: #17a2b8;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    display: ${browserSettings.enableHistory ? "block" : "none"};
+  `;
     const urlBar = document.createElement("input");
     urlBar.type = "text";
     urlBar.placeholder = "Enter URL and press Enter";
@@ -2280,15 +2357,22 @@ Math.sqrt(16);
     font-weight: 600;
     transition: background 0.2s;
   `;
-    [backBtn, forwardBtn, refreshBtn, homeBtn, goBtn].forEach((btn) => {
+    const allButtons = [backBtn, forwardBtn, refreshBtn, homeBtn, goBtn];
+    if (browserSettings.enableBookmarks) allButtons.push(bookmarksBtn);
+    if (browserSettings.enableHistory) allButtons.push(historyBtn);
+    allButtons.forEach((btn) => {
       btn.addEventListener("mouseenter", () => {
         if (btn === refreshBtn) btn.style.background = "#218838";
         else if (btn === homeBtn) btn.style.background = "#5a6268";
+        else if (btn === bookmarksBtn) btn.style.background = "#e0a800";
+        else if (btn === historyBtn) btn.style.background = "#138496";
         else btn.style.background = "#0056b3";
       });
       btn.addEventListener("mouseleave", () => {
         if (btn === refreshBtn) btn.style.background = "#28a745";
         else if (btn === homeBtn) btn.style.background = "#6c757d";
+        else if (btn === bookmarksBtn) btn.style.background = "#ffc107";
+        else if (btn === historyBtn) btn.style.background = "#17a2b8";
         else btn.style.background = "#007acc";
       });
     });
@@ -2304,6 +2388,12 @@ Math.sqrt(16);
     toolbar.appendChild(forwardBtn);
     toolbar.appendChild(refreshBtn);
     toolbar.appendChild(homeBtn);
+    if (browserSettings.enableBookmarks) {
+      toolbar.appendChild(bookmarksBtn);
+    }
+    if (browserSettings.enableHistory) {
+      toolbar.appendChild(historyBtn);
+    }
     toolbar.appendChild(urlBar);
     toolbar.appendChild(goBtn);
     const iframeContainer = document.createElement("div");
@@ -2315,18 +2405,41 @@ Math.sqrt(16);
     min-height: 0;
     height: calc(100% - 60px);
   `;
-    const settings = getPocketBrowserSettings();
-    const defaultHomepage = settings?.homepage || "https://google.com?igu=1";
     const pocketBrowserIframe = document.createElement("iframe");
-    pocketBrowserIframe.src = defaultHomepage;
+    pocketBrowserIframe.src = browserSettings.homepage;
     pocketBrowserIframe.style.cssText = `
     width: 100%;
     height: 100%;
     border: none;
     display: block;
   `;
+    if (browserSettings.userAgent && browserSettings.userAgent !== "default") {
+      const userAgentMap = {
+        chrome: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        firefox: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0",
+        safari: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15",
+        mobile: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+      };
+      if (userAgentMap[browserSettings.userAgent]) {
+        pocketBrowserIframe.setAttribute(
+          "sandbox",
+          "allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-navigation"
+        );
+      }
+    }
+    let sessionHistoryList = [];
+    let bookmarksStorage = [];
+    try {
+      const savedBookmarks = localStorage.getItem("pocketBrowserBookmarks");
+      if (savedBookmarks) {
+        bookmarksStorage = JSON.parse(savedBookmarks);
+      }
+    } catch (e) {
+      console.warn("Could not load bookmarks:", e);
+      bookmarksStorage = [];
+    }
     iframeContainer.appendChild(pocketBrowserIframe);
-    let history2 = [defaultHomepage];
+    let history2 = [browserSettings.homepage];
     let currentIndex = 0;
     function updateUrl(url) {
       if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -2339,7 +2452,25 @@ Math.sqrt(16);
       }
       history2.push(url);
       currentIndex = history2.length - 1;
+      if (browserSettings.enableHistory) {
+        const historyEntry = {
+          url,
+          title: extractDomainFromUrl(url),
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        sessionHistoryList.unshift(historyEntry);
+        if (sessionHistoryList.length > 50) {
+          sessionHistoryList = sessionHistoryList.slice(0, 50);
+        }
+      }
       updateButtonStates();
+    }
+    function extractDomainFromUrl(url) {
+      try {
+        return new URL(url).hostname;
+      } catch (e) {
+        return url;
+      }
     }
     function updateButtonStates() {
       backBtn.disabled = currentIndex <= 0;
@@ -2371,7 +2502,7 @@ Math.sqrt(16);
       pocketBrowserIframe.src = pocketBrowserIframe.src;
     });
     homeBtn.addEventListener("click", () => {
-      updateUrl(defaultHomepage);
+      updateUrl(browserSettings.homepage);
     });
     const navigateToUrl = () => {
       const url = urlBar.value.trim();
@@ -2385,7 +2516,318 @@ Math.sqrt(16);
         navigateToUrl();
       }
     });
+    if (browserSettings.enableBookmarks) {
+      bookmarksBtn.addEventListener("click", () => {
+        showBookmarksMenu();
+      });
+    }
+    if (browserSettings.enableHistory) {
+      historyBtn.addEventListener("click", () => {
+        showSessionHistoryMenu();
+      });
+    }
+    function showBookmarksMenu() {
+      const menu = createDropdownMenu();
+      const currentUrl = urlBar.value.trim();
+      if (currentUrl) {
+        const addBookmarkItem = document.createElement("div");
+        addBookmarkItem.textContent = "\u2B50 Bookmark This Page";
+        addBookmarkItem.style.cssText = `
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #404040;
+        font-weight: 600;
+        color: #ffc107;
+        background: rgba(255, 193, 7, 0.1);
+      `;
+        addBookmarkItem.addEventListener("click", () => {
+          addBookmark(currentUrl, extractDomainFromUrl(currentUrl));
+          document.body.removeChild(menu);
+        });
+        addBookmarkItem.addEventListener("mouseenter", () => {
+          addBookmarkItem.style.background = "rgba(255, 193, 7, 0.2)";
+        });
+        addBookmarkItem.addEventListener("mouseleave", () => {
+          addBookmarkItem.style.background = "rgba(255, 193, 7, 0.1)";
+        });
+        menu.appendChild(addBookmarkItem);
+      }
+      if (bookmarksStorage.length > 0) {
+        bookmarksStorage.forEach((bookmark, index) => {
+          const item = document.createElement("div");
+          item.style.cssText = `
+          padding: 10px 15px;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid #404040;
+        `;
+          const linkInfo = document.createElement("div");
+          linkInfo.style.cssText = `
+          flex: 1;
+          min-width: 0;
+        `;
+          const title = document.createElement("div");
+          title.textContent = bookmark.title || bookmark.url;
+          title.style.cssText = `
+          color: #fff;
+          font-weight: 500;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          margin-bottom: 2px;
+        `;
+          const url = document.createElement("div");
+          url.textContent = bookmark.url;
+          url.style.cssText = `
+          color: #aaa;
+          font-size: 0.8rem;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+        `;
+          const deleteBtn = document.createElement("span");
+          deleteBtn.textContent = "\u274C";
+          deleteBtn.style.cssText = `
+          margin-left: 10px;
+          cursor: pointer;
+          font-size: 12px;
+          opacity: 0.7;
+          transition: opacity 0.2s;
+        `;
+          linkInfo.appendChild(title);
+          linkInfo.appendChild(url);
+          linkInfo.addEventListener("click", () => {
+            updateUrl(bookmark.url);
+            document.body.removeChild(menu);
+          });
+          deleteBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            removeBookmark(index);
+            document.body.removeChild(menu);
+          });
+          deleteBtn.addEventListener("mouseenter", () => {
+            deleteBtn.style.opacity = "1";
+          });
+          deleteBtn.addEventListener("mouseleave", () => {
+            deleteBtn.style.opacity = "0.7";
+          });
+          item.addEventListener("mouseenter", () => {
+            item.style.background = "rgba(0, 122, 204, 0.1)";
+          });
+          item.addEventListener("mouseleave", () => {
+            item.style.background = "transparent";
+          });
+          item.appendChild(linkInfo);
+          item.appendChild(deleteBtn);
+          menu.appendChild(item);
+        });
+      } else {
+        const emptyItem = document.createElement("div");
+        emptyItem.textContent = "No bookmarks yet";
+        emptyItem.style.cssText = `
+        padding: 20px;
+        color: #aaa;
+        text-align: center;
+        font-style: italic;
+      `;
+        menu.appendChild(emptyItem);
+      }
+      positionMenu(menu, bookmarksBtn);
+    }
+    function showSessionHistoryMenu() {
+      const menu = createDropdownMenu();
+      if (sessionHistoryList.length > 0) {
+        sessionHistoryList.slice(0, 15).forEach((entry) => {
+          const item = document.createElement("div");
+          item.style.cssText = `
+          padding: 10px 15px;
+          cursor: pointer;
+          border-bottom: 1px solid #404040;
+        `;
+          const title = document.createElement("div");
+          title.textContent = entry.title;
+          title.style.cssText = `
+          color: #fff;
+          font-weight: 500;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          margin-bottom: 4px;
+        `;
+          const details = document.createElement("div");
+          details.style.cssText = `
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        `;
+          const url = document.createElement("span");
+          url.textContent = entry.url;
+          url.style.cssText = `
+          color: #aaa;
+          font-size: 0.8rem;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          flex: 1;
+          margin-right: 10px;
+        `;
+          const time = document.createElement("span");
+          time.textContent = new Date(entry.timestamp).toLocaleTimeString();
+          time.style.cssText = `
+          color: #888;
+          font-size: 0.75rem;
+        `;
+          details.appendChild(url);
+          details.appendChild(time);
+          item.appendChild(title);
+          item.appendChild(details);
+          item.addEventListener("click", () => {
+            updateUrl(entry.url);
+            document.body.removeChild(menu);
+          });
+          item.addEventListener("mouseenter", () => {
+            item.style.background = "rgba(23, 162, 184, 0.1)";
+          });
+          item.addEventListener("mouseleave", () => {
+            item.style.background = "transparent";
+          });
+          menu.appendChild(item);
+        });
+        const clearItem = document.createElement("div");
+        clearItem.textContent = "\u{1F5D1}\uFE0F Clear Session History";
+        clearItem.style.cssText = `
+        padding: 10px 15px;
+        cursor: pointer;
+        color: #dc3545;
+        font-weight: 600;
+        border-top: 2px solid #404040;
+        margin-top: 5px;
+      `;
+        clearItem.addEventListener("click", () => {
+          sessionHistoryList = [];
+          document.body.removeChild(menu);
+        });
+        clearItem.addEventListener("mouseenter", () => {
+          clearItem.style.background = "rgba(220, 53, 69, 0.1)";
+        });
+        clearItem.addEventListener("mouseleave", () => {
+          clearItem.style.background = "transparent";
+        });
+        menu.appendChild(clearItem);
+      } else {
+        const emptyItem = document.createElement("div");
+        emptyItem.textContent = "No history for this session";
+        emptyItem.style.cssText = `
+        padding: 20px;
+        color: #aaa;
+        text-align: center;
+        font-style: italic;
+      `;
+        menu.appendChild(emptyItem);
+      }
+      positionMenu(menu, historyBtn);
+    }
+    function createDropdownMenu() {
+      const menu = document.createElement("div");
+      menu.style.cssText = `
+      position: fixed;
+      background: #292d36;
+      border: 1px solid #404040;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      z-index: 100002;
+      min-width: 300px;
+      max-width: 450px;
+      max-height: 400px;
+      overflow-y: auto;
+    `;
+      setTimeout(() => {
+        const closeHandler = (e) => {
+          if (!menu.contains(e.target)) {
+            if (document.body.contains(menu)) {
+              document.body.removeChild(menu);
+            }
+            document.removeEventListener("click", closeHandler);
+          }
+        };
+        document.addEventListener("click", closeHandler);
+      }, 0);
+      return menu;
+    }
+    function positionMenu(menu, button) {
+      const rect = button.getBoundingClientRect();
+      menu.style.left = rect.left + "px";
+      menu.style.top = rect.bottom + 5 + "px";
+      document.body.appendChild(menu);
+      const menuRect = menu.getBoundingClientRect();
+      if (menuRect.right > window.innerWidth) {
+        menu.style.left = window.innerWidth - menuRect.width - 10 + "px";
+      }
+      if (menuRect.bottom > window.innerHeight) {
+        menu.style.top = rect.top - menuRect.height - 5 + "px";
+      }
+    }
+    function addBookmark(url, title) {
+      if (!url) return;
+      const exists = bookmarksStorage.some((bookmark2) => bookmark2.url === url);
+      if (exists) return;
+      const bookmark = {
+        url,
+        title: title || extractDomainFromUrl(url),
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      bookmarksStorage.unshift(bookmark);
+      if (bookmarksStorage.length > 50) {
+        bookmarksStorage = bookmarksStorage.slice(0, 50);
+      }
+      try {
+        localStorage.setItem(
+          "pocketBrowserBookmarks",
+          JSON.stringify(bookmarksStorage)
+        );
+      } catch (e) {
+        console.warn("Could not save bookmarks:", e);
+      }
+    }
+    function removeBookmark(index) {
+      bookmarksStorage.splice(index, 1);
+      try {
+        localStorage.setItem(
+          "pocketBrowserBookmarks",
+          JSON.stringify(bookmarksStorage)
+        );
+      } catch (e) {
+        console.warn("Could not save bookmarks:", e);
+      }
+    }
     updateButtonStates();
+    function updateButtonVisibility() {
+      if (bookmarksBtn) {
+        bookmarksBtn.style.display = browserSettings.enableBookmarks ? "block" : "none";
+      }
+      if (historyBtn) {
+        historyBtn.style.display = browserSettings.enableHistory ? "block" : "none";
+      }
+    }
+    window.addEventListener("storage", (e) => {
+      if (e.key === "pocketBrowserSettings") {
+        const newBrowserSettings = getPocketBrowserSettings();
+        Object.assign(browserSettings, newBrowserSettings);
+        updateButtonVisibility();
+      }
+    });
+    window.addEventListener("pocketBrowserSettingsChanged", (e) => {
+      console.log("Pocket Browser: Settings changed event received", e.detail);
+      Object.assign(browserSettings, e.detail);
+      updateButtonVisibility();
+      console.log("Pocket Browser: Button visibility updated", {
+        bookmarks: browserSettings.enableBookmarks,
+        history: browserSettings.enableHistory
+      });
+    });
+    updateButtonVisibility();
     pocketBrowserView.appendChild(toolbar);
     pocketBrowserView.appendChild(iframeContainer);
     return pocketBrowserView;

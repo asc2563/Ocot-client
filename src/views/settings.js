@@ -315,6 +315,28 @@ function setupSettingsEventListeners() {
 
   // Load saved proxy settings
   loadProxySettings();
+
+  // Auto-save when browser settings change
+  const browserInputs = [
+    "homepage-input",
+    "enable-history",
+    "enable-bookmarks",
+    "enable-popup-blocker",
+    "enable-safe-search",
+    "user-agent-select",
+  ];
+
+  browserInputs.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      if (element.type === "checkbox") {
+        element.addEventListener("change", saveBrowserSettings);
+      } else {
+        element.addEventListener("change", saveBrowserSettings);
+        element.addEventListener("input", saveBrowserSettings);
+      }
+    }
+  });
 }
 
 function applyTheme(themeName) {
@@ -411,17 +433,28 @@ function saveBrowserSettings() {
     homepage:
       document.getElementById("homepage-input")?.value ||
       "https://www.google.com?igu=1",
-    enableHistory: document.getElementById("enable-history")?.checked || true,
+    enableHistory: document.getElementById("enable-history")?.checked ?? true,
     enableBookmarks:
-      document.getElementById("enable-bookmarks")?.checked || true,
+      document.getElementById("enable-bookmarks")?.checked ?? true,
     enablePopupBlocker:
-      document.getElementById("enable-popup-blocker")?.checked || true,
+      document.getElementById("enable-popup-blocker")?.checked ?? true,
     enableSafeSearch:
-      document.getElementById("enable-safe-search")?.checked || false,
+      document.getElementById("enable-safe-search")?.checked ?? false,
     userAgent: document.getElementById("user-agent-select")?.value || "default",
   };
 
   localStorage.setItem("pocketBrowserSettings", JSON.stringify(settings));
+
+  console.log("Settings: Saved browser settings", settings);
+
+  // Dispatch custom event for immediate updates
+  window.dispatchEvent(
+    new CustomEvent("pocketBrowserSettingsChanged", {
+      detail: settings,
+    })
+  );
+
+  console.log("Settings: Dispatched pocketBrowserSettingsChanged event");
 
   // Show confirmation
   const saveButton = document.getElementById("save-browser-settings");
@@ -642,11 +675,25 @@ export function getProxySettings() {
 // Export utility functions for use by pocket browser
 export function getPocketBrowserSettings() {
   const saved = localStorage.getItem("pocketBrowserSettings");
-  if (!saved) return null;
+
+  const defaults = {
+    homepage: "https://www.google.com",
+    enableHistory: true,
+    enableBookmarks: true,
+    enablePopupBlocker: true,
+    enableSafeSearch: false,
+    userAgent: "default",
+  };
+
+  if (!saved) {
+    return defaults;
+  }
 
   try {
-    return JSON.parse(saved);
+    const parsed = JSON.parse(saved);
+    // Merge with defaults to ensure all properties exist
+    return { ...defaults, ...parsed };
   } catch (e) {
-    return null;
+    return defaults;
   }
 }
