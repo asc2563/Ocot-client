@@ -13,6 +13,7 @@ export default function createProxyView() {
   const proxySettings = getProxySettings();
   iframe.src = proxySettings.url || "https://core.lab.infosv.ro";
 
+
   iframe.style.width = "100%";
   iframe.style.height = "100%";
   iframe.style.border = "none";
