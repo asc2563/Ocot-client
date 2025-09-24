@@ -78,6 +78,48 @@ export default function createSettingsView() {
         </div>
       </div>
 
+      <!-- Proxy Settings Section -->
+      <div class="settings-section proxy-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          🌐 Proxy Settings
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Configure your proxy server URL
+        </p>
+        <div class="proxy-options" style="display: grid; gap: 16px;">
+          <div class="setting-item" style="background: #292d36; border-radius: 8px; padding: 16px;">
+            <label style="color: #00bfff; font-weight: 600; margin-bottom: 12px; display: block;">
+              Proxy Server
+            </label>
+            <select id="proxy-server-select" style="width: 100%; padding: 10px; background: #23272f; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 0.9rem; margin-bottom: 12px;">
+              <option value="utopia1">Utopia Link 1 (Default)</option>
+              <option value="example1">Example Proxy 1</option>
+              <option value="example2">Example Proxy 2</option>
+              <option value="custom">Custom URL</option>
+            </select>
+            <div id="custom-proxy-input" style="display: none;">
+              <input type="text" id="custom-proxy-url" placeholder="Enter custom proxy URL (e.g., proxy.example.com)" 
+                     style="width: 100%; padding: 10px; background: #23272f; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 0.9rem;">
+              <div style="color: #aaa; font-size: 0.8rem; margin-top: 4px;">
+                Protocol (https:// or http://) will be added automatically if not specified
+              </div>
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-top: 8px;">
+              Select the proxy server to use for web browsing. Changes take effect after reopening the proxy tab.
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 16px; display: flex; gap: 12px;">
+          <button id="save-proxy-settings" class="games-tab" style="border-radius: 6px; background: #28a745;">
+            💾 Save Proxy Settings
+          </button>
+          <button id="reset-proxy-settings" class="games-tab" style="border-radius: 6px; background: #6c757d;">
+            🔄 Reset to Default
+          </button>
+        </div>
+      </div>
+
       <!-- Pocket Browser Settings Section -->
       <div class="settings-section browser-section">
         <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
@@ -245,8 +287,34 @@ function setupSettingsEventListeners() {
     resetButton.addEventListener("click", resetBrowserSettings);
   }
 
+  // Proxy settings
+  const proxyServerSelect = document.getElementById("proxy-server-select");
+  const customProxyInput = document.getElementById("custom-proxy-input");
+  const saveProxyButton = document.getElementById("save-proxy-settings");
+  const resetProxyButton = document.getElementById("reset-proxy-settings");
+
+  if (proxyServerSelect) {
+    proxyServerSelect.addEventListener("change", () => {
+      const isCustom = proxyServerSelect.value === "custom";
+      if (customProxyInput) {
+        customProxyInput.style.display = isCustom ? "block" : "none";
+      }
+    });
+  }
+
+  if (saveProxyButton) {
+    saveProxyButton.addEventListener("click", saveProxySettings);
+  }
+
+  if (resetProxyButton) {
+    resetProxyButton.addEventListener("click", resetProxySettings);
+  }
+
   // Load saved browser settings
   loadBrowserSettings();
+
+  // Load saved proxy settings
+  loadProxySettings();
 }
 
 function applyTheme(themeName) {
@@ -434,6 +502,140 @@ function loadBrowserSettings() {
       userAgentSelect.value = settings.userAgent || "default";
   } catch (e) {
     console.warn("Failed to load browser settings:", e);
+  }
+}
+
+function saveProxySettings() {
+  const proxyServerSelect = document.getElementById("proxy-server-select");
+  const customProxyUrl = document.getElementById("custom-proxy-url");
+
+  let proxyUrl = "";
+  const selectedServer = proxyServerSelect?.value || "utopia1";
+
+  switch (selectedServer) {
+    case "utopia1":
+      proxyUrl = "https://core.lab.infosv.ro";
+      break;
+    case "example1":
+      proxyUrl = "https://proxy1.example.com";
+      break;
+    case "example2":
+      proxyUrl = "https://proxy2.example.com";
+      break;
+    case "custom":
+      let customUrl = customProxyUrl?.value?.trim() || "";
+      if (customUrl) {
+        // Add protocol if not present
+        if (
+          !customUrl.startsWith("http://") &&
+          !customUrl.startsWith("https://")
+        ) {
+          customUrl = "https://" + customUrl;
+        }
+        proxyUrl = customUrl;
+      } else {
+        proxyUrl = "https://core.lab.infosv.ro"; // fallback to default
+      }
+      break;
+    default:
+      proxyUrl = "https://core.lab.infosv.ro";
+  }
+
+  const settings = {
+    server: selectedServer,
+    url: proxyUrl,
+    customUrl: customProxyUrl?.value?.trim() || "",
+  };
+
+  localStorage.setItem("proxyClientProxySettings", JSON.stringify(settings));
+
+  // Show confirmation
+  const saveProxyButton = document.getElementById("save-proxy-settings");
+  if (saveProxyButton) {
+    const originalText = saveProxyButton.innerHTML;
+    saveProxyButton.innerHTML = "✅ Saved!";
+    saveProxyButton.style.background = "#28a745";
+
+    setTimeout(() => {
+      saveProxyButton.innerHTML = originalText;
+    }, 2000);
+  }
+}
+
+function resetProxySettings() {
+  const defaults = {
+    server: "utopia1",
+    url: "https://core.lab.infosv.ro",
+    customUrl: "",
+  };
+
+  // Update UI
+  const proxyServerSelect = document.getElementById("proxy-server-select");
+  const customProxyUrl = document.getElementById("custom-proxy-url");
+  const customProxyInput = document.getElementById("custom-proxy-input");
+
+  if (proxyServerSelect) proxyServerSelect.value = defaults.server;
+  if (customProxyUrl) customProxyUrl.value = defaults.customUrl;
+  if (customProxyInput) customProxyInput.style.display = "none";
+
+  // Save defaults
+  localStorage.setItem("proxyClientProxySettings", JSON.stringify(defaults));
+
+  // Show confirmation
+  const resetProxyButton = document.getElementById("reset-proxy-settings");
+  if (resetProxyButton) {
+    const originalText = resetProxyButton.innerHTML;
+    resetProxyButton.innerHTML = "✅ Reset Complete";
+
+    setTimeout(() => {
+      resetProxyButton.innerHTML = originalText;
+    }, 2000);
+  }
+}
+
+function loadProxySettings() {
+  const saved = localStorage.getItem("proxyClientProxySettings");
+  if (!saved) return;
+
+  try {
+    const settings = JSON.parse(saved);
+
+    const proxyServerSelect = document.getElementById("proxy-server-select");
+    const customProxyUrl = document.getElementById("custom-proxy-url");
+    const customProxyInput = document.getElementById("custom-proxy-input");
+
+    if (proxyServerSelect)
+      proxyServerSelect.value = settings.server || "utopia1";
+    if (customProxyUrl) customProxyUrl.value = settings.customUrl || "";
+
+    // Show custom input if custom is selected
+    if (customProxyInput && settings.server === "custom") {
+      customProxyInput.style.display = "block";
+    }
+  } catch (e) {
+    console.warn("Failed to load proxy settings:", e);
+  }
+}
+
+// Export utility functions for use by proxy view
+export function getProxySettings() {
+  const saved = localStorage.getItem("proxyClientProxySettings");
+  if (!saved) {
+    return {
+      server: "utopia1",
+      url: "https://core.lab.infosv.ro",
+      customUrl: "",
+    };
+  }
+
+  try {
+    return JSON.parse(saved);
+  } catch (e) {
+    return {
+      server: "utopia1",
+      url: "https://core.lab.infosv.ro",
+      customUrl: "",
+    };
   }
 }
 

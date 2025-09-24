@@ -60,8 +60,8 @@ export default function createWelcomeView() {
           </p>
           <ul style="color: #7d8590; margin: 0; padding-left: 20px; font-size: 0.9rem;">
             <li>Unblocked games collection</li>
-            <li>Educational content</li>
-            <li>Entertainment platforms</li>
+            <li>Blocked games collection</li>
+            <li>cors proxy optimized games collection</li>
           </ul>
         </div>
 
