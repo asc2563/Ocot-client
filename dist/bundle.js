@@ -691,7 +691,7 @@
             <label style="color: #00bfff; font-weight: 600; margin-bottom: 6px; display: block;">
               Default Homepage
             </label>
-            <input type="text" id="homepage-input" placeholder="https://www.google.com" 
+            <input type="text" id="homepage-input" placeholder="https://google.com?igu=1" 
                    style="width: 100%; padding: 10px; background: #23272f; border: 1px solid #404040; border-radius: 6px; color: #fff; font-size: 0.9rem;">
             <div style="color: #aaa; font-size: 0.8rem; margin-top: 4px;">
               Set the default page when opening Pocket Browser
@@ -940,7 +940,7 @@
   }
   function saveBrowserSettings() {
     const settings = {
-      homepage: document.getElementById("homepage-input")?.value || "https://www.google.com?igu=1",
+      homepage: document.getElementById("homepage-input")?.value || "https://google.com?igu=1",
       enableHistory: document.getElementById("enable-history")?.checked ?? true,
       enableBookmarks: document.getElementById("enable-bookmarks")?.checked ?? true,
       enablePopupBlocker: document.getElementById("enable-popup-blocker")?.checked ?? true,
@@ -949,9 +949,11 @@
     };
     localStorage.setItem("pocketBrowserSettings", JSON.stringify(settings));
     console.log("Settings: Saved browser settings", settings);
-    window.dispatchEvent(new CustomEvent("pocketBrowserSettingsChanged", {
-      detail: settings
-    }));
+    window.dispatchEvent(
+      new CustomEvent("pocketBrowserSettingsChanged", {
+        detail: settings
+      })
+    );
     console.log("Settings: Dispatched pocketBrowserSettingsChanged event");
     const saveButton = document.getElementById("save-browser-settings");
     if (saveButton) {
@@ -965,7 +967,7 @@
   }
   function resetBrowserSettings() {
     const defaults = {
-      homepage: "https://www.google.com",
+      homepage: "https://google.com?igu=1",
       enableHistory: true,
       enableBookmarks: true,
       enablePopupBlocker: true,
@@ -1006,7 +1008,7 @@
       const safeSearchCheck = document.getElementById("enable-safe-search");
       const userAgentSelect = document.getElementById("user-agent-select");
       if (homepageInput)
-        homepageInput.value = settings.homepage || "https://www.google.com";
+        homepageInput.value = settings.homepage || "https://google.com?igu=1";
       if (historyCheck) historyCheck.checked = settings.enableHistory !== false;
       if (bookmarksCheck)
         bookmarksCheck.checked = settings.enableBookmarks !== false;
@@ -1126,7 +1128,7 @@
   function getPocketBrowserSettings() {
     const saved = localStorage.getItem("pocketBrowserSettings");
     const defaults = {
-      homepage: "https://www.google.com",
+      homepage: "https://google.com?igu=1",
       enableHistory: true,
       enableBookmarks: true,
       enablePopupBlocker: true,
