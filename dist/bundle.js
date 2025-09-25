@@ -4269,6 +4269,25 @@ https://discord.gg/jHjGrrdXP6"       );     };`
     return bookmarkletsView;
   }
 
+  // src/data/javascript/games.js
+  var gamesList = [
+    {
+      url: "https://crazygames.com/",
+      title: "Crazygames",
+      type: "blocked"
+    },
+    {
+      url: "https://itch.io/",
+      title: "Itch.io",
+      type: "blocked"
+    },
+    {
+      url: "https://example.com/game3",
+      title: "Game Three",
+      type: "cors-optimized"
+    }
+  ];
+
   // src/utils/helpers.js
   async function loadJson(file) {
     try {
@@ -4363,7 +4382,11 @@ https://discord.gg/jHjGrrdXP6"       );     };`
   var activeTab = "unblocked";
   async function loadGames() {
     let loaded = await loadJson("src/data/json/games.json");
-    gamesData = loaded;
+    if (!loaded || !Array.isArray(loaded)) {
+      gamesData = gamesList;
+    } else {
+      gamesData = loaded;
+    }
     renderGames();
   }
   function setTab(tabKey) {
