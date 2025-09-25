@@ -4384,13 +4384,18 @@ https://discord.gg/jHjGrrdXP6"       );     };`
     try {
       const loaded = await Promise.race([
         loadJson("src/data/json/games.json"),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2e3))
+        new Promise(
+          (_, reject) => setTimeout(() => reject(new Error("Timeout")), 2e3)
+        )
       ]);
       if (loaded && Array.isArray(loaded) && loaded.length > 0) {
         gamesData = loaded;
       }
     } catch (error) {
-      console.log("Using JavaScript games data (JSON load failed):", error.message);
+      console.log(
+        "Using JavaScript games data (JSON load failed):",
+        error.message
+      );
     }
     renderGames();
   }
