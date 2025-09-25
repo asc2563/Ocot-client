@@ -85,23 +85,28 @@ let activeTab = "unblocked";
 async function loadGames() {
   // Always start with the JavaScript fallback to ensure we have data
   gamesData = jsListFallback;
-  
+
   // Try to load JSON only if we're in a local/hosted environment
   try {
     // Quick check if we can fetch JSON (will fail in bookmarklet mode)
     const loaded = await Promise.race([
       loadJson("src/data/json/games.json"),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout")), 2000)
+      ),
     ]);
-    
+
     if (loaded && Array.isArray(loaded) && loaded.length > 0) {
       gamesData = loaded;
     }
   } catch (error) {
     // JSON loading failed (normal in bookmarklet mode), stick with JS fallback
-    console.log('Using JavaScript games data (JSON load failed):', error.message);
+    console.log(
+      "Using JavaScript games data (JSON load failed):",
+      error.message
+    );
   }
-  
+
   renderGames();
 }
 
@@ -131,7 +136,7 @@ function renderGames() {
     setTimeout(renderGames, 100);
     return;
   }
-  
+
   if (!gamesData || gamesData.length === 0) {
     container.innerHTML = `
       ${renderTabs()}
@@ -142,7 +147,7 @@ function renderGames() {
     setupTabEventListeners();
     return;
   }
-  
+
   const filtered = gamesData.filter((game) => game.type === activeTab);
   container.innerHTML = `
     ${renderTabs()}
@@ -194,12 +199,12 @@ function handleTabClick(event) {
 export function showGamesView() {
   // Inject CSS immediately
   injectGamesCSS();
-  
+
   // Start loading games asynchronously
   setTimeout(() => {
     loadGames();
   }, 0);
-  
+
   return `
     <div id="games-view" class="games-view">
       Loading games...
