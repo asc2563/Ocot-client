@@ -1,5 +1,4 @@
 import { loadJson } from "../utils/helpers.js";
-import { gamesList as jsListFallback } from "../data/javascript/games.js";
 
 // Inject games view CSS if not already present
 function injectGamesCSS() {
