@@ -26,7 +26,6 @@ function injectGamesCSS() {
       border-radius: 6px 6px 0 0;
       color: #fff;
       font-size: 1rem;
-      import { loadJson } from "../utils/helpers.js";
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
       outline: none;
@@ -84,13 +83,25 @@ let gamesData = [];
 let activeTab = "unblocked";
 
 async function loadGames() {
-  // Try JSON first, fallback to JS import if needed
-  let loaded = await loadJson("src/data/json/games.json");
-  if (!loaded || !Array.isArray(loaded)) {
-    gamesData = jsListFallback;
-  } else {
-    gamesData = loaded;
+  // Always start with the JavaScript fallback to ensure we have data
+  gamesData = jsListFallback;
+  
+  // Try to load JSON only if we're in a local/hosted environment
+  try {
+    // Quick check if we can fetch JSON (will fail in bookmarklet mode)
+    const loaded = await Promise.race([
+      loadJson("src/data/json/games.json"),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+    ]);
+    
+    if (loaded && Array.isArray(loaded) && loaded.length > 0) {
+      gamesData = loaded;
+    }
+  } catch (error) {
+    // JSON loading failed (normal in bookmarklet mode), stick with JS fallback
+    console.log('Using JavaScript games data (JSON load failed):', error.message);
   }
+  
   renderGames();
 }
 
@@ -115,14 +126,30 @@ function renderTabs() {
 
 function renderGames() {
   const container = document.getElementById("games-view");
-  if (!container) return;
+  if (!container) {
+    console.log("Games container not found, retrying in 100ms...");
+    setTimeout(renderGames, 100);
+    return;
+  }
+  
+  if (!gamesData || gamesData.length === 0) {
+    container.innerHTML = `
+      ${renderTabs()}
+      <div class="games-list">
+        <p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games data available.</p>
+      </div>
+    `;
+    setupTabEventListeners();
+    return;
+  }
+  
   const filtered = gamesData.filter((game) => game.type === activeTab);
   container.innerHTML = `
     ${renderTabs()}
     <div class="games-list">
       ${
         filtered.length === 0
-          ? `<p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games found.</p>`
+          ? `<p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games found for "${activeTab}" category.</p>`
           : filtered
               .map(
                 (game) => `
@@ -165,13 +192,17 @@ function handleTabClick(event) {
 }
 
 export function showGamesView() {
+  // Inject CSS immediately
+  injectGamesCSS();
+  
+  // Start loading games asynchronously
+  setTimeout(() => {
+    loadGames();
+  }, 0);
+  
   return `
     <div id="games-view" class="games-view">
       Loading games...
     </div>
   `;
 }
-
-// Load games and inject CSS on first import
-injectGamesCSS();
-loadGames();

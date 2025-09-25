@@ -4326,7 +4326,6 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       border-radius: 6px 6px 0 0;
       color: #fff;
       font-size: 1rem;
-      import { loadJson } from "../utils/helpers.js";
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
       outline: none;
@@ -4381,11 +4380,17 @@ https://discord.gg/jHjGrrdXP6"       );     };`
   var gamesData = [];
   var activeTab = "unblocked";
   async function loadGames() {
-    let loaded = await loadJson("src/data/json/games.json");
-    if (!loaded || !Array.isArray(loaded)) {
-      gamesData = gamesList;
-    } else {
-      gamesData = loaded;
+    gamesData = gamesList;
+    try {
+      const loaded = await Promise.race([
+        loadJson("src/data/json/games.json"),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2e3))
+      ]);
+      if (loaded && Array.isArray(loaded) && loaded.length > 0) {
+        gamesData = loaded;
+      }
+    } catch (error) {
+      console.log("Using JavaScript games data (JSON load failed):", error.message);
     }
     renderGames();
   }
@@ -4406,12 +4411,26 @@ https://discord.gg/jHjGrrdXP6"       );     };`
   }
   function renderGames() {
     const container = document.getElementById("games-view");
-    if (!container) return;
+    if (!container) {
+      console.log("Games container not found, retrying in 100ms...");
+      setTimeout(renderGames, 100);
+      return;
+    }
+    if (!gamesData || gamesData.length === 0) {
+      container.innerHTML = `
+      ${renderTabs()}
+      <div class="games-list">
+        <p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games data available.</p>
+      </div>
+    `;
+      setupTabEventListeners();
+      return;
+    }
     const filtered = gamesData.filter((game) => game.type === activeTab);
     container.innerHTML = `
     ${renderTabs()}
     <div class="games-list">
-      ${filtered.length === 0 ? `<p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games found.</p>` : filtered.map(
+      ${filtered.length === 0 ? `<p style="grid-column: 1/-1; text-align: center; color: #aaa;">No games found for "${activeTab}" category.</p>` : filtered.map(
       (game) => `
         <div class="game-item">
           <a href="${game.url}" target="_blank">${game.title}</a>
@@ -4443,14 +4462,16 @@ https://discord.gg/jHjGrrdXP6"       );     };`
     }
   }
   function showGamesView() {
+    injectGamesCSS();
+    setTimeout(() => {
+      loadGames();
+    }, 0);
     return `
     <div id="games-view" class="games-view">
       Loading games...
     </div>
   `;
   }
-  injectGamesCSS();
-  loadGames();
 
   // src/main.js
   console.log("\n\nNow launching ASC2563's Ocot Client...\n\n");
