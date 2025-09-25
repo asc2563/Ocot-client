@@ -86,11 +86,11 @@ let activeTab = "unblocked";
 async function loadGames() {
   // Try JSON first, fallback to JS import if needed
   let loaded = await loadJson("src/data/json/games.json");
-  if (!loaded || !Array.isArray(loaded)) {
-    gamesData = jsListFallback;
-  } else {
-    gamesData = loaded;
-  }
+  // if (!loaded || !Array.isArray(loaded)) {
+  // gamesData = jsListFallback;
+  // } else {
+  gamesData = loaded;
+  // }
   renderGames();
 }
 

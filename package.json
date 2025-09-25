@@ -4,7 +4,7 @@
   "description": "A Ocot Client application with various functionalities.",
   "main": "src/main.js",
   "scripts": {
-    "start": "npx http-server -p 8080",
+    "dev": "npx http-server -p 8080",
     "build": "esbuild src/main.js --bundle --outfile=dist/bundle.js --format=iife",
     "test": "jest"
   },

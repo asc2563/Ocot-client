@@ -216,6 +216,9 @@ export default function createSettingsView() {
             <p style="margin: 0 0 12px 0;">
               • Press <kbd style="background: #23272f; padding: 2px 6px; border-radius: 4px; font-family: monospace;">\\</kbd> to show/hide the Ocot Client
             </p>
+            <p style="margin: 0 0 12px 0;">
+              • Press <kbd style="background: #23272f; padding: 2px 6px; border-radius: 4px; font-family: monospace;">Esc</kbd> to exit full screen in proxy tab.
+            </p>
             
             <h4 style="color: #00bfff; margin: 16px 0 12px 0; font-size: 1.1rem;">Tips & Tricks</h4>
             <p style="margin: 0 0 6px 0;">
