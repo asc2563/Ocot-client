@@ -1,0 +1,18 @@
+let gamesList = [
+  {
+    url: "https://crazygames.com/",
+    title: "Crazygames",
+    type: "blocked",
+  },
+  {
+    url: "https://itch.io/",
+    title: "Itch.io",
+    type: "blocked",
+  },
+  {
+    url: "https://example.com/game3",
+    title: "Game Three",
+    type: "cors-optimized",
+  },
+];
+export { gamesList };

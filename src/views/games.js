@@ -1,3 +1,4 @@
+import { gamesList as jsListFallback } from "../data/javascript/games.js";
 import { loadJson } from "../utils/helpers.js";
 
 // Inject games view CSS if not already present
@@ -85,11 +86,11 @@ let activeTab = "unblocked";
 async function loadGames() {
   // Try JSON first, fallback to JS import if needed
   let loaded = await loadJson("src/data/json/games.json");
-  // if (!loaded || !Array.isArray(loaded)) {
-  // gamesData = jsListFallback;
-  // } else {
-  gamesData = loaded;
-  // }
+  if (!loaded || !Array.isArray(loaded)) {
+    gamesData = jsListFallback;
+  } else {
+    gamesData = loaded;
+  }
   renderGames();
 }
 
