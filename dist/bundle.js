@@ -4248,12 +4248,16 @@ Math.sqrt(16);
         isAutoHide: true,
         // Special flag to identify this script for dynamic updates
         onClick: () => {
-          const autoHideItem = document.querySelector('.script-item[data-script="auto-hide"]');
+          const autoHideItem = document.querySelector(
+            '.script-item[data-script="auto-hide"]'
+          );
           if (window.autoHideEnabled) {
             window.removeEventListener("blur", window.autoHideBlurHandler);
             window.autoHideEnabled = false;
             updateAutoHideVisualState(autoHideItem, false);
-            alert("\u{1F513} Auto-hide disabled!\n\nThe Ocot Client will no longer automatically hide when you switch tabs or click away. You can manually hide it using the Hide App button or the backslash (\\) key.");
+            alert(
+              "\u{1F513} Auto-hide disabled!\n\nThe Ocot Client will no longer automatically hide when you switch tabs or click away. You can manually hide it using the Hide App button or the backslash (\\) key."
+            );
             return;
           }
           window.autoHideBlurHandler = () => {
@@ -4262,7 +4266,9 @@ Math.sqrt(16);
                 window.proxyClientApp.hideProxyClient();
               } else {
                 window.proxyFrame.style.display = "none";
-                const floatingButton = document.querySelector('[title*="Show Ocot Client"]');
+                const floatingButton = document.querySelector(
+                  '[title*="Show Ocot Client"]'
+                );
                 if (floatingButton) {
                   floatingButton.style.display = "flex";
                 }
@@ -4272,7 +4278,9 @@ Math.sqrt(16);
           window.addEventListener("blur", window.autoHideBlurHandler);
           window.autoHideEnabled = true;
           updateAutoHideVisualState(autoHideItem, true);
-          alert("\u{1F512} Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n\u2022 Switch to another tab\n\u2022 Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide.");
+          alert(
+            "\u{1F512} Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n\u2022 Switch to another tab\n\u2022 Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide."
+          );
         }
       },
       {
@@ -4335,10 +4343,106 @@ Math.sqrt(16);
             });
           });
           document.body.appendChild(modal);
+          const showCodeEditorModal = (executeCallback) => {
+            const codeModal = document.createElement("div");
+            codeModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100002;
+          `;
+            codeModal.innerHTML = `
+            <div style="background: #23272f; padding: 24px; border-radius: 10px; width: 90%; max-width: 700px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: #00bfff; margin: 0; font-size: 1.5rem;">JavaScript Code Editor</h2>
+                <button id="close-code-modal" style="background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+              </div>
+              
+              <p style="color: #aaa; margin-bottom: 16px; line-height: 1.4;">
+                Write your JavaScript code below. It will be executed in a new about:blank page.
+              </p>
+              
+              <textarea id="js-code-input" placeholder="// Write your JavaScript code here...
+console.log('Hello from about:blank!');
+alert('Code executed successfully!');
+
+// Examples:
+// - DOM manipulation
+// - API calls  
+// - Custom functions
+// - Variable declarations" 
+                        style="width: 100%; height: 300px; padding: 16px; margin-bottom: 16px; 
+                               background: #1e1e1e; border: 1px solid #404040; border-radius: 6px; 
+                               color: #d4d4d4; font-size: 14px; font-family: 'Consolas', 'Courier New', 'Monaco', monospace; 
+                               resize: vertical; outline: none; line-height: 1.5; tab-size: 2;"></textarea>
+              
+              <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button id="cancel-code-btn" style="padding: 12px 24px; background: #404040; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 1rem;">Cancel</button>
+                <button id="execute-code-btn" style="padding: 12px 24px; background: #007acc; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 1rem;">Execute</button>
+              </div>
+            </div>
+          `;
+            document.body.appendChild(codeModal);
+            const codeTextarea = codeModal.querySelector("#js-code-input");
+            const cancelBtn = codeModal.querySelector("#cancel-code-btn");
+            const executeBtn = codeModal.querySelector("#execute-code-btn");
+            const closeBtn = codeModal.querySelector("#close-code-modal");
+            codeTextarea.focus();
+            codeTextarea.addEventListener("focus", () => {
+              codeTextarea.style.borderColor = "#007acc";
+              codeTextarea.style.boxShadow = "0 0 0 2px rgba(0, 122, 204, 0.3)";
+            });
+            codeTextarea.addEventListener("blur", () => {
+              codeTextarea.style.borderColor = "#404040";
+              codeTextarea.style.boxShadow = "none";
+            });
+            codeTextarea.addEventListener("keydown", (e) => {
+              if (e.key === "Tab") {
+                e.preventDefault();
+                const start = codeTextarea.selectionStart;
+                const end = codeTextarea.selectionEnd;
+                codeTextarea.value = codeTextarea.value.substring(0, start) + "  " + codeTextarea.value.substring(end);
+                codeTextarea.selectionStart = codeTextarea.selectionEnd = start + 2;
+              }
+            });
+            const closeModal = () => {
+              document.body.removeChild(codeModal);
+            };
+            cancelBtn.onclick = closeModal;
+            closeBtn.onclick = closeModal;
+            executeBtn.onclick = () => {
+              const jsCode = codeTextarea.value.trim();
+              if (!jsCode) {
+                alert("Please enter some JavaScript code to execute.");
+                return;
+              }
+              executeCallback(jsCode, false);
+              closeModal();
+            };
+            codeModal.onclick = (e) => {
+              if (e.target === codeModal) {
+                closeModal();
+              }
+            };
+            codeTextarea.addEventListener("keydown", (e) => {
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                executeBtn.click();
+              }
+            });
+          };
           const createAboutBlankWithScript = (scriptContent, isUrl = false) => {
             const newWindow = window.open("about:blank", "_blank");
             if (!newWindow) {
-              alert("Failed to open new window. Please check your browser's popup settings.");
+              alert(
+                "Failed to open new window. Please check your browser's popup settings."
+              );
               return;
             }
             const initializeWindow = () => {
@@ -4414,7 +4518,10 @@ Math.sqrt(16);
                   try {
                     const script = newWindow.document.createElement("script");
                     if (isUrl) {
-                      updateStatus("\u{1F517} Loading External Script", `Fetching: ${scriptContent}`);
+                      updateStatus(
+                        "\u{1F517} Loading External Script",
+                        `Fetching: ${scriptContent}`
+                      );
                       script.src = scriptContent;
                       const timeoutId = setTimeout(() => {
                         updateStatus(
@@ -4454,7 +4561,10 @@ Math.sqrt(16);
                         );
                       };
                     } else {
-                      updateStatus("\u{1F4DD} Executing Inline Script", "Processing JavaScript code...");
+                      updateStatus(
+                        "\u{1F4DD} Executing Inline Script",
+                        "Processing JavaScript code..."
+                      );
                       try {
                         script.textContent = scriptContent;
                         const wrappedScript = newWindow.document.createElement("script");
@@ -4522,7 +4632,10 @@ Math.sqrt(16);
               }
             };
             if (newWindow.document.readyState === "loading") {
-              newWindow.document.addEventListener("DOMContentLoaded", initializeWindow);
+              newWindow.document.addEventListener(
+                "DOMContentLoaded",
+                initializeWindow
+              );
             } else {
               setTimeout(initializeWindow, 50);
             }
@@ -4537,19 +4650,20 @@ Math.sqrt(16);
             }
           });
           modal.querySelector("#url-option").addEventListener("click", () => {
-            const url = prompt("Enter the JavaScript URL to inject:", "https://example.com/script.js");
+            const url = prompt(
+              "Enter the JavaScript URL to inject:",
+              "https://example.com/script.js"
+            );
             if (url) {
               createAboutBlankWithScript(url, true);
             }
           });
           modal.querySelector("#js-option").addEventListener("click", () => {
-            const jsCode = prompt("Enter JavaScript code to execute:", 'console.log("Hello from about:blank!");');
-            if (jsCode) {
-              createAboutBlankWithScript(jsCode, false);
-            }
+            document.body.removeChild(modal);
+            showCodeEditorModal(createAboutBlankWithScript);
           });
           modal.querySelector("#ocot-option").addEventListener("click", () => {
-            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@latest/dist/bundle.js";
+            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.2/dist/bundle.js";
             createAboutBlankWithScript(ocotUrl, true);
           });
         }
