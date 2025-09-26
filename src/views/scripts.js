@@ -109,27 +109,31 @@ export default function createscriptsView() {
   // Function to update auto-hide visual state
   function updateAutoHideVisualState(itemElement, isEnabled) {
     if (!itemElement) return;
-    
-    const titleElement = itemElement.querySelector('.script-title');
-    const descElement = itemElement.querySelector('.script-desc');
-    const statusIndicator = itemElement.querySelector('.status-indicator') || document.createElement('span');
-    
+
+    const titleElement = itemElement.querySelector(".script-title");
+    const descElement = itemElement.querySelector(".script-desc");
+    const statusIndicator =
+      itemElement.querySelector(".status-indicator") ||
+      document.createElement("span");
+
     if (isEnabled) {
-      itemElement.className = 'script-item auto-hide-enabled';
-      titleElement.textContent = 'Auto-Hide Script (ON)';
-      descElement.textContent = 'Auto-hide is ACTIVE - will hide when switching tabs or clicking away.';
-      statusIndicator.className = 'status-indicator';
-      statusIndicator.title = 'Auto-hide is currently enabled';
+      itemElement.className = "script-item auto-hide-enabled";
+      titleElement.textContent = "Auto-Hide Script (ON)";
+      descElement.textContent =
+        "Auto-hide is ACTIVE - will hide when switching tabs or clicking away.";
+      statusIndicator.className = "status-indicator";
+      statusIndicator.title = "Auto-hide is currently enabled";
     } else {
-      itemElement.className = 'script-item auto-hide-disabled';
-      titleElement.textContent = 'Auto-Hide Script (OFF)';
-      descElement.textContent = 'Click to enable automatic hiding when switching tabs.';
-      statusIndicator.className = 'status-indicator';
-      statusIndicator.title = 'Auto-hide is currently disabled';
+      itemElement.className = "script-item auto-hide-disabled";
+      titleElement.textContent = "Auto-Hide Script (OFF)";
+      descElement.textContent =
+        "Click to enable automatic hiding when switching tabs.";
+      statusIndicator.className = "status-indicator";
+      statusIndicator.title = "Auto-hide is currently disabled";
     }
-    
+
     // Add status indicator if not already present
-    if (!titleElement.querySelector('.status-indicator')) {
+    if (!titleElement.querySelector(".status-indicator")) {
       titleElement.appendChild(statusIndicator);
     }
   }
@@ -281,18 +285,22 @@ export default function createscriptsView() {
       isAutoHide: true, // Special flag to identify this script for dynamic updates
       onClick: () => {
         // Find the auto-hide script item and update it
-        const autoHideItem = document.querySelector('.script-item[data-script="auto-hide"]');
-        
+        const autoHideItem = document.querySelector(
+          '.script-item[data-script="auto-hide"]'
+        );
+
         // Check if auto-hide is already enabled
         if (window.autoHideEnabled) {
           // Disable auto-hide
           window.removeEventListener("blur", window.autoHideBlurHandler);
           window.autoHideEnabled = false;
-          
+
           // Update the visual state
           updateAutoHideVisualState(autoHideItem, false);
-          
-          alert("🔓 Auto-hide disabled!\n\nThe Ocot Client will no longer automatically hide when you switch tabs or click away. You can manually hide it using the Hide App button or the backslash (\\) key.");
+
+          alert(
+            "🔓 Auto-hide disabled!\n\nThe Ocot Client will no longer automatically hide when you switch tabs or click away. You can manually hide it using the Hide App button or the backslash (\\) key."
+          );
           return;
         }
 
@@ -301,12 +309,17 @@ export default function createscriptsView() {
           // Hide the proxy client when window loses focus (tab switch)
           if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
             // Use the app's built-in hide method if available
-            if (window.proxyClientApp && typeof window.proxyClientApp.hideProxyClient === 'function') {
+            if (
+              window.proxyClientApp &&
+              typeof window.proxyClientApp.hideProxyClient === "function"
+            ) {
               window.proxyClientApp.hideProxyClient();
             } else {
               // Fallback method
               window.proxyFrame.style.display = "none";
-              const floatingButton = document.querySelector('[title*="Show Ocot Client"]');
+              const floatingButton = document.querySelector(
+                '[title*="Show Ocot Client"]'
+              );
               if (floatingButton) {
                 floatingButton.style.display = "flex";
               }
@@ -316,13 +329,15 @@ export default function createscriptsView() {
 
         // Add event listeners
         window.addEventListener("blur", window.autoHideBlurHandler);
-        
+
         window.autoHideEnabled = true;
-        
+
         // Update the visual state
         updateAutoHideVisualState(autoHideItem, true);
-        
-        alert("🔒 Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n• Switch to another tab\n• Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide.");
+
+        alert(
+          "🔒 Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n• Switch to another tab\n• Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide."
+        );
       },
     },
     {
@@ -376,16 +391,16 @@ export default function createscriptsView() {
 
         // Add hover effects
         const buttons = modal.querySelectorAll('button[id$="-option"]');
-        buttons.forEach(button => {
-          button.addEventListener('mouseenter', () => {
-            button.style.background = '#2d323e';
-            button.style.borderColor = '#007acc';
-            button.style.transform = 'translateY(-2px)';
+        buttons.forEach((button) => {
+          button.addEventListener("mouseenter", () => {
+            button.style.background = "#2d323e";
+            button.style.borderColor = "#007acc";
+            button.style.transform = "translateY(-2px)";
           });
-          button.addEventListener('mouseleave', () => {
-            button.style.background = '#292d36';
-            button.style.borderColor = '#404040';
-            button.style.transform = 'translateY(0)';
+          button.addEventListener("mouseleave", () => {
+            button.style.background = "#292d36";
+            button.style.borderColor = "#404040";
+            button.style.transform = "translateY(0)";
           });
         });
 
@@ -393,9 +408,11 @@ export default function createscriptsView() {
 
         // Helper function to create about:blank window and inject script with robust error handling
         const createAboutBlankWithScript = (scriptContent, isUrl = false) => {
-          const newWindow = window.open('about:blank', '_blank');
+          const newWindow = window.open("about:blank", "_blank");
           if (!newWindow) {
-            alert('Failed to open new window. Please check your browser\'s popup settings.');
+            alert(
+              "Failed to open new window. Please check your browser's popup settings."
+            );
             return;
           }
 
@@ -403,7 +420,7 @@ export default function createscriptsView() {
           const initializeWindow = () => {
             try {
               // Add comprehensive styling to the page
-              const style = newWindow.document.createElement('style');
+              const style = newWindow.document.createElement("style");
               style.textContent = `
                 body {
                   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -453,7 +470,7 @@ export default function createscriptsView() {
               newWindow.document.head.appendChild(style);
 
               // Create status container
-              const statusContainer = newWindow.document.createElement('div');
+              const statusContainer = newWindow.document.createElement("div");
               statusContainer.innerHTML = `
                 <div class="status-container" id="injection-status">
                   <div class="status-title">🔄 Script Injection Status</div>
@@ -462,8 +479,9 @@ export default function createscriptsView() {
               `;
               newWindow.document.body.appendChild(statusContainer);
 
-              const updateStatus = (title, message, type = 'info') => {
-                const status = newWindow.document.getElementById('injection-status');
+              const updateStatus = (title, message, type = "info") => {
+                const status =
+                  newWindow.document.getElementById("injection-status");
                 if (status) {
                   status.className = `status-container ${type}`;
                   status.innerHTML = `
@@ -477,40 +495,48 @@ export default function createscriptsView() {
               // Script injection with comprehensive error handling
               const injectScript = () => {
                 try {
-                  const script = newWindow.document.createElement('script');
-                  
+                  const script = newWindow.document.createElement("script");
+
                   if (isUrl) {
                     // Handle external script URL
-                    updateStatus('🔗 Loading External Script', `Fetching: ${scriptContent}`);
-                    
+                    updateStatus(
+                      "🔗 Loading External Script",
+                      `Fetching: ${scriptContent}`
+                    );
+
                     script.src = scriptContent;
-                    
+
                     // Set up timeout for script loading
                     const timeoutId = setTimeout(() => {
-                      updateStatus('⏰ Script Load Timeout', 
+                      updateStatus(
+                        "⏰ Script Load Timeout",
                         `Script failed to load within 10 seconds. This may be due to network issues or CORS restrictions.<br><br>
                         <strong>Troubleshooting:</strong><br>
                         • Check if the URL is accessible<br>
                         • Verify CORS headers allow cross-origin requests<br>
                         • Try a different script URL<br><br>
-                        <div class="code-block">URL: ${scriptContent}</div>`, 
-                        'warning');
+                        <div class="code-block">URL: ${scriptContent}</div>`,
+                        "warning"
+                      );
                     }, 10000);
 
                     // Success handler
                     script.onload = () => {
                       clearTimeout(timeoutId);
-                      updateStatus('✅ Script Loaded Successfully', 
+                      updateStatus(
+                        "✅ Script Loaded Successfully",
                         `External script has been loaded and executed successfully.<br><br>
                         <div class="code-block">URL: ${scriptContent}</div>
-                        <br>Check the browser console for any script output.`, 
-                        'success');
+                        <br>Check the browser console for any script output.`,
+                        "success"
+                      );
                     };
 
                     // Error handler
                     script.onerror = (event) => {
                       clearTimeout(timeoutId);
-                      updateStatus('❌ Script Load Failed', 
+                      updateStatus(
+                        "❌ Script Load Failed",
                         `Failed to load external script. This is likely due to:<br><br>
                         <strong>Common causes:</strong><br>
                         • CORS (Cross-Origin Resource Sharing) restrictions<br>
@@ -518,20 +544,24 @@ export default function createscriptsView() {
                         • Invalid or inaccessible URL<br>
                         • Server-side blocking of cross-origin requests<br><br>
                         <div class="code-block">URL: ${scriptContent}</div>
-                        <br><strong>Suggestion:</strong> Try copying the script content and using 'Direct JavaScript Code' option instead.`, 
-                        'error');
+                        <br><strong>Suggestion:</strong> Try copying the script content and using 'Direct JavaScript Code' option instead.`,
+                        "error"
+                      );
                     };
-
                   } else {
                     // Handle inline JavaScript code
-                    updateStatus('📝 Executing Inline Script', 'Processing JavaScript code...');
-                    
+                    updateStatus(
+                      "📝 Executing Inline Script",
+                      "Processing JavaScript code..."
+                    );
+
                     try {
                       // Validate and execute inline script
                       script.textContent = scriptContent;
-                      
+
                       // Add error handling wrapper for inline scripts
-                      const wrappedScript = newWindow.document.createElement('script');
+                      const wrappedScript =
+                        newWindow.document.createElement("script");
                       wrappedScript.textContent = `
                         try {
                           ${scriptContent}
@@ -553,23 +583,28 @@ export default function createscriptsView() {
                           }
                         }
                       `;
-                      
+
                       newWindow.document.head.appendChild(wrappedScript);
-                      
-                      updateStatus('✅ Script Executed Successfully', 
+
+                      updateStatus(
+                        "✅ Script Executed Successfully",
                         `Inline JavaScript code has been executed.<br><br>
-                        <div class="code-block">${scriptContent.length > 200 ? 
-                          scriptContent.substring(0, 200) + '...' : 
-                          scriptContent}</div>
-                        <br>Check the browser console for any script output.`, 
-                        'success');
-                        
+                        <div class="code-block">${
+                          scriptContent.length > 200
+                            ? scriptContent.substring(0, 200) + "..."
+                            : scriptContent
+                        }</div>
+                        <br>Check the browser console for any script output.`,
+                        "success"
+                      );
                     } catch (error) {
-                      updateStatus('❌ Script Preparation Failed', 
+                      updateStatus(
+                        "❌ Script Preparation Failed",
                         `Failed to prepare script for execution:<br><br>
                         <div class="code-block">${error.name}: ${error.message}</div>
-                        <br>Please check your JavaScript syntax.`, 
-                        'error');
+                        <br>Please check your JavaScript syntax.`,
+                        "error"
+                      );
                     }
                   }
 
@@ -577,19 +612,19 @@ export default function createscriptsView() {
                   if (isUrl) {
                     newWindow.document.head.appendChild(script);
                   }
-
                 } catch (error) {
-                  updateStatus('❌ Injection Failed', 
+                  updateStatus(
+                    "❌ Injection Failed",
                     `Critical error during script injection:<br><br>
                     <div class="code-block">${error.name}: ${error.message}</div>
-                    <br>This may indicate a browser security restriction or internal error.`, 
-                    'error');
+                    <br>This may indicate a browser security restriction or internal error.`,
+                    "error"
+                  );
                 }
               };
 
               // Start script injection
               setTimeout(injectScript, 100); // Small delay to ensure DOM is ready
-
             } catch (error) {
               // Fallback error handling if window initialization fails
               newWindow.document.body.innerHTML = `
@@ -603,8 +638,11 @@ export default function createscriptsView() {
           };
 
           // Wait for new window to be ready
-          if (newWindow.document.readyState === 'loading') {
-            newWindow.document.addEventListener('DOMContentLoaded', initializeWindow);
+          if (newWindow.document.readyState === "loading") {
+            newWindow.document.addEventListener(
+              "DOMContentLoaded",
+              initializeWindow
+            );
           } else {
             // Document is already ready
             setTimeout(initializeWindow, 50);
@@ -615,32 +653,39 @@ export default function createscriptsView() {
         };
 
         // Event listeners
-        modal.querySelector('#close-modal').addEventListener('click', () => {
+        modal.querySelector("#close-modal").addEventListener("click", () => {
           document.body.removeChild(modal);
         });
 
-        modal.addEventListener('click', (e) => {
+        modal.addEventListener("click", (e) => {
           if (e.target === modal) {
             document.body.removeChild(modal);
           }
         });
 
-        modal.querySelector('#url-option').addEventListener('click', () => {
-          const url = prompt('Enter the JavaScript URL to inject:', 'https://example.com/script.js');
+        modal.querySelector("#url-option").addEventListener("click", () => {
+          const url = prompt(
+            "Enter the JavaScript URL to inject:",
+            "https://example.com/script.js"
+          );
           if (url) {
             createAboutBlankWithScript(url, true);
           }
         });
 
-        modal.querySelector('#js-option').addEventListener('click', () => {
-          const jsCode = prompt('Enter JavaScript code to execute:', 'console.log("Hello from about:blank!");');
+        modal.querySelector("#js-option").addEventListener("click", () => {
+          const jsCode = prompt(
+            "Enter JavaScript code to execute:",
+            'console.log("Hello from about:blank!");'
+          );
           if (jsCode) {
             createAboutBlankWithScript(jsCode, false);
           }
         });
 
-        modal.querySelector('#ocot-option').addEventListener('click', () => {
-          const ocotUrl = 'https://cdn.jsdelivr.net/gh/asc2563/ocot-client@latest/dist/bundle.js';
+        modal.querySelector("#ocot-option").addEventListener("click", () => {
+          const ocotUrl =
+            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.2/dist/bundle.js";
           createAboutBlankWithScript(ocotUrl, true);
         });
       },
@@ -655,21 +700,24 @@ export default function createscriptsView() {
     const item = document.createElement("div");
     item.className = "script-item";
     item.tabIndex = 0;
-    
+
     // Special handling for auto-hide script
     if (action.isAutoHide) {
-      item.setAttribute('data-script', 'auto-hide');
+      item.setAttribute("data-script", "auto-hide");
       const isEnabled = window.autoHideEnabled || false;
-      
+
       // Set initial state based on current auto-hide status
       item.innerHTML = `
-        <div class="script-title">${isEnabled ? 'Auto-Hide Script (ON)' : 'Auto-Hide Script (OFF)'}</div>
-        <div class="script-desc">${isEnabled ? 
-          'Auto-hide is ACTIVE - will hide when switching tabs or clicking away.' : 
-          'Click to enable automatic hiding when switching tabs.'
+        <div class="script-title">${
+          isEnabled ? "Auto-Hide Script (ON)" : "Auto-Hide Script (OFF)"
+        }</div>
+        <div class="script-desc">${
+          isEnabled
+            ? "Auto-hide is ACTIVE - will hide when switching tabs or clicking away."
+            : "Click to enable automatic hiding when switching tabs."
         }</div>
       `;
-      
+
       // Apply initial visual state
       updateAutoHideVisualState(item, isEnabled);
     } else {
@@ -678,7 +726,7 @@ export default function createscriptsView() {
         <div class="script-desc">${action.desc}</div>
       `;
     }
-    
+
     item.addEventListener("click", action.onClick);
     item.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
