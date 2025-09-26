@@ -481,10 +481,14 @@ alert('Code executed successfully!');
               e.preventDefault();
               const start = codeTextarea.selectionStart;
               const end = codeTextarea.selectionEnd;
-              
+
               // Insert tab character
-              codeTextarea.value = codeTextarea.value.substring(0, start) + "  " + codeTextarea.value.substring(end);
-              codeTextarea.selectionStart = codeTextarea.selectionEnd = start + 2;
+              codeTextarea.value =
+                codeTextarea.value.substring(0, start) +
+                "  " +
+                codeTextarea.value.substring(end);
+              codeTextarea.selectionStart = codeTextarea.selectionEnd =
+                start + 2;
             }
           });
 
@@ -502,7 +506,7 @@ alert('Code executed successfully!');
               alert("Please enter some JavaScript code to execute.");
               return;
             }
-            
+
             // Execute the code using the callback
             executeCallback(jsCode, false);
             closeModal();
@@ -794,14 +798,14 @@ alert('Code executed successfully!');
         modal.querySelector("#js-option").addEventListener("click", () => {
           // Close the choice modal first
           document.body.removeChild(modal);
-          
+
           // Show the code editor modal
           showCodeEditorModal(createAboutBlankWithScript);
         });
 
         modal.querySelector("#ocot-option").addEventListener("click", () => {
           const ocotUrl =
-            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.2/dist/bundle.js";
+            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.4/dist/bundle.js";
           createAboutBlankWithScript(ocotUrl, true);
         });
       },
