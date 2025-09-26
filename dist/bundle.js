@@ -4678,7 +4678,7 @@ alert('Code executed successfully!');
             showCodeEditorModal(createAboutBlankWithScript);
           });
           modal.querySelector("#ocot-option").addEventListener("click", () => {
-            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.4/dist/bundle.js";
+            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.6/dist/bundle.js";
             createAboutBlankWithScript(ocotUrl, true);
           });
         }
