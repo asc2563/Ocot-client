@@ -46,7 +46,7 @@ To launch the application, open `index.html` in a web browser.
 Run one of these bookmarklets:
 
 ```js
-javascript:fetch("https://cdn.jsdelivr.net/gh/asc2563/proxy-client2.0Rewrite@latest/dist/bundle.js").then(data=>%7Bdata.text().then(text=>%7Beval(text)%7D)%7D);
+javascript:fetch("https://cdn.jsdelivr.net/gh/asc2563/ocot-client@latest/dist/bundle.js").then(data=>%7Bdata.text().then(text=>%7Beval(text)%7D)%7D);
 ```
 
 Or
@@ -55,7 +55,7 @@ Or
 javascript: (function () {
   let script = document.createElement("script");
   script.src =
-    "https://cdn.jsdelivr.net/gh/asc2563/proxy-client2.0Rewrite@latest/dist/bundle.js";
+    "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@latest/dist/bundle.js";
   script.onerror = function () {
     console.error("Failed to load Ocot Client script");
   };
