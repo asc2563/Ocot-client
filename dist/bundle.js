@@ -4173,14 +4173,12 @@ Math.sqrt(16);
         onClick: () => {
           if (window.autoHideEnabled) {
             window.removeEventListener("blur", window.autoHideBlurHandler);
-            window.removeEventListener("focus", window.autoHideFocusHandler);
             window.autoHideEnabled = false;
             alert("Auto-hide disabled. The proxy client will no longer hide when switching tabs.");
             return;
           }
           window.autoHideBlurHandler = () => {
             if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
-              window.autoHideWasVisible = true;
               if (window.proxyClientApp && typeof window.proxyClientApp.hideProxyClient === "function") {
                 window.proxyClientApp.hideProxyClient();
               } else {
@@ -4190,27 +4188,11 @@ Math.sqrt(16);
                   floatingButton.style.display = "flex";
                 }
               }
-            } else {
-              window.autoHideWasVisible = false;
-            }
-          };
-          window.autoHideFocusHandler = () => {
-            if (window.autoHideWasVisible && window.proxyFrame && window.proxyFrame.style.display === "none") {
-              if (window.proxyClientApp && typeof window.proxyClientApp.showProxyClient === "function") {
-                window.proxyClientApp.showProxyClient();
-              } else {
-                window.proxyFrame.style.display = "flex";
-                const floatingButton = document.querySelector('[title*="Show Ocot Client"]');
-                if (floatingButton) {
-                  floatingButton.style.display = "none";
-                }
-              }
             }
           };
           window.addEventListener("blur", window.autoHideBlurHandler);
-          window.addEventListener("focus", window.autoHideFocusHandler);
           window.autoHideEnabled = true;
-          alert("Auto-hide enabled! The proxy client will now automatically hide when you switch tabs and reappear when you return. Click this script again to disable.");
+          alert("Auto-hide enabled! The proxy client will now automatically hide when you switch tabs. Click this script again to disable.");
         }
       },
       {

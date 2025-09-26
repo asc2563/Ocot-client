@@ -202,7 +202,6 @@ export default function createscriptsView() {
         if (window.autoHideEnabled) {
           // Disable auto-hide
           window.removeEventListener("blur", window.autoHideBlurHandler);
-          window.removeEventListener("focus", window.autoHideFocusHandler);
           window.autoHideEnabled = false;
           alert("Auto-hide disabled. The proxy client will no longer hide when switching tabs.");
           return;
@@ -212,8 +211,6 @@ export default function createscriptsView() {
         window.autoHideBlurHandler = () => {
           // Hide the proxy client when window loses focus (tab switch)
           if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
-            // Store the previous state to restore later
-            window.autoHideWasVisible = true;
             // Use the app's built-in hide method if available
             if (window.proxyClientApp && typeof window.proxyClientApp.hideProxyClient === 'function') {
               window.proxyClientApp.hideProxyClient();
@@ -225,34 +222,14 @@ export default function createscriptsView() {
                 floatingButton.style.display = "flex";
               }
             }
-          } else {
-            window.autoHideWasVisible = false;
-          }
-        };
-
-        window.autoHideFocusHandler = () => {
-          // Show the proxy client when window regains focus if it was visible before
-          if (window.autoHideWasVisible && window.proxyFrame && window.proxyFrame.style.display === "none") {
-            // Use the app's built-in show method if available
-            if (window.proxyClientApp && typeof window.proxyClientApp.showProxyClient === 'function') {
-              window.proxyClientApp.showProxyClient();
-            } else {
-              // Fallback method
-              window.proxyFrame.style.display = "flex";
-              const floatingButton = document.querySelector('[title*="Show Ocot Client"]');
-              if (floatingButton) {
-                floatingButton.style.display = "none";
-              }
-            }
           }
         };
 
         // Add event listeners
         window.addEventListener("blur", window.autoHideBlurHandler);
-        window.addEventListener("focus", window.autoHideFocusHandler);
         
         window.autoHideEnabled = true;
-        alert("Auto-hide enabled! The proxy client will now automatically hide when you switch tabs and reappear when you return. Click this script again to disable.");
+        alert("Auto-hide enabled! The proxy client will now automatically hide when you switch tabs. Click this script again to disable.");
       },
     },
     {
