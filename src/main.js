@@ -524,4 +524,5 @@ class ProxyClientApp {
 
 // Launch the app
 const app = new ProxyClientApp();
+window.proxyClientApp = app; // Make app instance globally accessible
 app.launch();
