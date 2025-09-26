@@ -48,6 +48,9 @@ export default function createProxyView() {
   });
 
   const iframe = document.createElement("iframe");
+  
+  // Add unique ID for auto-hide detection
+  iframe.id = "ocot-proxy-iframe";
 
   // Get proxy URL from settings
   const proxySettings = getProxySettings();

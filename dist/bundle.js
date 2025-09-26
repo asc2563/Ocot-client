@@ -2253,6 +2253,7 @@
       fullscreenBtn.style.borderColor = "#404040";
     });
     const iframe = document.createElement("iframe");
+    iframe.id = "ocot-proxy-iframe";
     const proxySettings = getProxySettings();
     iframe.src = proxySettings.url || "https://core.lab.infosv.ro";
     iframe.style.width = "100%";
@@ -3564,6 +3565,7 @@ Math.sqrt(16);
     height: calc(100% - 60px);
   `;
     const pocketBrowserIframe = document.createElement("iframe");
+    pocketBrowserIframe.id = "ocot-pocket-browser-iframe";
     pocketBrowserIframe.src = browserSettings.homepage;
     pocketBrowserIframe.style.cssText = `
     width: 100%;
@@ -4261,19 +4263,32 @@ Math.sqrt(16);
             return;
           }
           window.autoHideBlurHandler = () => {
-            if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
-              if (window.proxyClientApp && typeof window.proxyClientApp.hideProxyClient === "function") {
-                window.proxyClientApp.hideProxyClient();
-              } else {
-                window.proxyFrame.style.display = "none";
-                const floatingButton = document.querySelector(
-                  '[title*="Show Ocot Client"]'
-                );
-                if (floatingButton) {
-                  floatingButton.style.display = "flex";
+            setTimeout(() => {
+              const activeElement = document.activeElement;
+              const isInternalIframe = (element) => {
+                if (!element || element.tagName !== "IFRAME") {
+                  return false;
+                }
+                const internalIframeIds = ["ocot-proxy-iframe", "ocot-pocket-browser-iframe"];
+                return internalIframeIds.includes(element.id);
+              };
+              if (isInternalIframe(activeElement)) {
+                return;
+              }
+              if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
+                if (window.proxyClientApp && typeof window.proxyClientApp.hideProxyClient === "function") {
+                  window.proxyClientApp.hideProxyClient();
+                } else {
+                  window.proxyFrame.style.display = "none";
+                  const floatingButton = document.querySelector(
+                    '[title*="Show Ocot Client"]'
+                  );
+                  if (floatingButton) {
+                    floatingButton.style.display = "flex";
+                  }
                 }
               }
-            }
+            }, 0);
           };
           window.addEventListener("blur", window.autoHideBlurHandler);
           window.autoHideEnabled = true;
