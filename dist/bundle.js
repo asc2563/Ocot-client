@@ -4038,11 +4038,86 @@ Math.sqrt(16);
         color: #aaa;
         margin-bottom: 2px;
       }
+      
+      /* Auto-hide script states */
+      .script-item.auto-hide-enabled {
+        background: linear-gradient(135deg, #1a4f3a, #2d5a42);
+        border: 2px solid #28a745;
+        box-shadow: 0 4px 16px 0 rgba(40, 167, 69, 0.3);
+      }
+      
+      .script-item.auto-hide-enabled:hover {
+        background: linear-gradient(135deg, #1e5d47, #326349);
+        box-shadow: 0 6px 20px 0 rgba(40, 167, 69, 0.4);
+        transform: translateY(-2px) scale(1.03);
+      }
+      
+      .script-item.auto-hide-enabled .script-title::before {
+        content: "\u{1F512} ";
+        color: #28a745;
+      }
+      
+      .script-item.auto-hide-disabled {
+        background: #292d36;
+        border: 2px solid transparent;
+      }
+      
+      .script-item.auto-hide-disabled .script-title::before {
+        content: "\u{1F513} ";
+        color: #6c757d;
+      }
+      
+      .script-item .status-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-left: 8px;
+        animation: pulse 2s infinite;
+      }
+      
+      .script-item.auto-hide-enabled .status-indicator {
+        background: #28a745;
+        box-shadow: 0 0 6px rgba(40, 167, 69, 0.6);
+      }
+      
+      .script-item.auto-hide-disabled .status-indicator {
+        background: #6c757d;
+        animation: none;
+      }
+      
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+      }
     `;
       document.head.appendChild(style);
     }
     const scriptsView = document.createElement("div");
     scriptsView.className = "scripts-view";
+    function updateAutoHideVisualState(itemElement, isEnabled) {
+      if (!itemElement) return;
+      const titleElement = itemElement.querySelector(".script-title");
+      const descElement = itemElement.querySelector(".script-desc");
+      const statusIndicator = itemElement.querySelector(".status-indicator") || document.createElement("span");
+      if (isEnabled) {
+        itemElement.className = "script-item auto-hide-enabled";
+        titleElement.textContent = "Auto-Hide Script (ON)";
+        descElement.textContent = "Auto-hide is ACTIVE - will hide when switching tabs or clicking away.";
+        statusIndicator.className = "status-indicator";
+        statusIndicator.title = "Auto-hide is currently enabled";
+      } else {
+        itemElement.className = "script-item auto-hide-disabled";
+        titleElement.textContent = "Auto-Hide Script (OFF)";
+        descElement.textContent = "Click to enable automatic hiding when switching tabs.";
+        statusIndicator.className = "status-indicator";
+        statusIndicator.title = "Auto-hide is currently disabled";
+      }
+      if (!titleElement.querySelector(".status-indicator")) {
+        titleElement.appendChild(statusIndicator);
+      }
+    }
     const scriptActions = [
       {
         title: "Tab Cloak",
@@ -4170,11 +4245,15 @@ Math.sqrt(16);
       {
         title: "Auto-Hide Script",
         desc: "Automatically hide the proxy client when switching tabs.",
+        isAutoHide: true,
+        // Special flag to identify this script for dynamic updates
         onClick: () => {
+          const autoHideItem = document.querySelector('.script-item[data-script="auto-hide"]');
           if (window.autoHideEnabled) {
             window.removeEventListener("blur", window.autoHideBlurHandler);
             window.autoHideEnabled = false;
-            alert("Auto-hide disabled. The proxy client will no longer hide when switching tabs.");
+            updateAutoHideVisualState(autoHideItem, false);
+            alert("\u{1F513} Auto-hide disabled!\n\nThe Ocot Client will no longer automatically hide when you switch tabs or click away. You can manually hide it using the Hide App button or the backslash (\\) key.");
             return;
           }
           window.autoHideBlurHandler = () => {
@@ -4192,7 +4271,8 @@ Math.sqrt(16);
           };
           window.addEventListener("blur", window.autoHideBlurHandler);
           window.autoHideEnabled = true;
-          alert("Auto-hide enabled! The proxy client will now automatically hide when you switch tabs. Click this script again to disable.");
+          updateAutoHideVisualState(autoHideItem, true);
+          alert("\u{1F512} Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n\u2022 Switch to another tab\n\u2022 Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide.");
         }
       },
       {
@@ -4481,10 +4561,20 @@ Math.sqrt(16);
       const item = document.createElement("div");
       item.className = "script-item";
       item.tabIndex = 0;
-      item.innerHTML = `
-      <div class="script-title">${action.title}</div>
-      <div class="script-desc">${action.desc}</div>
-    `;
+      if (action.isAutoHide) {
+        item.setAttribute("data-script", "auto-hide");
+        const isEnabled = window.autoHideEnabled || false;
+        item.innerHTML = `
+        <div class="script-title">${isEnabled ? "Auto-Hide Script (ON)" : "Auto-Hide Script (OFF)"}</div>
+        <div class="script-desc">${isEnabled ? "Auto-hide is ACTIVE - will hide when switching tabs or clicking away." : "Click to enable automatic hiding when switching tabs."}</div>
+      `;
+        updateAutoHideVisualState(item, isEnabled);
+      } else {
+        item.innerHTML = `
+        <div class="script-title">${action.title}</div>
+        <div class="script-desc">${action.desc}</div>
+      `;
+      }
       item.addEventListener("click", action.onClick);
       item.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
