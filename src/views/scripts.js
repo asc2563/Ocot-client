@@ -306,25 +306,47 @@ export default function createscriptsView() {
 
         // Enable auto-hide
         window.autoHideBlurHandler = () => {
-          // Hide the proxy client when window loses focus (tab switch)
-          if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
-            // Use the app's built-in hide method if available
-            if (
-              window.proxyClientApp &&
-              typeof window.proxyClientApp.hideProxyClient === "function"
-            ) {
-              window.proxyClientApp.hideProxyClient();
-            } else {
-              // Fallback method
-              window.proxyFrame.style.display = "none";
-              const floatingButton = document.querySelector(
-                '[title*="Show Ocot Client"]'
-              );
-              if (floatingButton) {
-                floatingButton.style.display = "flex";
+          // Use setTimeout to allow DOM to update before checking activeElement
+          setTimeout(() => {
+            // Check if the blur was caused by focusing on an internal iframe
+            const activeElement = document.activeElement;
+            
+            // Helper function to check if element is an internal iframe
+            const isInternalIframe = (element) => {
+              if (!element || element.tagName !== 'IFRAME') {
+                return false;
+              }
+              
+              // Check if it's one of our internal iframes
+              const internalIframeIds = ['ocot-proxy-iframe', 'ocot-pocket-browser-iframe'];
+              return internalIframeIds.includes(element.id);
+            };
+            
+            // Don't hide if focus moved to an internal iframe
+            if (isInternalIframe(activeElement)) {
+              return;
+            }
+            
+            // Hide the proxy client when window loses focus (tab switch)
+            if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
+              // Use the app's built-in hide method if available
+              if (
+                window.proxyClientApp &&
+                typeof window.proxyClientApp.hideProxyClient === "function"
+              ) {
+                window.proxyClientApp.hideProxyClient();
+              } else {
+                // Fallback method
+                window.proxyFrame.style.display = "none";
+                const floatingButton = document.querySelector(
+                  '[title*="Show Ocot Client"]'
+                );
+                if (floatingButton) {
+                  floatingButton.style.display = "flex";
+                }
               }
             }
-          }
+          }, 0);
         };
 
         // Add event listeners

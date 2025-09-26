@@ -225,6 +225,10 @@ export default function createPocketBrowserView() {
   `;
 
   const pocketBrowserIframe = document.createElement("iframe");
+  
+  // Add unique ID for auto-hide detection
+  pocketBrowserIframe.id = "ocot-pocket-browser-iframe";
+  
   pocketBrowserIframe.src = browserSettings.homepage;
   pocketBrowserIframe.style.cssText = `
     width: 100%;
