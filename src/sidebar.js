@@ -76,37 +76,137 @@ export class ProxySidebar {
 
   // Add all navigation buttons
   addNavigationButtons() {
-    // Main navigation buttons
-    const navButtons = [
-      { key: "proxyButton", label: "Proxy", icon: "🌐" },
-      { key: "gamesButton", label: "Games List", icon: "🎮" },
-      { key: "bookmarkletsButton", label: "Bookmarklets", icon: "🔖" },
-      { key: "scriptsButton", label: "Scripts", icon: "📜" },
-      { key: "notesButton", label: "Notes", icon: "📝" },
-      { key: "calculatorButton", label: "Calculator", icon: "🧮" },
-      { key: "consoleButton", label: "Console", icon: "💻" },
-      { key: "cloakingButton", label: "Cloaking", icon: "🎭" },
-      { key: "historyFloodButton", label: "History Flood", icon: "🌊" },
-      { key: "corsProxyButton", label: "CORS Proxy", icon: "🔄" },
-      { key: "pocketBrowserButton", label: "Pocket Browser", icon: "🔍" },
-      { key: "settingsButton", label: "Settings", icon: "⚙️", active: true },
-    ];
-
-    // Create navigation buttons
-    navButtons.forEach(({ key, label, icon, active }) => {
-      this.buttons[key] = this.createButton(label, icon);
-      if (active) {
-        this.buttons[key].classList.add("active");
+    // Get current tab order from localStorage or use default
+    const tabOrder = this._getTabOrder();
+    const tabMetadata = this._getTabMetadata();
+    
+    // Create navigation buttons in custom order
+    tabOrder.forEach((key) => {
+      const tabData = tabMetadata[key];
+      if (tabData) {
+        this.buttons[key] = this.createButton(tabData.label, tabData.icon);
+        // Settings button is active by default
+        if (key === "settingsButton") {
+          this.buttons[key].classList.add("active");
+        }
+        this.buttonContainer.appendChild(this.buttons[key]);
       }
-      this.buttonContainer.appendChild(this.buttons[key]);
     });
 
-    // Action buttons
+    // Action buttons (always at the bottom)
     this.buttons.hideButton = this.createButton("Hide App", "❌", "hide");
     this.buttons.removeButton = this.createButton("Remove App", "🗑️", "remove");
 
     this.buttonContainer.appendChild(this.buttons.hideButton);
     this.buttonContainer.appendChild(this.buttons.removeButton);
+  }
+
+  // Get tab order from localStorage or return default
+  _getTabOrder() {
+    const defaultOrder = [
+      "proxyButton",
+      "gamesButton", 
+      "bookmarkletsButton",
+      "scriptsButton",
+      "notesButton",
+      "calculatorButton",
+      "consoleButton",
+      "cloakingButton",
+      "historyFloodButton",
+      "corsProxyButton",
+      "pocketBrowserButton",
+      "settingsButton"
+    ];
+
+    try {
+      const saved = localStorage.getItem("ocot-tab-order");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Validate that we have all required tabs
+        if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
+          const hasAllTabs = defaultOrder.every(tab => parsed.includes(tab));
+          if (hasAllTabs) {
+            return parsed;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load tab order from localStorage:", e);
+    }
+    return defaultOrder;
+  }
+
+  // Get tab metadata
+  _getTabMetadata() {
+    return {
+      proxyButton: { label: "Proxy", icon: "🌐" },
+      gamesButton: { label: "Games List", icon: "🎮" },
+      bookmarkletsButton: { label: "Bookmarklets", icon: "🔖" },
+      scriptsButton: { label: "Scripts", icon: "📜" },
+      notesButton: { label: "Notes", icon: "📝" },
+      calculatorButton: { label: "Calculator", icon: "🧮" },
+      consoleButton: { label: "Console", icon: "💻" },
+      cloakingButton: { label: "Cloaking", icon: "🎭" },
+      historyFloodButton: { label: "History Flood", icon: "🌊" },
+      corsProxyButton: { label: "CORS Proxy", icon: "🔄" },
+      pocketBrowserButton: { label: "Pocket Browser", icon: "🔍" },
+      settingsButton: { label: "Settings", icon: "⚙️" }
+    };
+  }
+
+  // Method to refresh button order (for when settings change)
+  refreshButtonOrder() {
+    // Clear existing navigation buttons (but keep action buttons)
+    const buttonsToRemove = [];
+    Object.keys(this.buttons).forEach(key => {
+      if (key !== 'hideButton' && key !== 'removeButton') {
+        if (this.buttons[key] && this.buttons[key].parentNode) {
+          this.buttons[key].parentNode.removeChild(this.buttons[key]);
+        }
+        buttonsToRemove.push(key);
+      }
+    });
+    
+    // Remove from buttons object
+    buttonsToRemove.forEach(key => {
+      delete this.buttons[key];
+    });
+    
+    // Save references to action buttons
+    const hideButton = this.buttons.hideButton;
+    const removeButton = this.buttons.removeButton;
+    
+    // Remove action buttons temporarily
+    if (hideButton && hideButton.parentNode) {
+      hideButton.parentNode.removeChild(hideButton);
+    }
+    if (removeButton && removeButton.parentNode) {
+      removeButton.parentNode.removeChild(removeButton);
+    }
+    
+    // Re-add navigation buttons with new order
+    const tabOrder = this._getTabOrder();
+    const tabMetadata = this._getTabMetadata();
+    
+    tabOrder.forEach((key) => {
+      const tabData = tabMetadata[key];
+      if (tabData) {
+        this.buttons[key] = this.createButton(tabData.label, tabData.icon);
+        // Settings button is active by default
+        if (key === "settingsButton") {
+          this.buttons[key].classList.add("active");
+        }
+        this.buttonContainer.appendChild(this.buttons[key]);
+      }
+    });
+    
+    // Re-add action buttons at the end
+    if (hideButton) {
+      this.buttonContainer.appendChild(hideButton);
+    }
+    if (removeButton) {
+      this.buttonContainer.appendChild(removeButton);
+    }
   }
 
   // Get button references for event listeners

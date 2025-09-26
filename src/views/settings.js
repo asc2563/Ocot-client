@@ -4,6 +4,9 @@ import { injectAppCSS } from "../css.js";
 export default function createSettingsView() {
   // Inject shared CSS
   injectAppCSS();
+  
+  // Inject tab order CSS
+  injectTabOrderCSS();
 
   const settingsView = document.createElement("div");
   settingsView.className = "card-grid-view";
@@ -191,6 +194,40 @@ export default function createSettingsView() {
         </div>
       </div>
 
+      <!-- Tab Order Section -->
+      <div class="settings-section tab-order-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          📱 Tab Order
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Customize the order of sidebar navigation tabs
+        </p>
+        
+        <div class="tab-order-container" style="background: #292d36; border-radius: 8px; padding: 20px;">
+          <div style="margin-bottom: 16px;">
+            <div style="color: #00bfff; font-weight: 600; margin-bottom: 8px;">
+              Current Tab Order
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 12px;">
+              Drag tabs to reorder them, or use the arrow buttons for keyboard navigation
+            </div>
+          </div>
+          
+          <div id="tab-order-list" class="tab-order-list" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px;">
+            <!-- Tab items will be populated by JavaScript -->
+          </div>
+          
+          <div class="tab-order-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button id="reset-tab-order" class="games-tab" style="border-radius: 6px; background: #6c757d; font-size: 0.85rem;">
+              🔄 Reset to Default
+            </button>
+            <div style="color: #aaa; font-size: 0.8rem; display: flex; align-items: center; margin-left: auto;">
+              Changes are saved automatically
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Help Section -->
       <div class="settings-section help-section">
         <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
@@ -344,6 +381,9 @@ function setupSettingsEventListeners() {
       }
     }
   });
+
+  // Setup tab order functionality
+  setupTabOrderEventListeners();
 }
 
 function applyTheme(themeName) {
@@ -725,4 +765,365 @@ export function getPocketBrowserSettings() {
   } catch (e) {
     return defaults;
   }
+}
+
+// Tab Order Management Functions
+function injectTabOrderCSS() {
+  if (document.getElementById("tab-order-style")) return;
+  
+  const style = document.createElement("style");
+  style.id = "tab-order-style";
+  style.textContent = `
+    .tab-order-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .tab-order-item {
+      background: #23272f;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: move;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .tab-order-item:hover {
+      background: #2a2e37;
+      border-color: #525252;
+      transform: translateY(-1px);
+    }
+    
+    .tab-order-item.dragging {
+      opacity: 0.5;
+      transform: rotate(2deg);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tab-order-item.drag-over {
+      border-color: #00bfff;
+      box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.3);
+    }
+    
+    .tab-drag-handle {
+      font-size: 1.2rem;
+      color: #666;
+      cursor: grab;
+      line-height: 1;
+    }
+    
+    .tab-drag-handle:active {
+      cursor: grabbing;
+    }
+    
+    .tab-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .tab-icon {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .tab-label {
+      color: #fff;
+      font-weight: 500;
+    }
+    
+    .tab-order-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .tab-order-btn {
+      background: #404040;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 4px 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    
+    .tab-order-btn:hover {
+      background: #00bfff;
+    }
+    
+    .tab-order-btn:disabled {
+      background: #2a2e37;
+      color: #666;
+      cursor: not-allowed;
+    }
+    
+    /* Drag and drop visual feedback */
+    .tab-order-list.drag-active {
+      background: rgba(0, 191, 255, 0.05);
+      border-radius: 6px;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function getTabOrder() {
+  const defaultOrder = [
+    "proxyButton",
+    "gamesButton", 
+    "bookmarkletsButton",
+    "scriptsButton",
+    "notesButton",
+    "calculatorButton",
+    "consoleButton",
+    "cloakingButton",
+    "historyFloodButton",
+    "corsProxyButton",
+    "pocketBrowserButton",
+    "settingsButton"
+  ];
+
+  try {
+    const saved = localStorage.getItem("ocot-tab-order");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
+        const hasAllTabs = defaultOrder.every(tab => parsed.includes(tab));
+        if (hasAllTabs) {
+          return parsed;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to load tab order from localStorage:", e);
+  }
+  return defaultOrder;
+}
+
+function getTabMetadata() {
+  return {
+    proxyButton: { label: "Proxy", icon: "🌐" },
+    gamesButton: { label: "Games List", icon: "🎮" },
+    bookmarkletsButton: { label: "Bookmarklets", icon: "🔖" },
+    scriptsButton: { label: "Scripts", icon: "📜" },
+    notesButton: { label: "Notes", icon: "📝" },
+    calculatorButton: { label: "Calculator", icon: "🧮" },
+    consoleButton: { label: "Console", icon: "💻" },
+    cloakingButton: { label: "Cloaking", icon: "🎭" },
+    historyFloodButton: { label: "History Flood", icon: "🌊" },
+    corsProxyButton: { label: "CORS Proxy", icon: "🔄" },
+    pocketBrowserButton: { label: "Pocket Browser", icon: "🔍" },
+    settingsButton: { label: "Settings", icon: "⚙️" }
+  };
+}
+
+function saveTabOrder(tabOrder) {
+  try {
+    localStorage.setItem("ocot-tab-order", JSON.stringify(tabOrder));
+    console.log("Tab order saved:", tabOrder);
+    // Dispatch event to notify sidebar to refresh
+    document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+  } catch (e) {
+    console.error("Failed to save tab order to localStorage:", e);
+  }
+}
+
+function resetTabOrder() {
+  try {
+    localStorage.removeItem("ocot-tab-order");
+    console.log("Tab order reset to default");
+    // Dispatch event to notify sidebar to refresh
+    document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+    // Re-render the tab order list
+    renderTabOrderList();
+  } catch (e) {
+    console.error("Failed to reset tab order:", e);
+  }
+}
+
+function renderTabOrderList() {
+  const tabOrderList = document.getElementById("tab-order-list");
+  if (!tabOrderList) return;
+
+  const tabOrder = getTabOrder();
+  const tabMetadata = getTabMetadata();
+
+  tabOrderList.innerHTML = tabOrder.map((tabKey, index) => {
+    const tab = tabMetadata[tabKey];
+    if (!tab) return "";
+
+    return `
+      <div class="tab-order-item" draggable="true" data-tab-key="${tabKey}" data-index="${index}">
+        <div class="tab-drag-handle">⋮⋮</div>
+        <div class="tab-info">
+          <div class="tab-icon">${tab.icon}</div>
+          <div class="tab-label">${tab.label}</div>
+        </div>
+        <div class="tab-order-controls">
+          <button class="tab-order-btn" onclick="moveTabUp('${tabKey}')" ${index === 0 ? 'disabled' : ''}>▲</button>
+          <button class="tab-order-btn" onclick="moveTabDown('${tabKey}')" ${index === tabOrder.length - 1 ? 'disabled' : ''}>▼</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Add drag and drop event listeners
+  setupDragAndDrop();
+}
+
+function setupDragAndDrop() {
+  const tabOrderList = document.getElementById("tab-order-list");
+  if (!tabOrderList) return;
+
+  let draggedElement = null;
+
+  tabOrderList.addEventListener("dragstart", (e) => {
+    if (!e.target.classList.contains("tab-order-item")) return;
+    
+    draggedElement = e.target;
+    e.target.classList.add("dragging");
+    tabOrderList.classList.add("drag-active");
+    
+    // Set drag data
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", e.target.outerHTML);
+  });
+
+  tabOrderList.addEventListener("dragend", (e) => {
+    if (!e.target.classList.contains("tab-order-item")) return;
+    
+    e.target.classList.remove("dragging");
+    tabOrderList.classList.remove("drag-active");
+    
+    // Remove drag-over class from all items
+    tabOrderList.querySelectorAll(".tab-order-item").forEach(item => {
+      item.classList.remove("drag-over");
+    });
+    
+    draggedElement = null;
+  });
+
+  tabOrderList.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    
+    const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+    const dragging = tabOrderList.querySelector(".dragging");
+    
+    // Remove drag-over class from all items
+    tabOrderList.querySelectorAll(".tab-order-item").forEach(item => {
+      item.classList.remove("drag-over");
+    });
+    
+    if (afterElement == null) {
+      // Add drag-over to last element
+      const items = [...tabOrderList.querySelectorAll(".tab-order-item:not(.dragging)")];
+      if (items.length > 0) {
+        items[items.length - 1].classList.add("drag-over");
+      }
+    } else {
+      afterElement.classList.add("drag-over");
+    }
+  });
+
+  tabOrderList.addEventListener("drop", (e) => {
+    e.preventDefault();
+    
+    const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+    const dragging = tabOrderList.querySelector(".dragging");
+    
+    if (dragging && dragging !== afterElement) {
+      if (afterElement == null) {
+        tabOrderList.appendChild(dragging);
+      } else {
+        tabOrderList.insertBefore(dragging, afterElement);
+      }
+      
+      // Update the saved order
+      updateTabOrderFromDOM();
+    }
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll(".tab-order-item:not(.dragging)")];
+  
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function updateTabOrderFromDOM() {
+  const tabOrderList = document.getElementById("tab-order-list");
+  if (!tabOrderList) return;
+
+  const newOrder = [...tabOrderList.querySelectorAll(".tab-order-item")]
+    .map(item => item.getAttribute("data-tab-key"));
+  
+  saveTabOrder(newOrder);
+  
+  // Re-render to update button states
+  setTimeout(() => renderTabOrderList(), 100);
+}
+
+// Global functions for arrow buttons
+window.moveTabUp = function(tabKey) {
+  const tabOrder = getTabOrder();
+  const currentIndex = tabOrder.indexOf(tabKey);
+  
+  if (currentIndex > 0) {
+    // Swap with previous item
+    [tabOrder[currentIndex - 1], tabOrder[currentIndex]] = [tabOrder[currentIndex], tabOrder[currentIndex - 1]];
+    saveTabOrder(tabOrder);
+    renderTabOrderList();
+  }
+};
+
+window.moveTabDown = function(tabKey) {
+  const tabOrder = getTabOrder();
+  const currentIndex = tabOrder.indexOf(tabKey);
+  
+  if (currentIndex < tabOrder.length - 1) {
+    // Swap with next item
+    [tabOrder[currentIndex], tabOrder[currentIndex + 1]] = [tabOrder[currentIndex + 1], tabOrder[currentIndex]];
+    saveTabOrder(tabOrder);
+    renderTabOrderList();
+  }
+};
+
+function setupTabOrderEventListeners() {
+  // Reset button
+  const resetButton = document.getElementById("reset-tab-order");
+  if (resetButton) {
+    resetButton.addEventListener("click", () => {
+      resetTabOrder();
+      // Show confirmation feedback
+      const originalText = resetButton.innerHTML;
+      resetButton.innerHTML = "✅ Reset Complete";
+      resetButton.style.background = "#28a745";
+      
+      setTimeout(() => {
+        resetButton.innerHTML = originalText;
+        resetButton.style.background = "#6c757d";
+      }, 2000);
+    });
+  }
+
+  // Initial render
+  renderTabOrderList();
 }

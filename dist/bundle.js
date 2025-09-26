@@ -224,31 +224,112 @@
     }
     // Add all navigation buttons
     addNavigationButtons() {
-      const navButtons = [
-        { key: "proxyButton", label: "Proxy", icon: "\u{1F310}" },
-        { key: "gamesButton", label: "Games List", icon: "\u{1F3AE}" },
-        { key: "bookmarkletsButton", label: "Bookmarklets", icon: "\u{1F516}" },
-        { key: "scriptsButton", label: "Scripts", icon: "\u{1F4DC}" },
-        { key: "notesButton", label: "Notes", icon: "\u{1F4DD}" },
-        { key: "calculatorButton", label: "Calculator", icon: "\u{1F9EE}" },
-        { key: "consoleButton", label: "Console", icon: "\u{1F4BB}" },
-        { key: "cloakingButton", label: "Cloaking", icon: "\u{1F3AD}" },
-        { key: "historyFloodButton", label: "History Flood", icon: "\u{1F30A}" },
-        { key: "corsProxyButton", label: "CORS Proxy", icon: "\u{1F504}" },
-        { key: "pocketBrowserButton", label: "Pocket Browser", icon: "\u{1F50D}" },
-        { key: "settingsButton", label: "Settings", icon: "\u2699\uFE0F", active: true }
-      ];
-      navButtons.forEach(({ key, label, icon, active }) => {
-        this.buttons[key] = this.createButton(label, icon);
-        if (active) {
-          this.buttons[key].classList.add("active");
+      const tabOrder = this._getTabOrder();
+      const tabMetadata = this._getTabMetadata();
+      tabOrder.forEach((key) => {
+        const tabData = tabMetadata[key];
+        if (tabData) {
+          this.buttons[key] = this.createButton(tabData.label, tabData.icon);
+          if (key === "settingsButton") {
+            this.buttons[key].classList.add("active");
+          }
+          this.buttonContainer.appendChild(this.buttons[key]);
         }
-        this.buttonContainer.appendChild(this.buttons[key]);
       });
       this.buttons.hideButton = this.createButton("Hide App", "\u274C", "hide");
       this.buttons.removeButton = this.createButton("Remove App", "\u{1F5D1}\uFE0F", "remove");
       this.buttonContainer.appendChild(this.buttons.hideButton);
       this.buttonContainer.appendChild(this.buttons.removeButton);
+    }
+    // Get tab order from localStorage or return default
+    _getTabOrder() {
+      const defaultOrder = [
+        "proxyButton",
+        "gamesButton",
+        "bookmarkletsButton",
+        "scriptsButton",
+        "notesButton",
+        "calculatorButton",
+        "consoleButton",
+        "cloakingButton",
+        "historyFloodButton",
+        "corsProxyButton",
+        "pocketBrowserButton",
+        "settingsButton"
+      ];
+      try {
+        const saved = localStorage.getItem("ocot-tab-order");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
+            const hasAllTabs = defaultOrder.every((tab) => parsed.includes(tab));
+            if (hasAllTabs) {
+              return parsed;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load tab order from localStorage:", e);
+      }
+      return defaultOrder;
+    }
+    // Get tab metadata
+    _getTabMetadata() {
+      return {
+        proxyButton: { label: "Proxy", icon: "\u{1F310}" },
+        gamesButton: { label: "Games List", icon: "\u{1F3AE}" },
+        bookmarkletsButton: { label: "Bookmarklets", icon: "\u{1F516}" },
+        scriptsButton: { label: "Scripts", icon: "\u{1F4DC}" },
+        notesButton: { label: "Notes", icon: "\u{1F4DD}" },
+        calculatorButton: { label: "Calculator", icon: "\u{1F9EE}" },
+        consoleButton: { label: "Console", icon: "\u{1F4BB}" },
+        cloakingButton: { label: "Cloaking", icon: "\u{1F3AD}" },
+        historyFloodButton: { label: "History Flood", icon: "\u{1F30A}" },
+        corsProxyButton: { label: "CORS Proxy", icon: "\u{1F504}" },
+        pocketBrowserButton: { label: "Pocket Browser", icon: "\u{1F50D}" },
+        settingsButton: { label: "Settings", icon: "\u2699\uFE0F" }
+      };
+    }
+    // Method to refresh button order (for when settings change)
+    refreshButtonOrder() {
+      const buttonsToRemove = [];
+      Object.keys(this.buttons).forEach((key) => {
+        if (key !== "hideButton" && key !== "removeButton") {
+          if (this.buttons[key] && this.buttons[key].parentNode) {
+            this.buttons[key].parentNode.removeChild(this.buttons[key]);
+          }
+          buttonsToRemove.push(key);
+        }
+      });
+      buttonsToRemove.forEach((key) => {
+        delete this.buttons[key];
+      });
+      const hideButton = this.buttons.hideButton;
+      const removeButton = this.buttons.removeButton;
+      if (hideButton && hideButton.parentNode) {
+        hideButton.parentNode.removeChild(hideButton);
+      }
+      if (removeButton && removeButton.parentNode) {
+        removeButton.parentNode.removeChild(removeButton);
+      }
+      const tabOrder = this._getTabOrder();
+      const tabMetadata = this._getTabMetadata();
+      tabOrder.forEach((key) => {
+        const tabData = tabMetadata[key];
+        if (tabData) {
+          this.buttons[key] = this.createButton(tabData.label, tabData.icon);
+          if (key === "settingsButton") {
+            this.buttons[key].classList.add("active");
+          }
+          this.buttonContainer.appendChild(this.buttons[key]);
+        }
+      });
+      if (hideButton) {
+        this.buttonContainer.appendChild(hideButton);
+      }
+      if (removeButton) {
+        this.buttonContainer.appendChild(removeButton);
+      }
     }
     // Get button references for event listeners
     getButtons() {
@@ -1610,6 +1691,7 @@
   // src/views/settings.js
   function createSettingsView() {
     injectAppCSS();
+    injectTabOrderCSS();
     const settingsView = document.createElement("div");
     settingsView.className = "card-grid-view";
     settingsView.style.display = "none";
@@ -1795,6 +1877,40 @@
         </div>
       </div>
 
+      <!-- Tab Order Section -->
+      <div class="settings-section tab-order-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          \u{1F4F1} Tab Order
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Customize the order of sidebar navigation tabs
+        </p>
+        
+        <div class="tab-order-container" style="background: #292d36; border-radius: 8px; padding: 20px;">
+          <div style="margin-bottom: 16px;">
+            <div style="color: #00bfff; font-weight: 600; margin-bottom: 8px;">
+              Current Tab Order
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 12px;">
+              Drag tabs to reorder them, or use the arrow buttons for keyboard navigation
+            </div>
+          </div>
+          
+          <div id="tab-order-list" class="tab-order-list" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px;">
+            <!-- Tab items will be populated by JavaScript -->
+          </div>
+          
+          <div class="tab-order-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button id="reset-tab-order" class="games-tab" style="border-radius: 6px; background: #6c757d; font-size: 0.85rem;">
+              \u{1F504} Reset to Default
+            </button>
+            <div style="color: #aaa; font-size: 0.8rem; display: flex; align-items: center; margin-left: auto;">
+              Changes are saved automatically
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Help Section -->
       <div class="settings-section help-section">
         <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
@@ -1918,6 +2034,7 @@
         }
       }
     });
+    setupTabOrderEventListeners();
   }
   function applyTheme(themeName) {
     const root = document.documentElement;
@@ -2211,6 +2328,306 @@
     } catch (e) {
       return defaults;
     }
+  }
+  function injectTabOrderCSS() {
+    if (document.getElementById("tab-order-style")) return;
+    const style = document.createElement("style");
+    style.id = "tab-order-style";
+    style.textContent = `
+    .tab-order-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .tab-order-item {
+      background: #23272f;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: move;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .tab-order-item:hover {
+      background: #2a2e37;
+      border-color: #525252;
+      transform: translateY(-1px);
+    }
+    
+    .tab-order-item.dragging {
+      opacity: 0.5;
+      transform: rotate(2deg);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tab-order-item.drag-over {
+      border-color: #00bfff;
+      box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.3);
+    }
+    
+    .tab-drag-handle {
+      font-size: 1.2rem;
+      color: #666;
+      cursor: grab;
+      line-height: 1;
+    }
+    
+    .tab-drag-handle:active {
+      cursor: grabbing;
+    }
+    
+    .tab-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .tab-icon {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .tab-label {
+      color: #fff;
+      font-weight: 500;
+    }
+    
+    .tab-order-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .tab-order-btn {
+      background: #404040;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 4px 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    
+    .tab-order-btn:hover {
+      background: #00bfff;
+    }
+    
+    .tab-order-btn:disabled {
+      background: #2a2e37;
+      color: #666;
+      cursor: not-allowed;
+    }
+    
+    /* Drag and drop visual feedback */
+    .tab-order-list.drag-active {
+      background: rgba(0, 191, 255, 0.05);
+      border-radius: 6px;
+    }
+  `;
+    document.head.appendChild(style);
+  }
+  function getTabOrder() {
+    const defaultOrder = [
+      "proxyButton",
+      "gamesButton",
+      "bookmarkletsButton",
+      "scriptsButton",
+      "notesButton",
+      "calculatorButton",
+      "consoleButton",
+      "cloakingButton",
+      "historyFloodButton",
+      "corsProxyButton",
+      "pocketBrowserButton",
+      "settingsButton"
+    ];
+    try {
+      const saved = localStorage.getItem("ocot-tab-order");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
+          const hasAllTabs = defaultOrder.every((tab) => parsed.includes(tab));
+          if (hasAllTabs) {
+            return parsed;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load tab order from localStorage:", e);
+    }
+    return defaultOrder;
+  }
+  function getTabMetadata() {
+    return {
+      proxyButton: { label: "Proxy", icon: "\u{1F310}" },
+      gamesButton: { label: "Games List", icon: "\u{1F3AE}" },
+      bookmarkletsButton: { label: "Bookmarklets", icon: "\u{1F516}" },
+      scriptsButton: { label: "Scripts", icon: "\u{1F4DC}" },
+      notesButton: { label: "Notes", icon: "\u{1F4DD}" },
+      calculatorButton: { label: "Calculator", icon: "\u{1F9EE}" },
+      consoleButton: { label: "Console", icon: "\u{1F4BB}" },
+      cloakingButton: { label: "Cloaking", icon: "\u{1F3AD}" },
+      historyFloodButton: { label: "History Flood", icon: "\u{1F30A}" },
+      corsProxyButton: { label: "CORS Proxy", icon: "\u{1F504}" },
+      pocketBrowserButton: { label: "Pocket Browser", icon: "\u{1F50D}" },
+      settingsButton: { label: "Settings", icon: "\u2699\uFE0F" }
+    };
+  }
+  function saveTabOrder(tabOrder) {
+    try {
+      localStorage.setItem("ocot-tab-order", JSON.stringify(tabOrder));
+      console.log("Tab order saved:", tabOrder);
+      document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+    } catch (e) {
+      console.error("Failed to save tab order to localStorage:", e);
+    }
+  }
+  function resetTabOrder() {
+    try {
+      localStorage.removeItem("ocot-tab-order");
+      console.log("Tab order reset to default");
+      document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+      renderTabOrderList();
+    } catch (e) {
+      console.error("Failed to reset tab order:", e);
+    }
+  }
+  function renderTabOrderList() {
+    const tabOrderList = document.getElementById("tab-order-list");
+    if (!tabOrderList) return;
+    const tabOrder = getTabOrder();
+    const tabMetadata = getTabMetadata();
+    tabOrderList.innerHTML = tabOrder.map((tabKey, index) => {
+      const tab = tabMetadata[tabKey];
+      if (!tab) return "";
+      return `
+      <div class="tab-order-item" draggable="true" data-tab-key="${tabKey}" data-index="${index}">
+        <div class="tab-drag-handle">\u22EE\u22EE</div>
+        <div class="tab-info">
+          <div class="tab-icon">${tab.icon}</div>
+          <div class="tab-label">${tab.label}</div>
+        </div>
+        <div class="tab-order-controls">
+          <button class="tab-order-btn" onclick="moveTabUp('${tabKey}')" ${index === 0 ? "disabled" : ""}>\u25B2</button>
+          <button class="tab-order-btn" onclick="moveTabDown('${tabKey}')" ${index === tabOrder.length - 1 ? "disabled" : ""}>\u25BC</button>
+        </div>
+      </div>
+    `;
+    }).join("");
+    setupDragAndDrop();
+  }
+  function setupDragAndDrop() {
+    const tabOrderList = document.getElementById("tab-order-list");
+    if (!tabOrderList) return;
+    let draggedElement = null;
+    tabOrderList.addEventListener("dragstart", (e) => {
+      if (!e.target.classList.contains("tab-order-item")) return;
+      draggedElement = e.target;
+      e.target.classList.add("dragging");
+      tabOrderList.classList.add("drag-active");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/html", e.target.outerHTML);
+    });
+    tabOrderList.addEventListener("dragend", (e) => {
+      if (!e.target.classList.contains("tab-order-item")) return;
+      e.target.classList.remove("dragging");
+      tabOrderList.classList.remove("drag-active");
+      tabOrderList.querySelectorAll(".tab-order-item").forEach((item) => {
+        item.classList.remove("drag-over");
+      });
+      draggedElement = null;
+    });
+    tabOrderList.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+      const dragging = tabOrderList.querySelector(".dragging");
+      tabOrderList.querySelectorAll(".tab-order-item").forEach((item) => {
+        item.classList.remove("drag-over");
+      });
+      if (afterElement == null) {
+        const items = [...tabOrderList.querySelectorAll(".tab-order-item:not(.dragging)")];
+        if (items.length > 0) {
+          items[items.length - 1].classList.add("drag-over");
+        }
+      } else {
+        afterElement.classList.add("drag-over");
+      }
+    });
+    tabOrderList.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+      const dragging = tabOrderList.querySelector(".dragging");
+      if (dragging && dragging !== afterElement) {
+        if (afterElement == null) {
+          tabOrderList.appendChild(dragging);
+        } else {
+          tabOrderList.insertBefore(dragging, afterElement);
+        }
+        updateTabOrderFromDOM();
+      }
+    });
+  }
+  function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll(".tab-order-item:not(.dragging)")];
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+  function updateTabOrderFromDOM() {
+    const tabOrderList = document.getElementById("tab-order-list");
+    if (!tabOrderList) return;
+    const newOrder = [...tabOrderList.querySelectorAll(".tab-order-item")].map((item) => item.getAttribute("data-tab-key"));
+    saveTabOrder(newOrder);
+    setTimeout(() => renderTabOrderList(), 100);
+  }
+  window.moveTabUp = function(tabKey) {
+    const tabOrder = getTabOrder();
+    const currentIndex = tabOrder.indexOf(tabKey);
+    if (currentIndex > 0) {
+      [tabOrder[currentIndex - 1], tabOrder[currentIndex]] = [tabOrder[currentIndex], tabOrder[currentIndex - 1]];
+      saveTabOrder(tabOrder);
+      renderTabOrderList();
+    }
+  };
+  window.moveTabDown = function(tabKey) {
+    const tabOrder = getTabOrder();
+    const currentIndex = tabOrder.indexOf(tabKey);
+    if (currentIndex < tabOrder.length - 1) {
+      [tabOrder[currentIndex], tabOrder[currentIndex + 1]] = [tabOrder[currentIndex + 1], tabOrder[currentIndex]];
+      saveTabOrder(tabOrder);
+      renderTabOrderList();
+    }
+  };
+  function setupTabOrderEventListeners() {
+    const resetButton = document.getElementById("reset-tab-order");
+    if (resetButton) {
+      resetButton.addEventListener("click", () => {
+        resetTabOrder();
+        const originalText = resetButton.innerHTML;
+        resetButton.innerHTML = "\u2705 Reset Complete";
+        resetButton.style.background = "#28a745";
+        setTimeout(() => {
+          resetButton.innerHTML = originalText;
+          resetButton.style.background = "#6c757d";
+        }, 2e3);
+      });
+    }
+    renderTabOrderList();
   }
 
   // src/views/proxy.js
@@ -5277,67 +5694,162 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       const setActiveButton = (buttonKey) => {
         this.sidebar.setActiveButton(buttonKey);
       };
-      b.proxyButton.addEventListener("click", () => {
-        hideAll();
-        v.proxyView.style.display = "flex";
-        setActiveButton("proxyButton");
+      const eventHandlers = {
+        proxyButton: () => {
+          hideAll();
+          v.proxyView.style.display = "flex";
+          setActiveButton("proxyButton");
+        },
+        notesButton: () => {
+          hideAll();
+          v.notesView.style.display = "block";
+          setActiveButton("notesButton");
+        },
+        calculatorButton: () => {
+          hideAll();
+          v.calculatorView.style.display = "block";
+          setActiveButton("calculatorButton");
+          this.initCalculator();
+        },
+        consoleButton: () => {
+          hideAll();
+          v.consoleView.style.display = "block";
+          setActiveButton("consoleButton");
+        },
+        cloakingButton: () => {
+          hideAll();
+          v.cloakingView.style.display = "block";
+          setActiveButton("cloakingButton");
+        },
+        historyFloodButton: () => {
+          hideAll();
+          v.historyFloodView.style.display = "block";
+          setActiveButton("historyFloodButton");
+        },
+        corsProxyButton: () => {
+          hideAll();
+          v.corsProxyView.style.display = "block";
+          setActiveButton("corsProxyButton");
+        },
+        pocketBrowserButton: () => {
+          hideAll();
+          v.pocketBrowserView.style.display = "block";
+          setActiveButton("pocketBrowserButton");
+        },
+        scriptsButton: () => {
+          hideAll();
+          v.scriptsView.style.display = "block";
+          setActiveButton("scriptsButton");
+        },
+        settingsButton: () => {
+          hideAll();
+          v.settingsView.style.display = "block";
+          setActiveButton("settingsButton");
+        },
+        bookmarkletsButton: () => {
+          hideAll();
+          v.bookmarkletsView.style.display = "block";
+          setActiveButton("bookmarkletsButton");
+        },
+        gamesButton: () => {
+          hideAll();
+          v.gamesView.style.display = "block";
+          setActiveButton("gamesButton");
+        }
+      };
+      this.attachButtonEventListeners(eventHandlers);
+      document.addEventListener("tabOrderChanged", () => {
+        this.refreshSidebar();
       });
-      b.notesButton.addEventListener("click", () => {
-        hideAll();
-        v.notesView.style.display = "block";
-        setActiveButton("notesButton");
+    }
+    // Method to attach event listeners to buttons
+    attachButtonEventListeners(eventHandlers) {
+      const b = this.sidebarButtons;
+      Object.keys(eventHandlers).forEach((buttonKey) => {
+        if (b[buttonKey]) {
+          const oldButton = b[buttonKey];
+          const newButton = oldButton.cloneNode(true);
+          oldButton.parentNode.replaceChild(newButton, oldButton);
+          b[buttonKey] = newButton;
+          b[buttonKey].addEventListener("click", eventHandlers[buttonKey]);
+        }
       });
-      b.calculatorButton.addEventListener("click", () => {
-        hideAll();
-        v.calculatorView.style.display = "block";
-        setActiveButton("calculatorButton");
-        this.initCalculator();
-      });
-      b.consoleButton.addEventListener("click", () => {
-        hideAll();
-        v.consoleView.style.display = "block";
-        setActiveButton("consoleButton");
-      });
-      b.cloakingButton.addEventListener("click", () => {
-        hideAll();
-        v.cloakingView.style.display = "block";
-        setActiveButton("cloakingButton");
-      });
-      b.historyFloodButton.addEventListener("click", () => {
-        hideAll();
-        v.historyFloodView.style.display = "block";
-        setActiveButton("historyFloodButton");
-      });
-      b.corsProxyButton.addEventListener("click", () => {
-        hideAll();
-        v.corsProxyView.style.display = "block";
-        setActiveButton("corsProxyButton");
-      });
-      b.pocketBrowserButton.addEventListener("click", () => {
-        hideAll();
-        v.pocketBrowserView.style.display = "block";
-        setActiveButton("pocketBrowserButton");
-      });
-      b.scriptsButton.addEventListener("click", () => {
-        hideAll();
-        v.scriptsView.style.display = "block";
-        setActiveButton("scriptsButton");
-      });
-      b.settingsButton.addEventListener("click", () => {
-        hideAll();
-        v.settingsView.style.display = "block";
-        setActiveButton("settingsButton");
-      });
-      b.bookmarkletsButton.addEventListener("click", () => {
-        hideAll();
-        v.bookmarkletsView.style.display = "block";
-        setActiveButton("bookmarkletsButton");
-      });
-      b.gamesButton.addEventListener("click", () => {
-        hideAll();
-        v.gamesView.style.display = "block";
-        setActiveButton("gamesButton");
-      });
+    }
+    // Method to refresh sidebar when tab order changes
+    refreshSidebar() {
+      this.sidebar.refreshButtonOrder();
+      this.sidebarButtons = this.sidebar.getButtons();
+      const v = this.views;
+      const hideAll = () => {
+        Object.values(v).forEach((view) => view.style.display = "none");
+      };
+      const setActiveButton = (buttonKey) => {
+        this.sidebar.setActiveButton(buttonKey);
+      };
+      const eventHandlers = {
+        proxyButton: () => {
+          hideAll();
+          v.proxyView.style.display = "flex";
+          setActiveButton("proxyButton");
+        },
+        notesButton: () => {
+          hideAll();
+          v.notesView.style.display = "block";
+          setActiveButton("notesButton");
+        },
+        calculatorButton: () => {
+          hideAll();
+          v.calculatorView.style.display = "block";
+          setActiveButton("calculatorButton");
+          this.initCalculator();
+        },
+        consoleButton: () => {
+          hideAll();
+          v.consoleView.style.display = "block";
+          setActiveButton("consoleButton");
+        },
+        cloakingButton: () => {
+          hideAll();
+          v.cloakingView.style.display = "block";
+          setActiveButton("cloakingButton");
+        },
+        historyFloodButton: () => {
+          hideAll();
+          v.historyFloodView.style.display = "block";
+          setActiveButton("historyFloodButton");
+        },
+        corsProxyButton: () => {
+          hideAll();
+          v.corsProxyView.style.display = "block";
+          setActiveButton("corsProxyButton");
+        },
+        pocketBrowserButton: () => {
+          hideAll();
+          v.pocketBrowserView.style.display = "block";
+          setActiveButton("pocketBrowserButton");
+        },
+        scriptsButton: () => {
+          hideAll();
+          v.scriptsView.style.display = "block";
+          setActiveButton("scriptsButton");
+        },
+        settingsButton: () => {
+          hideAll();
+          v.settingsView.style.display = "block";
+          setActiveButton("settingsButton");
+        },
+        bookmarkletsButton: () => {
+          hideAll();
+          v.bookmarkletsView.style.display = "block";
+          setActiveButton("bookmarkletsButton");
+        },
+        gamesButton: () => {
+          hideAll();
+          v.gamesView.style.display = "block";
+          setActiveButton("gamesButton");
+        }
+      };
+      this.attachButtonEventListeners(eventHandlers);
     }
     // --- Calculator Initialization ---
     initCalculator() {
