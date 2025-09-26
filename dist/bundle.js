@@ -4248,12 +4248,16 @@ Math.sqrt(16);
         isAutoHide: true,
         // Special flag to identify this script for dynamic updates
         onClick: () => {
-          const autoHideItem = document.querySelector('.script-item[data-script="auto-hide"]');
+          const autoHideItem = document.querySelector(
+            '.script-item[data-script="auto-hide"]'
+          );
           if (window.autoHideEnabled) {
             window.removeEventListener("blur", window.autoHideBlurHandler);
             window.autoHideEnabled = false;
             updateAutoHideVisualState(autoHideItem, false);
-            alert("\u{1F513} Auto-hide disabled!\n\nThe Ocot Client will no longer automatically hide when you switch tabs or click away. You can manually hide it using the Hide App button or the backslash (\\) key.");
+            alert(
+              "\u{1F513} Auto-hide disabled!\n\nThe Ocot Client will no longer automatically hide when you switch tabs or click away. You can manually hide it using the Hide App button or the backslash (\\) key."
+            );
             return;
           }
           window.autoHideBlurHandler = () => {
@@ -4262,7 +4266,9 @@ Math.sqrt(16);
                 window.proxyClientApp.hideProxyClient();
               } else {
                 window.proxyFrame.style.display = "none";
-                const floatingButton = document.querySelector('[title*="Show Ocot Client"]');
+                const floatingButton = document.querySelector(
+                  '[title*="Show Ocot Client"]'
+                );
                 if (floatingButton) {
                   floatingButton.style.display = "flex";
                 }
@@ -4272,7 +4278,9 @@ Math.sqrt(16);
           window.addEventListener("blur", window.autoHideBlurHandler);
           window.autoHideEnabled = true;
           updateAutoHideVisualState(autoHideItem, true);
-          alert("\u{1F512} Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n\u2022 Switch to another tab\n\u2022 Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide.");
+          alert(
+            "\u{1F512} Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n\u2022 Switch to another tab\n\u2022 Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide."
+          );
         }
       },
       {
@@ -4338,7 +4346,9 @@ Math.sqrt(16);
           const createAboutBlankWithScript = (scriptContent, isUrl = false) => {
             const newWindow = window.open("about:blank", "_blank");
             if (!newWindow) {
-              alert("Failed to open new window. Please check your browser's popup settings.");
+              alert(
+                "Failed to open new window. Please check your browser's popup settings."
+              );
               return;
             }
             const initializeWindow = () => {
@@ -4414,7 +4424,10 @@ Math.sqrt(16);
                   try {
                     const script = newWindow.document.createElement("script");
                     if (isUrl) {
-                      updateStatus("\u{1F517} Loading External Script", `Fetching: ${scriptContent}`);
+                      updateStatus(
+                        "\u{1F517} Loading External Script",
+                        `Fetching: ${scriptContent}`
+                      );
                       script.src = scriptContent;
                       const timeoutId = setTimeout(() => {
                         updateStatus(
@@ -4454,7 +4467,10 @@ Math.sqrt(16);
                         );
                       };
                     } else {
-                      updateStatus("\u{1F4DD} Executing Inline Script", "Processing JavaScript code...");
+                      updateStatus(
+                        "\u{1F4DD} Executing Inline Script",
+                        "Processing JavaScript code..."
+                      );
                       try {
                         script.textContent = scriptContent;
                         const wrappedScript = newWindow.document.createElement("script");
@@ -4522,7 +4538,10 @@ Math.sqrt(16);
               }
             };
             if (newWindow.document.readyState === "loading") {
-              newWindow.document.addEventListener("DOMContentLoaded", initializeWindow);
+              newWindow.document.addEventListener(
+                "DOMContentLoaded",
+                initializeWindow
+              );
             } else {
               setTimeout(initializeWindow, 50);
             }
@@ -4537,19 +4556,25 @@ Math.sqrt(16);
             }
           });
           modal.querySelector("#url-option").addEventListener("click", () => {
-            const url = prompt("Enter the JavaScript URL to inject:", "https://example.com/script.js");
+            const url = prompt(
+              "Enter the JavaScript URL to inject:",
+              "https://example.com/script.js"
+            );
             if (url) {
               createAboutBlankWithScript(url, true);
             }
           });
           modal.querySelector("#js-option").addEventListener("click", () => {
-            const jsCode = prompt("Enter JavaScript code to execute:", 'console.log("Hello from about:blank!");');
+            const jsCode = prompt(
+              "Enter JavaScript code to execute:",
+              'console.log("Hello from about:blank!");'
+            );
             if (jsCode) {
               createAboutBlankWithScript(jsCode, false);
             }
           });
           modal.querySelector("#ocot-option").addEventListener("click", () => {
-            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@latest/dist/bundle.js";
+            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.2/dist/bundle.js";
             createAboutBlankWithScript(ocotUrl, true);
           });
         }
