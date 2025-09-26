@@ -298,35 +298,227 @@ export default function createscriptsView() {
 
         document.body.appendChild(modal);
 
-        // Helper function to create about:blank window and inject script
+        // Helper function to create about:blank window and inject script with robust error handling
         const createAboutBlankWithScript = (scriptContent, isUrl = false) => {
           const newWindow = window.open('about:blank', '_blank');
-          if (newWindow) {
-            const script = newWindow.document.createElement('script');
-            if (isUrl) {
-              script.src = scriptContent;
-            } else {
-              script.textContent = scriptContent;
-            }
-            newWindow.document.head.appendChild(script);
-            
-            // Add basic styling to the page
-            const style = newWindow.document.createElement('style');
-            style.textContent = `
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: #1a1a1a;
-                color: #fff;
-                margin: 0;
-                padding: 20px;
-              }
-            `;
-            newWindow.document.head.appendChild(style);
-            
-            document.body.removeChild(modal);
-          } else {
+          if (!newWindow) {
             alert('Failed to open new window. Please check your browser\'s popup settings.');
+            return;
           }
+
+          // Wait for the new window's document to be ready
+          const initializeWindow = () => {
+            try {
+              // Add comprehensive styling to the page
+              const style = newWindow.document.createElement('style');
+              style.textContent = `
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  background: #1a1a1a;
+                  color: #fff;
+                  margin: 0;
+                  padding: 20px;
+                  line-height: 1.6;
+                }
+                .status-container {
+                  background: #292d36;
+                  border-radius: 8px;
+                  padding: 16px;
+                  margin-bottom: 20px;
+                  border-left: 4px solid #00bfff;
+                }
+                .status-title {
+                  font-weight: 600;
+                  color: #00bfff;
+                  margin-bottom: 8px;
+                }
+                .status-message {
+                  color: #aaa;
+                  font-size: 0.9rem;
+                }
+                .success { border-left-color: #28a745; }
+                .success .status-title { color: #28a745; }
+                .error { border-left-color: #dc3545; }
+                .error .status-title { color: #dc3545; }
+                .warning { border-left-color: #ffc107; }
+                .warning .status-title { color: #ffc107; }
+                .code-block {
+                  background: #1e2126;
+                  border-radius: 4px;
+                  padding: 12px;
+                  margin: 8px 0;
+                  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                  font-size: 0.85rem;
+                  border: 1px solid #404040;
+                  overflow-x: auto;
+                }
+                .timestamp {
+                  color: #666;
+                  font-size: 0.8rem;
+                }
+              `;
+              newWindow.document.head.appendChild(style);
+
+              // Create status container
+              const statusContainer = newWindow.document.createElement('div');
+              statusContainer.innerHTML = `
+                <div class="status-container" id="injection-status">
+                  <div class="status-title">🔄 Script Injection Status</div>
+                  <div class="status-message">Initializing script injection...</div>
+                </div>
+              `;
+              newWindow.document.body.appendChild(statusContainer);
+
+              const updateStatus = (title, message, type = 'info') => {
+                const status = newWindow.document.getElementById('injection-status');
+                if (status) {
+                  status.className = `status-container ${type}`;
+                  status.innerHTML = `
+                    <div class="status-title">${title}</div>
+                    <div class="status-message">${message}</div>
+                    <div class="timestamp">Last updated: ${new Date().toLocaleTimeString()}</div>
+                  `;
+                }
+              };
+
+              // Script injection with comprehensive error handling
+              const injectScript = () => {
+                try {
+                  const script = newWindow.document.createElement('script');
+                  
+                  if (isUrl) {
+                    // Handle external script URL
+                    updateStatus('🔗 Loading External Script', `Fetching: ${scriptContent}`);
+                    
+                    script.src = scriptContent;
+                    
+                    // Set up timeout for script loading
+                    const timeoutId = setTimeout(() => {
+                      updateStatus('⏰ Script Load Timeout', 
+                        `Script failed to load within 10 seconds. This may be due to network issues or CORS restrictions.<br><br>
+                        <strong>Troubleshooting:</strong><br>
+                        • Check if the URL is accessible<br>
+                        • Verify CORS headers allow cross-origin requests<br>
+                        • Try a different script URL<br><br>
+                        <div class="code-block">URL: ${scriptContent}</div>`, 
+                        'warning');
+                    }, 10000);
+
+                    // Success handler
+                    script.onload = () => {
+                      clearTimeout(timeoutId);
+                      updateStatus('✅ Script Loaded Successfully', 
+                        `External script has been loaded and executed successfully.<br><br>
+                        <div class="code-block">URL: ${scriptContent}</div>
+                        <br>Check the browser console for any script output.`, 
+                        'success');
+                    };
+
+                    // Error handler
+                    script.onerror = (event) => {
+                      clearTimeout(timeoutId);
+                      updateStatus('❌ Script Load Failed', 
+                        `Failed to load external script. This is likely due to:<br><br>
+                        <strong>Common causes:</strong><br>
+                        • CORS (Cross-Origin Resource Sharing) restrictions<br>
+                        • Network connectivity issues<br>
+                        • Invalid or inaccessible URL<br>
+                        • Server-side blocking of cross-origin requests<br><br>
+                        <div class="code-block">URL: ${scriptContent}</div>
+                        <br><strong>Suggestion:</strong> Try copying the script content and using 'Direct JavaScript Code' option instead.`, 
+                        'error');
+                    };
+
+                  } else {
+                    // Handle inline JavaScript code
+                    updateStatus('📝 Executing Inline Script', 'Processing JavaScript code...');
+                    
+                    try {
+                      // Validate and execute inline script
+                      script.textContent = scriptContent;
+                      
+                      // Add error handling wrapper for inline scripts
+                      const wrappedScript = newWindow.document.createElement('script');
+                      wrappedScript.textContent = `
+                        try {
+                          ${scriptContent}
+                          console.log('✅ Inline script executed successfully');
+                        } catch (error) {
+                          console.error('❌ Script execution error:', error);
+                          const statusEl = document.getElementById('injection-status');
+                          if (statusEl) {
+                            statusEl.className = 'status-container error';
+                            statusEl.innerHTML = \`
+                              <div class="status-title">❌ Script Execution Error</div>
+                              <div class="status-message">
+                                JavaScript execution failed:<br><br>
+                                <div class="code-block">\${error.name}: \${error.message}</div>
+                                <br>Please check your JavaScript syntax and try again.
+                              </div>
+                              <div class="timestamp">Last updated: \${new Date().toLocaleTimeString()}</div>
+                            \`;
+                          }
+                        }
+                      `;
+                      
+                      newWindow.document.head.appendChild(wrappedScript);
+                      
+                      updateStatus('✅ Script Executed Successfully', 
+                        `Inline JavaScript code has been executed.<br><br>
+                        <div class="code-block">${scriptContent.length > 200 ? 
+                          scriptContent.substring(0, 200) + '...' : 
+                          scriptContent}</div>
+                        <br>Check the browser console for any script output.`, 
+                        'success');
+                        
+                    } catch (error) {
+                      updateStatus('❌ Script Preparation Failed', 
+                        `Failed to prepare script for execution:<br><br>
+                        <div class="code-block">${error.name}: ${error.message}</div>
+                        <br>Please check your JavaScript syntax.`, 
+                        'error');
+                    }
+                  }
+
+                  // Append script to head for URL-based scripts
+                  if (isUrl) {
+                    newWindow.document.head.appendChild(script);
+                  }
+
+                } catch (error) {
+                  updateStatus('❌ Injection Failed', 
+                    `Critical error during script injection:<br><br>
+                    <div class="code-block">${error.name}: ${error.message}</div>
+                    <br>This may indicate a browser security restriction or internal error.`, 
+                    'error');
+                }
+              };
+
+              // Start script injection
+              setTimeout(injectScript, 100); // Small delay to ensure DOM is ready
+
+            } catch (error) {
+              // Fallback error handling if window initialization fails
+              newWindow.document.body.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff;">
+                  <h2 style="color: #dc3545;">❌ Initialization Failed</h2>
+                  <p>Failed to initialize the injection environment:</p>
+                  <pre style="background: #2d2d2d; padding: 10px; border-radius: 4px;">${error.message}</pre>
+                </div>
+              `;
+            }
+          };
+
+          // Wait for new window to be ready
+          if (newWindow.document.readyState === 'loading') {
+            newWindow.document.addEventListener('DOMContentLoaded', initializeWindow);
+          } else {
+            // Document is already ready
+            setTimeout(initializeWindow, 50);
+          }
+
+          // Close modal after successful window creation
+          document.body.removeChild(modal);
         };
 
         // Event listeners
