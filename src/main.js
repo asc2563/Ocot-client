@@ -23,6 +23,8 @@ class ProxyClientApp {
     this.views = {};
     this.sidebar = new ProxySidebar();
     this.sidebarButtons = {};
+    this.isMaximized = false;
+    this.normalFrameStyle = null;
   }
 
   launch() {
@@ -39,6 +41,17 @@ class ProxyClientApp {
     this.frame = document.createElement("div");
     window.proxyFrame = this.frame;
     this.setupFrameStyle();
+
+    // Create top bar
+    const topBar = this.createTopBar();
+
+    // Create main content area (sidebar + content)
+    const mainContent = document.createElement("div");
+    mainContent.style.cssText = `
+      display: flex;
+      flex: 1;
+      height: calc(100% - 40px);
+    `;
 
     // Create sidebar using the module
     const sidebarElement = this.sidebar.createSidebar();
@@ -57,8 +70,11 @@ class ProxyClientApp {
     // Content
     const content = this.createContent();
 
-    this.frame.appendChild(sidebarElement);
-    this.frame.appendChild(content);
+    mainContent.appendChild(sidebarElement);
+    mainContent.appendChild(content);
+
+    this.frame.appendChild(topBar);
+    this.frame.appendChild(mainContent);
 
     // Append to existing page instead of clearing it
     document.body.appendChild(this.frame);
@@ -90,16 +106,6 @@ class ProxyClientApp {
           this.sidebar.setActiveButton(null);
         }
       }
-    });
-
-    // Hide button
-    this.sidebarButtons.hideButton.addEventListener("click", () => {
-      this.hideProxyClient();
-    });
-
-    // Remove button - completely destroy the app
-    this.sidebarButtons.removeButton.addEventListener("click", () => {
-      this.removeProxyClient();
     });
 
     console.log(
@@ -353,8 +359,162 @@ class ProxyClientApp {
     frame.style.width = "70vw";
     frame.style.height = "80vh";
     frame.style.display = "flex";
+    frame.style.flexDirection = "column";
     frame.style.color = "#ffffff";
     frame.style.zIndex = "99999";
+    
+    // Store normal frame style for maximize/restore functionality
+    this.normalFrameStyle = {
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: "70vw",
+      height: "80vh"
+    };
+  }
+
+  createTopBar() {
+    const topBar = document.createElement("div");
+    topBar.className = "proxy-top-bar";
+    topBar.style.cssText = `
+      height: 40px;
+      background: linear-gradient(135deg, #23272f, #2a2e37);
+      border-bottom: 1px solid #404040;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      user-select: none;
+      flex-shrink: 0;
+    `;
+
+    // App title/info
+    const titleArea = document.createElement("div");
+    titleArea.style.cssText = `
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #00bfff;
+      font-weight: 600;
+      font-size: 0.9rem;
+    `;
+    titleArea.innerHTML = `
+      <span style="font-size: 1.1rem;">🔧</span>
+      <span>Ocot Client</span>
+    `;
+
+    // Window controls
+    const windowControls = document.createElement("div");
+    windowControls.style.cssText = `
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    `;
+
+    // Minimize button
+    const minimizeBtn = this.createWindowControlButton("−", "#fbbf24", () => {
+      this.hideProxyClient();
+    });
+    minimizeBtn.title = "Minimize (Hide App)";
+
+    // Maximize button
+    const maximizeBtn = this.createWindowControlButton("□", "#10b981", () => {
+      this.toggleMaximize();
+    });
+    maximizeBtn.title = "Maximize/Restore";
+    this.maximizeBtn = maximizeBtn; // Store reference for updating
+
+    // Close button
+    const closeBtn = this.createWindowControlButton("×", "#ef4444", () => {
+      this.removeProxyClient();
+    });
+    closeBtn.title = "Close (Remove App)";
+
+    windowControls.appendChild(minimizeBtn);
+    windowControls.appendChild(maximizeBtn);
+    windowControls.appendChild(closeBtn);
+
+    topBar.appendChild(titleArea);
+    topBar.appendChild(windowControls);
+
+    return topBar;
+  }
+
+  createWindowControlButton(symbol, color, onClick) {
+    const btn = document.createElement("button");
+    btn.innerHTML = symbol;
+    btn.style.cssText = `
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 4px;
+      background: ${color};
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      line-height: 1;
+    `;
+
+    btn.addEventListener("mouseenter", () => {
+      btn.style.transform = "scale(1.1)";
+      btn.style.opacity = "0.8";
+    });
+
+    btn.addEventListener("mouseleave", () => {
+      btn.style.transform = "scale(1)";
+      btn.style.opacity = "1";
+    });
+
+    btn.addEventListener("click", onClick);
+
+    return btn;
+  }
+
+  toggleMaximize() {
+    if (this.isMaximized) {
+      this.restoreFrame();
+    } else {
+      this.maximizeFrame();
+    }
+  }
+
+  maximizeFrame() {
+    this.isMaximized = true;
+    const frame = this.frame;
+    
+    frame.style.top = "0";
+    frame.style.left = "0";
+    frame.style.transform = "none";
+    frame.style.width = "100vw";
+    frame.style.height = "100vh";
+    
+    // Update maximize button symbol
+    if (this.maximizeBtn) {
+      this.maximizeBtn.innerHTML = "❐";
+      this.maximizeBtn.title = "Restore";
+    }
+  }
+
+  restoreFrame() {
+    this.isMaximized = false;
+    const frame = this.frame;
+    
+    frame.style.top = this.normalFrameStyle.top;
+    frame.style.left = this.normalFrameStyle.left;
+    frame.style.transform = this.normalFrameStyle.transform;
+    frame.style.width = this.normalFrameStyle.width;
+    frame.style.height = this.normalFrameStyle.height;
+    
+    // Update maximize button symbol
+    if (this.maximizeBtn) {
+      this.maximizeBtn.innerHTML = "□";
+      this.maximizeBtn.title = "Maximize";
+    }
   }
 
   createContent() {

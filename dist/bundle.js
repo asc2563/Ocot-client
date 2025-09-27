@@ -218,7 +218,7 @@
     // Button factory function
     createButton(label, icon = "", type = "normal") {
       const btn = document.createElement("button");
-      btn.className = `sidebar-btn ${type === "hide" ? "hide-btn" : ""} ${type === "remove" ? "remove-btn" : ""}`;
+      btn.className = `sidebar-btn`;
       btn.innerHTML = icon ? `${icon} ${label}` : label;
       return btn;
     }
@@ -236,10 +236,6 @@
           this.buttonContainer.appendChild(this.buttons[key]);
         }
       });
-      this.buttons.hideButton = this.createButton("Hide App", "\u274C", "hide");
-      this.buttons.removeButton = this.createButton("Remove App", "\u{1F5D1}\uFE0F", "remove");
-      this.buttonContainer.appendChild(this.buttons.hideButton);
-      this.buttonContainer.appendChild(this.buttons.removeButton);
     }
     // Get tab order from localStorage or return default
     _getTabOrder() {
@@ -294,24 +290,14 @@
     refreshButtonOrder() {
       const buttonsToRemove = [];
       Object.keys(this.buttons).forEach((key) => {
-        if (key !== "hideButton" && key !== "removeButton") {
-          if (this.buttons[key] && this.buttons[key].parentNode) {
-            this.buttons[key].parentNode.removeChild(this.buttons[key]);
-          }
-          buttonsToRemove.push(key);
+        if (this.buttons[key] && this.buttons[key].parentNode) {
+          this.buttons[key].parentNode.removeChild(this.buttons[key]);
         }
+        buttonsToRemove.push(key);
       });
       buttonsToRemove.forEach((key) => {
         delete this.buttons[key];
       });
-      const hideButton = this.buttons.hideButton;
-      const removeButton = this.buttons.removeButton;
-      if (hideButton && hideButton.parentNode) {
-        hideButton.parentNode.removeChild(hideButton);
-      }
-      if (removeButton && removeButton.parentNode) {
-        removeButton.parentNode.removeChild(removeButton);
-      }
       const tabOrder = this._getTabOrder();
       const tabMetadata = this._getTabMetadata();
       tabOrder.forEach((key) => {
@@ -324,12 +310,6 @@
           this.buttonContainer.appendChild(this.buttons[key]);
         }
       });
-      if (hideButton) {
-        this.buttonContainer.appendChild(hideButton);
-      }
-      if (removeButton) {
-        this.buttonContainer.appendChild(removeButton);
-      }
     }
     // Get button references for event listeners
     getButtons() {
@@ -5845,6 +5825,8 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.views = {};
       this.sidebar = new sidebar_default();
       this.sidebarButtons = {};
+      this.isMaximized = false;
+      this.normalFrameStyle = null;
     }
     launch() {
       injectAppCSS();
@@ -5853,6 +5835,13 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.frame = document.createElement("div");
       window.proxyFrame = this.frame;
       this.setupFrameStyle();
+      const topBar = this.createTopBar();
+      const mainContent = document.createElement("div");
+      mainContent.style.cssText = `
+      display: flex;
+      flex: 1;
+      height: calc(100% - 40px);
+    `;
       const sidebarElement = this.sidebar.createSidebar();
       this.sidebar.addNavigationButtons();
       this.sidebarButtons = this.sidebar.getButtons();
@@ -5862,8 +5851,10 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         this.showWelcomeView();
       });
       const content = this.createContent();
-      this.frame.appendChild(sidebarElement);
-      this.frame.appendChild(content);
+      mainContent.appendChild(sidebarElement);
+      mainContent.appendChild(content);
+      this.frame.appendChild(topBar);
+      this.frame.appendChild(mainContent);
       document.body.appendChild(this.frame);
       this.createFloatingButton();
       this.applyInitialSettings();
@@ -5882,12 +5873,6 @@ https://discord.gg/jHjGrrdXP6"       );     };`
             this.sidebar.setActiveButton(null);
           }
         }
-      });
-      this.sidebarButtons.hideButton.addEventListener("click", () => {
-        this.hideProxyClient();
-      });
-      this.sidebarButtons.removeButton.addEventListener("click", () => {
-        this.removeProxyClient();
       });
       console.log(
         "Application launched successfully. Press backslash (\\) to show if hidden."
@@ -6079,8 +6064,132 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       frame.style.width = "70vw";
       frame.style.height = "80vh";
       frame.style.display = "flex";
+      frame.style.flexDirection = "column";
       frame.style.color = "#ffffff";
       frame.style.zIndex = "99999";
+      this.normalFrameStyle = {
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "70vw",
+        height: "80vh"
+      };
+    }
+    createTopBar() {
+      const topBar = document.createElement("div");
+      topBar.className = "proxy-top-bar";
+      topBar.style.cssText = `
+      height: 40px;
+      background: linear-gradient(135deg, #23272f, #2a2e37);
+      border-bottom: 1px solid #404040;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      user-select: none;
+      flex-shrink: 0;
+    `;
+      const titleArea = document.createElement("div");
+      titleArea.style.cssText = `
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #00bfff;
+      font-weight: 600;
+      font-size: 0.9rem;
+    `;
+      titleArea.innerHTML = `
+      <span style="font-size: 1.1rem;">\u{1F527}</span>
+      <span>Ocot Client</span>
+    `;
+      const windowControls = document.createElement("div");
+      windowControls.style.cssText = `
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    `;
+      const minimizeBtn = this.createWindowControlButton("\u2212", "#fbbf24", () => {
+        this.hideProxyClient();
+      });
+      minimizeBtn.title = "Minimize (Hide App)";
+      const maximizeBtn = this.createWindowControlButton("\u25A1", "#10b981", () => {
+        this.toggleMaximize();
+      });
+      maximizeBtn.title = "Maximize/Restore";
+      this.maximizeBtn = maximizeBtn;
+      const closeBtn = this.createWindowControlButton("\xD7", "#ef4444", () => {
+        this.removeProxyClient();
+      });
+      closeBtn.title = "Close (Remove App)";
+      windowControls.appendChild(minimizeBtn);
+      windowControls.appendChild(maximizeBtn);
+      windowControls.appendChild(closeBtn);
+      topBar.appendChild(titleArea);
+      topBar.appendChild(windowControls);
+      return topBar;
+    }
+    createWindowControlButton(symbol, color, onClick) {
+      const btn = document.createElement("button");
+      btn.innerHTML = symbol;
+      btn.style.cssText = `
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 4px;
+      background: ${color};
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      line-height: 1;
+    `;
+      btn.addEventListener("mouseenter", () => {
+        btn.style.transform = "scale(1.1)";
+        btn.style.opacity = "0.8";
+      });
+      btn.addEventListener("mouseleave", () => {
+        btn.style.transform = "scale(1)";
+        btn.style.opacity = "1";
+      });
+      btn.addEventListener("click", onClick);
+      return btn;
+    }
+    toggleMaximize() {
+      if (this.isMaximized) {
+        this.restoreFrame();
+      } else {
+        this.maximizeFrame();
+      }
+    }
+    maximizeFrame() {
+      this.isMaximized = true;
+      const frame = this.frame;
+      frame.style.top = "0";
+      frame.style.left = "0";
+      frame.style.transform = "none";
+      frame.style.width = "100vw";
+      frame.style.height = "100vh";
+      if (this.maximizeBtn) {
+        this.maximizeBtn.innerHTML = "\u2750";
+        this.maximizeBtn.title = "Restore";
+      }
+    }
+    restoreFrame() {
+      this.isMaximized = false;
+      const frame = this.frame;
+      frame.style.top = this.normalFrameStyle.top;
+      frame.style.left = this.normalFrameStyle.left;
+      frame.style.transform = this.normalFrameStyle.transform;
+      frame.style.width = this.normalFrameStyle.width;
+      frame.style.height = this.normalFrameStyle.height;
+      if (this.maximizeBtn) {
+        this.maximizeBtn.innerHTML = "\u25A1";
+        this.maximizeBtn.title = "Maximize";
+      }
     }
     createContent() {
       const content = document.createElement("div");
