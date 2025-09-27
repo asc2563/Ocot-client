@@ -4816,7 +4816,9 @@ Math.sqrt(16);
         onClick: async () => {
           const mathToolsUrl = "https://cdn.jsdelivr.net/gh/Penguinify/math-bookmarklet/dist/bundle.js";
           const loadingAlert = setTimeout(() => {
-            alert("\u{1F504} Loading Math Tools...\n\nFetching advanced math calculator from CDN. Please wait...");
+            alert(
+              "\u{1F504} Loading Math Tools...\n\nFetching advanced math calculator from CDN. Please wait..."
+            );
           }, 100);
           try {
             const response = await fetch(mathToolsUrl);
@@ -4831,10 +4833,14 @@ Math.sqrt(16);
             const script = document.createElement("script");
             script.textContent = scriptContent;
             script.onerror = (event) => {
-              alert("\u274C Math Tools Execution Error\n\nThe math tools script failed to execute properly. This may be due to:\n\u2022 JavaScript syntax errors in the fetched script\n\u2022 Compatibility issues with the current page\n\u2022 Security restrictions");
+              alert(
+                "\u274C Math Tools Execution Error\n\nThe math tools script failed to execute properly. This may be due to:\n\u2022 JavaScript syntax errors in the fetched script\n\u2022 Compatibility issues with the current page\n\u2022 Security restrictions"
+              );
             };
             document.head.appendChild(script);
-            alert("\u2705 Math Tools Loaded Successfully!\n\n\u{1F9EE} Advanced math calculator and tools are now available on this page.\n\nLook for new math-related UI elements or check the browser console for instructions on how to use the tools.");
+            alert(
+              "\u2705 Math Tools Loaded Successfully!\n\n\u{1F9EE} Advanced math calculator and tools are now available on this page.\n\nLook for new math-related UI elements or check the browser console for instructions on how to use the tools."
+            );
           } catch (error) {
             clearTimeout(loadingAlert);
             let errorMessage = "\u274C Failed to Load Math Tools\n\n";
@@ -5403,7 +5409,7 @@ alert('Code executed successfully!');
             showCodeEditorModal(createAboutBlankWithScript);
           });
           modal.querySelector("#ocot-option").addEventListener("click", () => {
-            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.7/dist/bundle.js";
+            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.8/dist/bundle.js";
             createAboutBlankWithScript(ocotUrl, true);
           });
         }
