@@ -5,6 +5,9 @@ export default function createSettingsView() {
   // Inject shared CSS
   injectAppCSS();
 
+  // Inject tab order CSS
+  injectTabOrderCSS();
+
   const settingsView = document.createElement("div");
   settingsView.className = "card-grid-view";
   settingsView.style.display = "none";
@@ -74,6 +77,68 @@ export default function createSettingsView() {
             </div>
             <div style="color: #fff; font-weight: 600;">Crimson Red</div>
             <div style="color: #aaa; font-size: 0.85rem;">Bold and striking</div>
+          </div>
+
+          <div class="theme-option custom-theme-option" data-theme="custom" style="background: #292d36; border: 2px solid #404040; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;">
+            <div class="theme-preview" style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <div id="custom-preview-1" style="width: 20px; height: 20px; background: var(--custom-bg, #292d36); border-radius: 4px;"></div>
+              <div id="custom-preview-2" style="width: 20px; height: 20px; background: var(--custom-accent, #00bfff); border-radius: 4px;"></div>
+              <div id="custom-preview-3" style="width: 20px; height: 20px; background: var(--custom-secondary, #23272f); border-radius: 4px;"></div>
+            </div>
+            <div style="color: #fff; font-weight: 600;">Custom Theme</div>
+            <div style="color: #aaa; font-size: 0.85rem;">Create your own colors</div>
+          </div>
+        </div>
+
+        <!-- Custom Theme Color Picker -->
+        <div id="custom-theme-panel" style="display: none; margin-top: 16px; background: #23272f; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+          <h4 style="color: #fff; margin: 0 0 16px 0; font-size: 1.1rem;">Customize Colors</h4>
+          <div style="display: grid; gap: 16px;">
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Accent Color:</label>
+              <input type="color" id="custom-accent-color" value="#00bfff" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-accent-text" value="#00bfff" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Background:</label>
+              <input type="color" id="custom-bg-color" value="#292d36" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-bg-text" value="#292d36" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Secondary:</label>
+              <input type="color" id="custom-secondary-color" value="#23272f" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-secondary-text" value="#23272f" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button id="apply-custom-theme" style="background: #00bfff; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; font-weight: 600;">Apply Theme</button>
+              <button id="reset-custom-theme" style="background: #666; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Settings Section -->
+      <div class="settings-section general-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          ⚙️ General Settings
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Configure general app behavior and appearance
+        </p>
+        <div class="general-options" style="display: grid; gap: 16px;">
+          <div class="setting-item" style="background: #292d36; border-radius: 8px; padding: 16px;">
+            <label style="color: #00bfff; font-weight: 600; margin-bottom: 12px; display: block;">
+              Floating Button
+            </label>
+            <div style="display: grid; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; color: #fff; cursor: pointer;">
+                <input type="checkbox" id="enable-floating-button" checked style="margin: 0;">
+                <span>Show floating button when client is hidden</span>
+              </label>
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-top: 8px;">
+              The floating button (🔧) appears when you hide the main client, allowing you to quickly show it again. You can also press "\\" to toggle the client.
+            </div>
           </div>
         </div>
       </div>
@@ -191,6 +256,40 @@ export default function createSettingsView() {
         </div>
       </div>
 
+      <!-- Tab Order Section -->
+      <div class="settings-section tab-order-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          📱 Tab Order
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Customize the order of sidebar navigation tabs
+        </p>
+        
+        <div class="tab-order-container" style="background: #292d36; border-radius: 8px; padding: 20px;">
+          <div style="margin-bottom: 16px;">
+            <div style="color: #00bfff; font-weight: 600; margin-bottom: 8px;">
+              Current Tab Order
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 12px;">
+              Drag tabs to reorder them, or use the arrow buttons for keyboard navigation
+            </div>
+          </div>
+          
+          <div id="tab-order-list" class="tab-order-list" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px;">
+            <!-- Tab items will be populated by JavaScript -->
+          </div>
+          
+          <div class="tab-order-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button id="reset-tab-order" class="games-tab" style="border-radius: 6px; background: #6c757d; font-size: 0.85rem;">
+              🔄 Reset to Default
+            </button>
+            <div style="color: #aaa; font-size: 0.8rem; display: flex; align-items: center; margin-left: auto;">
+              Changes are saved automatically
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Help Section -->
       <div class="settings-section help-section">
         <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
@@ -282,6 +381,9 @@ function setupSettingsEventListeners() {
     savedThemeOption.style.borderColor = "#00bfff";
   }
 
+  // Setup custom theme functionality
+  setupCustomTheme();
+
   // Browser settings
   const saveButton = document.getElementById("save-browser-settings");
   const resetButton = document.getElementById("reset-browser-settings");
@@ -323,6 +425,9 @@ function setupSettingsEventListeners() {
   // Load saved proxy settings
   loadProxySettings();
 
+  // Load saved general settings
+  loadGeneralSettings();
+
   // Auto-save when browser settings change
   const browserInputs = [
     "homepage-input",
@@ -332,6 +437,9 @@ function setupSettingsEventListeners() {
     "enable-safe-search",
     "user-agent-select",
   ];
+
+  // Auto-save when general settings change
+  const generalInputs = ["enable-floating-button"];
 
   browserInputs.forEach((id) => {
     const element = document.getElementById(id);
@@ -344,6 +452,21 @@ function setupSettingsEventListeners() {
       }
     }
   });
+
+  generalInputs.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      if (element.type === "checkbox") {
+        element.addEventListener("change", saveGeneralSettings);
+      } else {
+        element.addEventListener("change", saveGeneralSettings);
+        element.addEventListener("input", saveGeneralSettings);
+      }
+    }
+  });
+
+  // Setup tab order functionality
+  setupTabOrderEventListeners();
 }
 
 function applyTheme(themeName) {
@@ -377,6 +500,9 @@ function applyTheme(themeName) {
       root.style.setProperty("--accent-color", "#dc2626");
       root.style.setProperty("--accent-hover", "#b91c1c");
       root.style.setProperty("--accent-color-rgb", "220, 38, 38");
+      break;
+    case "custom":
+      applyCustomTheme();
       break;
     default: // default theme
       root.style.setProperty("--bg-primary", "#23272f");
@@ -433,6 +559,165 @@ function updateThemeColors() {
   activeButtons.forEach((btn) => {
     btn.style.background = accentColor;
   });
+}
+
+function setupCustomTheme() {
+  // Handle custom theme selection
+  const customThemeOption = document.querySelector(
+    '.theme-option[data-theme="custom"]'
+  );
+  const customThemePanel = document.getElementById("custom-theme-panel");
+
+  // Show/hide custom theme panel
+  customThemeOption.addEventListener("click", (e) => {
+    e.stopPropagation();
+    customThemePanel.style.display =
+      customThemePanel.style.display === "none" ? "block" : "none";
+  });
+
+  // Color picker synchronization
+  const setupColorSync = (colorId, textId) => {
+    const colorInput = document.getElementById(colorId);
+    const textInput = document.getElementById(textId);
+
+    colorInput.addEventListener("input", () => {
+      textInput.value = colorInput.value;
+      updateCustomPreview();
+    });
+
+    textInput.addEventListener("input", () => {
+      if (isValidHex(textInput.value)) {
+        colorInput.value = textInput.value;
+        updateCustomPreview();
+      }
+    });
+  };
+
+  setupColorSync("custom-accent-color", "custom-accent-text");
+  setupColorSync("custom-bg-color", "custom-bg-text");
+  setupColorSync("custom-secondary-color", "custom-secondary-text");
+
+  // Apply and reset buttons
+  document
+    .getElementById("apply-custom-theme")
+    .addEventListener("click", () => {
+      saveCustomTheme();
+      applyCustomTheme();
+    });
+
+  document
+    .getElementById("reset-custom-theme")
+    .addEventListener("click", () => {
+      resetCustomTheme();
+    });
+
+  // Load saved custom theme
+  loadCustomTheme();
+}
+
+function updateCustomPreview() {
+  const accentColor = document.getElementById("custom-accent-text").value;
+  const bgColor = document.getElementById("custom-bg-text").value;
+  const secondaryColor = document.getElementById("custom-secondary-text").value;
+
+  document.getElementById("custom-preview-1").style.background = bgColor;
+  document.getElementById("custom-preview-2").style.background = accentColor;
+  document.getElementById("custom-preview-3").style.background = secondaryColor;
+}
+
+function saveCustomTheme() {
+  const customTheme = {
+    accent: document.getElementById("custom-accent-text").value,
+    background: document.getElementById("custom-bg-text").value,
+    secondary: document.getElementById("custom-secondary-text").value,
+  };
+
+  localStorage.setItem("customTheme", JSON.stringify(customTheme));
+  console.log("Custom theme saved:", customTheme);
+}
+
+function loadCustomTheme() {
+  const saved = localStorage.getItem("customTheme");
+  if (saved) {
+    try {
+      const theme = JSON.parse(saved);
+      document.getElementById("custom-accent-color").value = theme.accent;
+      document.getElementById("custom-accent-text").value = theme.accent;
+      document.getElementById("custom-bg-color").value = theme.background;
+      document.getElementById("custom-bg-text").value = theme.background;
+      document.getElementById("custom-secondary-color").value = theme.secondary;
+      document.getElementById("custom-secondary-text").value = theme.secondary;
+      updateCustomPreview();
+    } catch (e) {
+      console.warn("Failed to load custom theme:", e);
+    }
+  }
+}
+
+function applyCustomTheme() {
+  const saved = localStorage.getItem("customTheme");
+  if (!saved) return;
+
+  try {
+    const theme = JSON.parse(saved);
+    const root = document.documentElement;
+
+    // Calculate darker version for hover
+    const accentHover = adjustBrightness(theme.accent, -20);
+    const accentRgb = hexToRgb(theme.accent);
+
+    root.style.setProperty("--bg-primary", theme.secondary);
+    root.style.setProperty("--bg-secondary", theme.background);
+    root.style.setProperty("--accent-color", theme.accent);
+    root.style.setProperty("--accent-hover", accentHover);
+    root.style.setProperty(
+      "--accent-color-rgb",
+      `${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}`
+    );
+
+    updateThemeColors();
+  } catch (e) {
+    console.warn("Failed to apply custom theme:", e);
+  }
+}
+
+function resetCustomTheme() {
+  document.getElementById("custom-accent-color").value = "#00bfff";
+  document.getElementById("custom-accent-text").value = "#00bfff";
+  document.getElementById("custom-bg-color").value = "#292d36";
+  document.getElementById("custom-bg-text").value = "#292d36";
+  document.getElementById("custom-secondary-color").value = "#23272f";
+  document.getElementById("custom-secondary-text").value = "#23272f";
+  updateCustomPreview();
+}
+
+function isValidHex(hex) {
+  return /^#[0-9A-F]{6}$/i.test(hex);
+}
+
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+}
+
+function adjustBrightness(hex, percent) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+
+  const adjust = (color) =>
+    Math.max(0, Math.min(255, color + (color * percent) / 100));
+
+  const r = Math.round(adjust(rgb.r)).toString(16).padStart(2, "0");
+  const g = Math.round(adjust(rgb.g)).toString(16).padStart(2, "0");
+  const b = Math.round(adjust(rgb.b)).toString(16).padStart(2, "0");
+
+  return `#${r}${g}${b}`;
 }
 
 function saveBrowserSettings() {
@@ -542,6 +827,69 @@ function loadBrowserSettings() {
       userAgentSelect.value = settings.userAgent || "default";
   } catch (e) {
     console.warn("Failed to load browser settings:", e);
+  }
+}
+
+// General Settings Functions
+function saveGeneralSettings() {
+  const settings = {
+    enableFloatingButton:
+      document.getElementById("enable-floating-button")?.checked ?? true,
+  };
+
+  localStorage.setItem("ocot-general-settings", JSON.stringify(settings));
+
+  console.log("Settings: Saved general settings", settings);
+
+  // Update floating button visibility immediately
+  updateFloatingButtonVisibility(settings.enableFloatingButton);
+
+  // Show confirmation (no button for general settings, so just log)
+  console.log("General settings saved successfully");
+}
+
+function loadGeneralSettings() {
+  const saved = localStorage.getItem("ocot-general-settings");
+  if (!saved) return;
+
+  try {
+    const settings = JSON.parse(saved);
+
+    const floatingButtonCheck = document.getElementById(
+      "enable-floating-button"
+    );
+    if (floatingButtonCheck) {
+      floatingButtonCheck.checked = settings.enableFloatingButton !== false;
+    }
+  } catch (e) {
+    console.warn("Failed to load general settings:", e);
+  }
+}
+
+function updateFloatingButtonVisibility(enabled) {
+  console.log("updateFloatingButtonVisibility called with enabled:", enabled);
+
+  // Access the main app instance and update floating button visibility
+  if (window.proxyClientApp && window.proxyClientApp.floatingButton) {
+    if (enabled) {
+      console.log("Floating button setting enabled");
+      // Show floating button when client is hidden (if client is currently hidden)
+      if (
+        window.proxyClientApp.frame &&
+        window.proxyClientApp.frame.style.display === "none"
+      ) {
+        console.log("Client is hidden, showing floating button");
+        window.proxyClientApp.floatingButton.style.display = "flex";
+      } else {
+        console.log("Client is visible, keeping floating button hidden");
+      }
+    } else {
+      console.log("Floating button setting disabled, hiding button");
+      // Always hide floating button when disabled
+      window.proxyClientApp.floatingButton.style.display = "none";
+    }
+  } else {
+    console.log("proxyClientApp or floatingButton not found");
   }
 }
 
@@ -725,4 +1073,385 @@ export function getPocketBrowserSettings() {
   } catch (e) {
     return defaults;
   }
+}
+
+// Tab Order Management Functions
+function injectTabOrderCSS() {
+  if (document.getElementById("tab-order-style")) return;
+
+  const style = document.createElement("style");
+  style.id = "tab-order-style";
+  style.textContent = `
+    .tab-order-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .tab-order-item {
+      background: #23272f;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: move;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .tab-order-item:hover {
+      background: #2a2e37;
+      border-color: #525252;
+      transform: translateY(-1px);
+    }
+    
+    .tab-order-item.dragging {
+      opacity: 0.5;
+      transform: rotate(2deg);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tab-order-item.drag-over {
+      border-color: #00bfff;
+      box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.3);
+    }
+    
+    .tab-drag-handle {
+      font-size: 1.2rem;
+      color: #666;
+      cursor: grab;
+      line-height: 1;
+    }
+    
+    .tab-drag-handle:active {
+      cursor: grabbing;
+    }
+    
+    .tab-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .tab-icon {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .tab-label {
+      color: #fff;
+      font-weight: 500;
+    }
+    
+    .tab-order-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .tab-order-btn {
+      background: #404040;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 4px 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    
+    .tab-order-btn:hover {
+      background: #00bfff;
+    }
+    
+    .tab-order-btn:disabled {
+      background: #2a2e37;
+      color: #666;
+      cursor: not-allowed;
+    }
+    
+    /* Drag and drop visual feedback */
+    .tab-order-list.drag-active {
+      background: rgba(0, 191, 255, 0.05);
+      border-radius: 6px;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function getTabOrder() {
+  const defaultOrder = [
+    "proxyButton",
+    "gamesButton",
+    "bookmarkletsButton",
+    "scriptsButton",
+    "notesButton",
+    "calculatorButton",
+    "consoleButton",
+    "cloakingButton",
+    "historyFloodButton",
+    "corsProxyButton",
+    "pocketBrowserButton",
+    "settingsButton",
+  ];
+
+  try {
+    const saved = localStorage.getItem("ocot-tab-order");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
+        const hasAllTabs = defaultOrder.every((tab) => parsed.includes(tab));
+        if (hasAllTabs) {
+          return parsed;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to load tab order from localStorage:", e);
+  }
+  return defaultOrder;
+}
+
+function getTabMetadata() {
+  return {
+    proxyButton: { label: "Proxy", icon: "🌐" },
+    gamesButton: { label: "Games List", icon: "🎮" },
+    bookmarkletsButton: { label: "Bookmarklets", icon: "🔖" },
+    scriptsButton: { label: "Scripts", icon: "📜" },
+    notesButton: { label: "Notes", icon: "📝" },
+    calculatorButton: { label: "Calculator", icon: "🧮" },
+    consoleButton: { label: "Console", icon: "💻" },
+    cloakingButton: { label: "Cloaking", icon: "🎭" },
+    historyFloodButton: { label: "History Flood", icon: "🌊" },
+    corsProxyButton: { label: "CORS Proxy", icon: "🔄" },
+    pocketBrowserButton: { label: "Pocket Browser", icon: "🔍" },
+    settingsButton: { label: "Settings", icon: "⚙️" },
+  };
+}
+
+function saveTabOrder(tabOrder) {
+  try {
+    localStorage.setItem("ocot-tab-order", JSON.stringify(tabOrder));
+    console.log("Tab order saved:", tabOrder);
+    // Dispatch event to notify sidebar to refresh
+    document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+  } catch (e) {
+    console.error("Failed to save tab order to localStorage:", e);
+  }
+}
+
+function resetTabOrder() {
+  try {
+    localStorage.removeItem("ocot-tab-order");
+    console.log("Tab order reset to default");
+    // Dispatch event to notify sidebar to refresh
+    document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+    // Re-render the tab order list
+    renderTabOrderList();
+  } catch (e) {
+    console.error("Failed to reset tab order:", e);
+  }
+}
+
+function renderTabOrderList() {
+  const tabOrderList = document.getElementById("tab-order-list");
+  if (!tabOrderList) return;
+
+  const tabOrder = getTabOrder();
+  const tabMetadata = getTabMetadata();
+
+  tabOrderList.innerHTML = tabOrder
+    .map((tabKey, index) => {
+      const tab = tabMetadata[tabKey];
+      if (!tab) return "";
+
+      return `
+      <div class="tab-order-item" draggable="true" data-tab-key="${tabKey}" data-index="${index}">
+        <div class="tab-drag-handle">⋮⋮</div>
+        <div class="tab-info">
+          <div class="tab-icon">${tab.icon}</div>
+          <div class="tab-label">${tab.label}</div>
+        </div>
+        <div class="tab-order-controls">
+          <button class="tab-order-btn" onclick="moveTabUp('${tabKey}')" ${
+        index === 0 ? "disabled" : ""
+      }>▲</button>
+          <button class="tab-order-btn" onclick="moveTabDown('${tabKey}')" ${
+        index === tabOrder.length - 1 ? "disabled" : ""
+      }>▼</button>
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+
+  // Add drag and drop event listeners
+  setupDragAndDrop();
+}
+
+function setupDragAndDrop() {
+  const tabOrderList = document.getElementById("tab-order-list");
+  if (!tabOrderList) return;
+
+  let draggedElement = null;
+
+  tabOrderList.addEventListener("dragstart", (e) => {
+    if (!e.target.classList.contains("tab-order-item")) return;
+
+    draggedElement = e.target;
+    e.target.classList.add("dragging");
+    tabOrderList.classList.add("drag-active");
+
+    // Set drag data
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", e.target.outerHTML);
+  });
+
+  tabOrderList.addEventListener("dragend", (e) => {
+    if (!e.target.classList.contains("tab-order-item")) return;
+
+    e.target.classList.remove("dragging");
+    tabOrderList.classList.remove("drag-active");
+
+    // Remove drag-over class from all items
+    tabOrderList.querySelectorAll(".tab-order-item").forEach((item) => {
+      item.classList.remove("drag-over");
+    });
+
+    draggedElement = null;
+  });
+
+  tabOrderList.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+    const dragging = tabOrderList.querySelector(".dragging");
+
+    // Remove drag-over class from all items
+    tabOrderList.querySelectorAll(".tab-order-item").forEach((item) => {
+      item.classList.remove("drag-over");
+    });
+
+    if (afterElement == null) {
+      // Add drag-over to last element
+      const items = [
+        ...tabOrderList.querySelectorAll(".tab-order-item:not(.dragging)"),
+      ];
+      if (items.length > 0) {
+        items[items.length - 1].classList.add("drag-over");
+      }
+    } else {
+      afterElement.classList.add("drag-over");
+    }
+  });
+
+  tabOrderList.addEventListener("drop", (e) => {
+    e.preventDefault();
+
+    const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+    const dragging = tabOrderList.querySelector(".dragging");
+
+    if (dragging && dragging !== afterElement) {
+      if (afterElement == null) {
+        tabOrderList.appendChild(dragging);
+      } else {
+        tabOrderList.insertBefore(dragging, afterElement);
+      }
+
+      // Update the saved order
+      updateTabOrderFromDOM();
+    }
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [
+    ...container.querySelectorAll(".tab-order-item:not(.dragging)"),
+  ];
+
+  return draggableElements.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element;
+}
+
+function updateTabOrderFromDOM() {
+  const tabOrderList = document.getElementById("tab-order-list");
+  if (!tabOrderList) return;
+
+  const newOrder = [...tabOrderList.querySelectorAll(".tab-order-item")].map(
+    (item) => item.getAttribute("data-tab-key")
+  );
+
+  saveTabOrder(newOrder);
+
+  // Re-render to update button states
+  setTimeout(() => renderTabOrderList(), 100);
+}
+
+// Global functions for arrow buttons
+window.moveTabUp = function (tabKey) {
+  const tabOrder = getTabOrder();
+  const currentIndex = tabOrder.indexOf(tabKey);
+
+  if (currentIndex > 0) {
+    // Swap with previous item
+    [tabOrder[currentIndex - 1], tabOrder[currentIndex]] = [
+      tabOrder[currentIndex],
+      tabOrder[currentIndex - 1],
+    ];
+    saveTabOrder(tabOrder);
+    renderTabOrderList();
+  }
+};
+
+window.moveTabDown = function (tabKey) {
+  const tabOrder = getTabOrder();
+  const currentIndex = tabOrder.indexOf(tabKey);
+
+  if (currentIndex < tabOrder.length - 1) {
+    // Swap with next item
+    [tabOrder[currentIndex], tabOrder[currentIndex + 1]] = [
+      tabOrder[currentIndex + 1],
+      tabOrder[currentIndex],
+    ];
+    saveTabOrder(tabOrder);
+    renderTabOrderList();
+  }
+};
+
+function setupTabOrderEventListeners() {
+  // Reset button
+  const resetButton = document.getElementById("reset-tab-order");
+  if (resetButton) {
+    resetButton.addEventListener("click", () => {
+      resetTabOrder();
+      // Show confirmation feedback
+      const originalText = resetButton.innerHTML;
+      resetButton.innerHTML = "✅ Reset Complete";
+      resetButton.style.background = "#28a745";
+
+      setTimeout(() => {
+        resetButton.innerHTML = originalText;
+        resetButton.style.background = "#6c757d";
+      }, 2000);
+    });
+  }
+
+  // Initial render
+  renderTabOrderList();
 }

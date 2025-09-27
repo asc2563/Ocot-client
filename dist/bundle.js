@@ -224,31 +224,112 @@
     }
     // Add all navigation buttons
     addNavigationButtons() {
-      const navButtons = [
-        { key: "proxyButton", label: "Proxy", icon: "\u{1F310}" },
-        { key: "gamesButton", label: "Games List", icon: "\u{1F3AE}" },
-        { key: "bookmarkletsButton", label: "Bookmarklets", icon: "\u{1F516}" },
-        { key: "scriptsButton", label: "Scripts", icon: "\u{1F4DC}" },
-        { key: "notesButton", label: "Notes", icon: "\u{1F4DD}" },
-        { key: "calculatorButton", label: "Calculator", icon: "\u{1F9EE}" },
-        { key: "consoleButton", label: "Console", icon: "\u{1F4BB}" },
-        { key: "cloakingButton", label: "Cloaking", icon: "\u{1F3AD}" },
-        { key: "historyFloodButton", label: "History Flood", icon: "\u{1F30A}" },
-        { key: "corsProxyButton", label: "CORS Proxy", icon: "\u{1F504}" },
-        { key: "pocketBrowserButton", label: "Pocket Browser", icon: "\u{1F50D}" },
-        { key: "settingsButton", label: "Settings", icon: "\u2699\uFE0F", active: true }
-      ];
-      navButtons.forEach(({ key, label, icon, active }) => {
-        this.buttons[key] = this.createButton(label, icon);
-        if (active) {
-          this.buttons[key].classList.add("active");
+      const tabOrder = this._getTabOrder();
+      const tabMetadata = this._getTabMetadata();
+      tabOrder.forEach((key) => {
+        const tabData = tabMetadata[key];
+        if (tabData) {
+          this.buttons[key] = this.createButton(tabData.label, tabData.icon);
+          if (key === "settingsButton") {
+            this.buttons[key].classList.add("active");
+          }
+          this.buttonContainer.appendChild(this.buttons[key]);
         }
-        this.buttonContainer.appendChild(this.buttons[key]);
       });
       this.buttons.hideButton = this.createButton("Hide App", "\u274C", "hide");
       this.buttons.removeButton = this.createButton("Remove App", "\u{1F5D1}\uFE0F", "remove");
       this.buttonContainer.appendChild(this.buttons.hideButton);
       this.buttonContainer.appendChild(this.buttons.removeButton);
+    }
+    // Get tab order from localStorage or return default
+    _getTabOrder() {
+      const defaultOrder = [
+        "proxyButton",
+        "gamesButton",
+        "bookmarkletsButton",
+        "scriptsButton",
+        "notesButton",
+        "calculatorButton",
+        "consoleButton",
+        "cloakingButton",
+        "historyFloodButton",
+        "corsProxyButton",
+        "pocketBrowserButton",
+        "settingsButton"
+      ];
+      try {
+        const saved = localStorage.getItem("ocot-tab-order");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
+            const hasAllTabs = defaultOrder.every((tab) => parsed.includes(tab));
+            if (hasAllTabs) {
+              return parsed;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load tab order from localStorage:", e);
+      }
+      return defaultOrder;
+    }
+    // Get tab metadata
+    _getTabMetadata() {
+      return {
+        proxyButton: { label: "Proxy", icon: "\u{1F310}" },
+        gamesButton: { label: "Games List", icon: "\u{1F3AE}" },
+        bookmarkletsButton: { label: "Bookmarklets", icon: "\u{1F516}" },
+        scriptsButton: { label: "Scripts", icon: "\u{1F4DC}" },
+        notesButton: { label: "Notes", icon: "\u{1F4DD}" },
+        calculatorButton: { label: "Calculator", icon: "\u{1F9EE}" },
+        consoleButton: { label: "Console", icon: "\u{1F4BB}" },
+        cloakingButton: { label: "Cloaking", icon: "\u{1F3AD}" },
+        historyFloodButton: { label: "History Flood", icon: "\u{1F30A}" },
+        corsProxyButton: { label: "CORS Proxy", icon: "\u{1F504}" },
+        pocketBrowserButton: { label: "Pocket Browser", icon: "\u{1F50D}" },
+        settingsButton: { label: "Settings", icon: "\u2699\uFE0F" }
+      };
+    }
+    // Method to refresh button order (for when settings change)
+    refreshButtonOrder() {
+      const buttonsToRemove = [];
+      Object.keys(this.buttons).forEach((key) => {
+        if (key !== "hideButton" && key !== "removeButton") {
+          if (this.buttons[key] && this.buttons[key].parentNode) {
+            this.buttons[key].parentNode.removeChild(this.buttons[key]);
+          }
+          buttonsToRemove.push(key);
+        }
+      });
+      buttonsToRemove.forEach((key) => {
+        delete this.buttons[key];
+      });
+      const hideButton = this.buttons.hideButton;
+      const removeButton = this.buttons.removeButton;
+      if (hideButton && hideButton.parentNode) {
+        hideButton.parentNode.removeChild(hideButton);
+      }
+      if (removeButton && removeButton.parentNode) {
+        removeButton.parentNode.removeChild(removeButton);
+      }
+      const tabOrder = this._getTabOrder();
+      const tabMetadata = this._getTabMetadata();
+      tabOrder.forEach((key) => {
+        const tabData = tabMetadata[key];
+        if (tabData) {
+          this.buttons[key] = this.createButton(tabData.label, tabData.icon);
+          if (key === "settingsButton") {
+            this.buttons[key].classList.add("active");
+          }
+          this.buttonContainer.appendChild(this.buttons[key]);
+        }
+      });
+      if (hideButton) {
+        this.buttonContainer.appendChild(hideButton);
+      }
+      if (removeButton) {
+        this.buttonContainer.appendChild(removeButton);
+      }
     }
     // Get button references for event listeners
     getButtons() {
@@ -1610,6 +1691,7 @@
   // src/views/settings.js
   function createSettingsView() {
     injectAppCSS();
+    injectTabOrderCSS();
     const settingsView = document.createElement("div");
     settingsView.className = "card-grid-view";
     settingsView.style.display = "none";
@@ -1678,6 +1760,68 @@
             </div>
             <div style="color: #fff; font-weight: 600;">Crimson Red</div>
             <div style="color: #aaa; font-size: 0.85rem;">Bold and striking</div>
+          </div>
+
+          <div class="theme-option custom-theme-option" data-theme="custom" style="background: #292d36; border: 2px solid #404040; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;">
+            <div class="theme-preview" style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <div id="custom-preview-1" style="width: 20px; height: 20px; background: var(--custom-bg, #292d36); border-radius: 4px;"></div>
+              <div id="custom-preview-2" style="width: 20px; height: 20px; background: var(--custom-accent, #00bfff); border-radius: 4px;"></div>
+              <div id="custom-preview-3" style="width: 20px; height: 20px; background: var(--custom-secondary, #23272f); border-radius: 4px;"></div>
+            </div>
+            <div style="color: #fff; font-weight: 600;">Custom Theme</div>
+            <div style="color: #aaa; font-size: 0.85rem;">Create your own colors</div>
+          </div>
+        </div>
+
+        <!-- Custom Theme Color Picker -->
+        <div id="custom-theme-panel" style="display: none; margin-top: 16px; background: #23272f; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+          <h4 style="color: #fff; margin: 0 0 16px 0; font-size: 1.1rem;">Customize Colors</h4>
+          <div style="display: grid; gap: 16px;">
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Accent Color:</label>
+              <input type="color" id="custom-accent-color" value="#00bfff" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-accent-text" value="#00bfff" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Background:</label>
+              <input type="color" id="custom-bg-color" value="#292d36" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-bg-text" value="#292d36" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Secondary:</label>
+              <input type="color" id="custom-secondary-color" value="#23272f" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-secondary-text" value="#23272f" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button id="apply-custom-theme" style="background: #00bfff; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; font-weight: 600;">Apply Theme</button>
+              <button id="reset-custom-theme" style="background: #666; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Settings Section -->
+      <div class="settings-section general-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          \u2699\uFE0F General Settings
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Configure general app behavior and appearance
+        </p>
+        <div class="general-options" style="display: grid; gap: 16px;">
+          <div class="setting-item" style="background: #292d36; border-radius: 8px; padding: 16px;">
+            <label style="color: #00bfff; font-weight: 600; margin-bottom: 12px; display: block;">
+              Floating Button
+            </label>
+            <div style="display: grid; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; color: #fff; cursor: pointer;">
+                <input type="checkbox" id="enable-floating-button" checked style="margin: 0;">
+                <span>Show floating button when client is hidden</span>
+              </label>
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-top: 8px;">
+              The floating button (\u{1F527}) appears when you hide the main client, allowing you to quickly show it again. You can also press "\\" to toggle the client.
+            </div>
           </div>
         </div>
       </div>
@@ -1795,6 +1939,40 @@
         </div>
       </div>
 
+      <!-- Tab Order Section -->
+      <div class="settings-section tab-order-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          \u{1F4F1} Tab Order
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Customize the order of sidebar navigation tabs
+        </p>
+        
+        <div class="tab-order-container" style="background: #292d36; border-radius: 8px; padding: 20px;">
+          <div style="margin-bottom: 16px;">
+            <div style="color: #00bfff; font-weight: 600; margin-bottom: 8px;">
+              Current Tab Order
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 12px;">
+              Drag tabs to reorder them, or use the arrow buttons for keyboard navigation
+            </div>
+          </div>
+          
+          <div id="tab-order-list" class="tab-order-list" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px;">
+            <!-- Tab items will be populated by JavaScript -->
+          </div>
+          
+          <div class="tab-order-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button id="reset-tab-order" class="games-tab" style="border-radius: 6px; background: #6c757d; font-size: 0.85rem;">
+              \u{1F504} Reset to Default
+            </button>
+            <div style="color: #aaa; font-size: 0.8rem; display: flex; align-items: center; margin-left: auto;">
+              Changes are saved automatically
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Help Section -->
       <div class="settings-section help-section">
         <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
@@ -1871,6 +2049,7 @@
     if (savedThemeOption) {
       savedThemeOption.style.borderColor = "#00bfff";
     }
+    setupCustomTheme();
     const saveButton = document.getElementById("save-browser-settings");
     const resetButton = document.getElementById("reset-browser-settings");
     if (saveButton) {
@@ -1899,6 +2078,7 @@
     }
     loadBrowserSettings();
     loadProxySettings();
+    loadGeneralSettings();
     const browserInputs = [
       "homepage-input",
       "enable-history",
@@ -1907,6 +2087,7 @@
       "enable-safe-search",
       "user-agent-select"
     ];
+    const generalInputs = ["enable-floating-button"];
     browserInputs.forEach((id) => {
       const element = document.getElementById(id);
       if (element) {
@@ -1918,6 +2099,18 @@
         }
       }
     });
+    generalInputs.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        if (element.type === "checkbox") {
+          element.addEventListener("change", saveGeneralSettings);
+        } else {
+          element.addEventListener("change", saveGeneralSettings);
+          element.addEventListener("input", saveGeneralSettings);
+        }
+      }
+    });
+    setupTabOrderEventListeners();
   }
   function applyTheme(themeName) {
     const root = document.documentElement;
@@ -1949,6 +2142,9 @@
         root.style.setProperty("--accent-color", "#dc2626");
         root.style.setProperty("--accent-hover", "#b91c1c");
         root.style.setProperty("--accent-color-rgb", "220, 38, 38");
+        break;
+      case "custom":
+        applyCustomTheme();
         break;
       default:
         root.style.setProperty("--bg-primary", "#23272f");
@@ -1990,6 +2186,125 @@
     activeButtons.forEach((btn) => {
       btn.style.background = accentColor;
     });
+  }
+  function setupCustomTheme() {
+    const customThemeOption = document.querySelector(
+      '.theme-option[data-theme="custom"]'
+    );
+    const customThemePanel = document.getElementById("custom-theme-panel");
+    customThemeOption.addEventListener("click", (e) => {
+      e.stopPropagation();
+      customThemePanel.style.display = customThemePanel.style.display === "none" ? "block" : "none";
+    });
+    const setupColorSync = (colorId, textId) => {
+      const colorInput = document.getElementById(colorId);
+      const textInput = document.getElementById(textId);
+      colorInput.addEventListener("input", () => {
+        textInput.value = colorInput.value;
+        updateCustomPreview();
+      });
+      textInput.addEventListener("input", () => {
+        if (isValidHex(textInput.value)) {
+          colorInput.value = textInput.value;
+          updateCustomPreview();
+        }
+      });
+    };
+    setupColorSync("custom-accent-color", "custom-accent-text");
+    setupColorSync("custom-bg-color", "custom-bg-text");
+    setupColorSync("custom-secondary-color", "custom-secondary-text");
+    document.getElementById("apply-custom-theme").addEventListener("click", () => {
+      saveCustomTheme();
+      applyCustomTheme();
+    });
+    document.getElementById("reset-custom-theme").addEventListener("click", () => {
+      resetCustomTheme();
+    });
+    loadCustomTheme();
+  }
+  function updateCustomPreview() {
+    const accentColor = document.getElementById("custom-accent-text").value;
+    const bgColor = document.getElementById("custom-bg-text").value;
+    const secondaryColor = document.getElementById("custom-secondary-text").value;
+    document.getElementById("custom-preview-1").style.background = bgColor;
+    document.getElementById("custom-preview-2").style.background = accentColor;
+    document.getElementById("custom-preview-3").style.background = secondaryColor;
+  }
+  function saveCustomTheme() {
+    const customTheme = {
+      accent: document.getElementById("custom-accent-text").value,
+      background: document.getElementById("custom-bg-text").value,
+      secondary: document.getElementById("custom-secondary-text").value
+    };
+    localStorage.setItem("customTheme", JSON.stringify(customTheme));
+    console.log("Custom theme saved:", customTheme);
+  }
+  function loadCustomTheme() {
+    const saved = localStorage.getItem("customTheme");
+    if (saved) {
+      try {
+        const theme = JSON.parse(saved);
+        document.getElementById("custom-accent-color").value = theme.accent;
+        document.getElementById("custom-accent-text").value = theme.accent;
+        document.getElementById("custom-bg-color").value = theme.background;
+        document.getElementById("custom-bg-text").value = theme.background;
+        document.getElementById("custom-secondary-color").value = theme.secondary;
+        document.getElementById("custom-secondary-text").value = theme.secondary;
+        updateCustomPreview();
+      } catch (e) {
+        console.warn("Failed to load custom theme:", e);
+      }
+    }
+  }
+  function applyCustomTheme() {
+    const saved = localStorage.getItem("customTheme");
+    if (!saved) return;
+    try {
+      const theme = JSON.parse(saved);
+      const root = document.documentElement;
+      const accentHover = adjustBrightness(theme.accent, -20);
+      const accentRgb = hexToRgb(theme.accent);
+      root.style.setProperty("--bg-primary", theme.secondary);
+      root.style.setProperty("--bg-secondary", theme.background);
+      root.style.setProperty("--accent-color", theme.accent);
+      root.style.setProperty("--accent-hover", accentHover);
+      root.style.setProperty(
+        "--accent-color-rgb",
+        `${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}`
+      );
+      updateThemeColors();
+    } catch (e) {
+      console.warn("Failed to apply custom theme:", e);
+    }
+  }
+  function resetCustomTheme() {
+    document.getElementById("custom-accent-color").value = "#00bfff";
+    document.getElementById("custom-accent-text").value = "#00bfff";
+    document.getElementById("custom-bg-color").value = "#292d36";
+    document.getElementById("custom-bg-text").value = "#292d36";
+    document.getElementById("custom-secondary-color").value = "#23272f";
+    document.getElementById("custom-secondary-text").value = "#23272f";
+    updateCustomPreview();
+  }
+  function isValidHex(hex) {
+    return /^#[0-9A-F]{6}$/i.test(hex);
+  }
+  function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+  function adjustBrightness(hex, percent) {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return hex;
+    const adjust = (color) => Math.max(0, Math.min(255, color + color * percent / 100));
+    const r = Math.round(adjust(rgb.r)).toString(16).padStart(2, "0");
+    const g = Math.round(adjust(rgb.g)).toString(16).padStart(2, "0");
+    const b = Math.round(adjust(rgb.b)).toString(16).padStart(2, "0");
+    return `#${r}${g}${b}`;
   }
   function saveBrowserSettings() {
     const settings = {
@@ -2072,6 +2387,49 @@
         userAgentSelect.value = settings.userAgent || "default";
     } catch (e) {
       console.warn("Failed to load browser settings:", e);
+    }
+  }
+  function saveGeneralSettings() {
+    const settings = {
+      enableFloatingButton: document.getElementById("enable-floating-button")?.checked ?? true
+    };
+    localStorage.setItem("ocot-general-settings", JSON.stringify(settings));
+    console.log("Settings: Saved general settings", settings);
+    updateFloatingButtonVisibility(settings.enableFloatingButton);
+    console.log("General settings saved successfully");
+  }
+  function loadGeneralSettings() {
+    const saved = localStorage.getItem("ocot-general-settings");
+    if (!saved) return;
+    try {
+      const settings = JSON.parse(saved);
+      const floatingButtonCheck = document.getElementById(
+        "enable-floating-button"
+      );
+      if (floatingButtonCheck) {
+        floatingButtonCheck.checked = settings.enableFloatingButton !== false;
+      }
+    } catch (e) {
+      console.warn("Failed to load general settings:", e);
+    }
+  }
+  function updateFloatingButtonVisibility(enabled) {
+    console.log("updateFloatingButtonVisibility called with enabled:", enabled);
+    if (window.proxyClientApp && window.proxyClientApp.floatingButton) {
+      if (enabled) {
+        console.log("Floating button setting enabled");
+        if (window.proxyClientApp.frame && window.proxyClientApp.frame.style.display === "none") {
+          console.log("Client is hidden, showing floating button");
+          window.proxyClientApp.floatingButton.style.display = "flex";
+        } else {
+          console.log("Client is visible, keeping floating button hidden");
+        }
+      } else {
+        console.log("Floating button setting disabled, hiding button");
+        window.proxyClientApp.floatingButton.style.display = "none";
+      }
+    } else {
+      console.log("proxyClientApp or floatingButton not found");
     }
   }
   function saveProxySettings() {
@@ -2211,6 +2569,321 @@
     } catch (e) {
       return defaults;
     }
+  }
+  function injectTabOrderCSS() {
+    if (document.getElementById("tab-order-style")) return;
+    const style = document.createElement("style");
+    style.id = "tab-order-style";
+    style.textContent = `
+    .tab-order-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .tab-order-item {
+      background: #23272f;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: move;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .tab-order-item:hover {
+      background: #2a2e37;
+      border-color: #525252;
+      transform: translateY(-1px);
+    }
+    
+    .tab-order-item.dragging {
+      opacity: 0.5;
+      transform: rotate(2deg);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tab-order-item.drag-over {
+      border-color: #00bfff;
+      box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.3);
+    }
+    
+    .tab-drag-handle {
+      font-size: 1.2rem;
+      color: #666;
+      cursor: grab;
+      line-height: 1;
+    }
+    
+    .tab-drag-handle:active {
+      cursor: grabbing;
+    }
+    
+    .tab-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .tab-icon {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .tab-label {
+      color: #fff;
+      font-weight: 500;
+    }
+    
+    .tab-order-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .tab-order-btn {
+      background: #404040;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 4px 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    
+    .tab-order-btn:hover {
+      background: #00bfff;
+    }
+    
+    .tab-order-btn:disabled {
+      background: #2a2e37;
+      color: #666;
+      cursor: not-allowed;
+    }
+    
+    /* Drag and drop visual feedback */
+    .tab-order-list.drag-active {
+      background: rgba(0, 191, 255, 0.05);
+      border-radius: 6px;
+    }
+  `;
+    document.head.appendChild(style);
+  }
+  function getTabOrder() {
+    const defaultOrder = [
+      "proxyButton",
+      "gamesButton",
+      "bookmarkletsButton",
+      "scriptsButton",
+      "notesButton",
+      "calculatorButton",
+      "consoleButton",
+      "cloakingButton",
+      "historyFloodButton",
+      "corsProxyButton",
+      "pocketBrowserButton",
+      "settingsButton"
+    ];
+    try {
+      const saved = localStorage.getItem("ocot-tab-order");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
+          const hasAllTabs = defaultOrder.every((tab) => parsed.includes(tab));
+          if (hasAllTabs) {
+            return parsed;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load tab order from localStorage:", e);
+    }
+    return defaultOrder;
+  }
+  function getTabMetadata() {
+    return {
+      proxyButton: { label: "Proxy", icon: "\u{1F310}" },
+      gamesButton: { label: "Games List", icon: "\u{1F3AE}" },
+      bookmarkletsButton: { label: "Bookmarklets", icon: "\u{1F516}" },
+      scriptsButton: { label: "Scripts", icon: "\u{1F4DC}" },
+      notesButton: { label: "Notes", icon: "\u{1F4DD}" },
+      calculatorButton: { label: "Calculator", icon: "\u{1F9EE}" },
+      consoleButton: { label: "Console", icon: "\u{1F4BB}" },
+      cloakingButton: { label: "Cloaking", icon: "\u{1F3AD}" },
+      historyFloodButton: { label: "History Flood", icon: "\u{1F30A}" },
+      corsProxyButton: { label: "CORS Proxy", icon: "\u{1F504}" },
+      pocketBrowserButton: { label: "Pocket Browser", icon: "\u{1F50D}" },
+      settingsButton: { label: "Settings", icon: "\u2699\uFE0F" }
+    };
+  }
+  function saveTabOrder(tabOrder) {
+    try {
+      localStorage.setItem("ocot-tab-order", JSON.stringify(tabOrder));
+      console.log("Tab order saved:", tabOrder);
+      document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+    } catch (e) {
+      console.error("Failed to save tab order to localStorage:", e);
+    }
+  }
+  function resetTabOrder() {
+    try {
+      localStorage.removeItem("ocot-tab-order");
+      console.log("Tab order reset to default");
+      document.dispatchEvent(new CustomEvent("tabOrderChanged"));
+      renderTabOrderList();
+    } catch (e) {
+      console.error("Failed to reset tab order:", e);
+    }
+  }
+  function renderTabOrderList() {
+    const tabOrderList = document.getElementById("tab-order-list");
+    if (!tabOrderList) return;
+    const tabOrder = getTabOrder();
+    const tabMetadata = getTabMetadata();
+    tabOrderList.innerHTML = tabOrder.map((tabKey, index) => {
+      const tab = tabMetadata[tabKey];
+      if (!tab) return "";
+      return `
+      <div class="tab-order-item" draggable="true" data-tab-key="${tabKey}" data-index="${index}">
+        <div class="tab-drag-handle">\u22EE\u22EE</div>
+        <div class="tab-info">
+          <div class="tab-icon">${tab.icon}</div>
+          <div class="tab-label">${tab.label}</div>
+        </div>
+        <div class="tab-order-controls">
+          <button class="tab-order-btn" onclick="moveTabUp('${tabKey}')" ${index === 0 ? "disabled" : ""}>\u25B2</button>
+          <button class="tab-order-btn" onclick="moveTabDown('${tabKey}')" ${index === tabOrder.length - 1 ? "disabled" : ""}>\u25BC</button>
+        </div>
+      </div>
+    `;
+    }).join("");
+    setupDragAndDrop();
+  }
+  function setupDragAndDrop() {
+    const tabOrderList = document.getElementById("tab-order-list");
+    if (!tabOrderList) return;
+    let draggedElement = null;
+    tabOrderList.addEventListener("dragstart", (e) => {
+      if (!e.target.classList.contains("tab-order-item")) return;
+      draggedElement = e.target;
+      e.target.classList.add("dragging");
+      tabOrderList.classList.add("drag-active");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/html", e.target.outerHTML);
+    });
+    tabOrderList.addEventListener("dragend", (e) => {
+      if (!e.target.classList.contains("tab-order-item")) return;
+      e.target.classList.remove("dragging");
+      tabOrderList.classList.remove("drag-active");
+      tabOrderList.querySelectorAll(".tab-order-item").forEach((item) => {
+        item.classList.remove("drag-over");
+      });
+      draggedElement = null;
+    });
+    tabOrderList.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+      const dragging = tabOrderList.querySelector(".dragging");
+      tabOrderList.querySelectorAll(".tab-order-item").forEach((item) => {
+        item.classList.remove("drag-over");
+      });
+      if (afterElement == null) {
+        const items = [
+          ...tabOrderList.querySelectorAll(".tab-order-item:not(.dragging)")
+        ];
+        if (items.length > 0) {
+          items[items.length - 1].classList.add("drag-over");
+        }
+      } else {
+        afterElement.classList.add("drag-over");
+      }
+    });
+    tabOrderList.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(tabOrderList, e.clientY);
+      const dragging = tabOrderList.querySelector(".dragging");
+      if (dragging && dragging !== afterElement) {
+        if (afterElement == null) {
+          tabOrderList.appendChild(dragging);
+        } else {
+          tabOrderList.insertBefore(dragging, afterElement);
+        }
+        updateTabOrderFromDOM();
+      }
+    });
+  }
+  function getDragAfterElement(container, y) {
+    const draggableElements = [
+      ...container.querySelectorAll(".tab-order-item:not(.dragging)")
+    ];
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY }
+    ).element;
+  }
+  function updateTabOrderFromDOM() {
+    const tabOrderList = document.getElementById("tab-order-list");
+    if (!tabOrderList) return;
+    const newOrder = [...tabOrderList.querySelectorAll(".tab-order-item")].map(
+      (item) => item.getAttribute("data-tab-key")
+    );
+    saveTabOrder(newOrder);
+    setTimeout(() => renderTabOrderList(), 100);
+  }
+  window.moveTabUp = function(tabKey) {
+    const tabOrder = getTabOrder();
+    const currentIndex = tabOrder.indexOf(tabKey);
+    if (currentIndex > 0) {
+      [tabOrder[currentIndex - 1], tabOrder[currentIndex]] = [
+        tabOrder[currentIndex],
+        tabOrder[currentIndex - 1]
+      ];
+      saveTabOrder(tabOrder);
+      renderTabOrderList();
+    }
+  };
+  window.moveTabDown = function(tabKey) {
+    const tabOrder = getTabOrder();
+    const currentIndex = tabOrder.indexOf(tabKey);
+    if (currentIndex < tabOrder.length - 1) {
+      [tabOrder[currentIndex], tabOrder[currentIndex + 1]] = [
+        tabOrder[currentIndex + 1],
+        tabOrder[currentIndex]
+      ];
+      saveTabOrder(tabOrder);
+      renderTabOrderList();
+    }
+  };
+  function setupTabOrderEventListeners() {
+    const resetButton = document.getElementById("reset-tab-order");
+    if (resetButton) {
+      resetButton.addEventListener("click", () => {
+        resetTabOrder();
+        const originalText = resetButton.innerHTML;
+        resetButton.innerHTML = "\u2705 Reset Complete";
+        resetButton.style.background = "#28a745";
+        setTimeout(() => {
+          resetButton.innerHTML = originalText;
+          resetButton.style.background = "#6c757d";
+        }, 2e3);
+      });
+    }
+    renderTabOrderList();
   }
 
   // src/views/proxy.js
@@ -4269,7 +4942,10 @@ Math.sqrt(16);
                 if (!element || element.tagName !== "IFRAME") {
                   return false;
                 }
-                const internalIframeIds = ["ocot-proxy-iframe", "ocot-pocket-browser-iframe"];
+                const internalIframeIds = [
+                  "ocot-proxy-iframe",
+                  "ocot-pocket-browser-iframe"
+                ];
                 return internalIframeIds.includes(element.id);
               };
               if (isInternalIframe(activeElement)) {
@@ -4678,7 +5354,7 @@ alert('Code executed successfully!');
             showCodeEditorModal(createAboutBlankWithScript);
           });
           modal.querySelector("#ocot-option").addEventListener("click", () => {
-            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.6/dist/bundle.js";
+            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.7/dist/bundle.js";
             createAboutBlankWithScript(ocotUrl, true);
           });
         }
@@ -5033,6 +5709,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.frame.appendChild(content);
       document.body.appendChild(this.frame);
       this.createFloatingButton();
+      this.applyInitialSettings();
       document.addEventListener("keydown", (event) => {
         if (event.key === "\\") {
           if (window.proxyFrame) {
@@ -5180,14 +5857,34 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       });
     }
     hideProxyClient() {
-      console.log("Hiding Ocot Client, showing floating button");
+      console.log("Hiding Ocot Client");
       this.frame.style.display = "none";
-      this.floatingButton.style.display = "flex";
+      const settings = this.getGeneralSettings();
+      if (settings.enableFloatingButton) {
+        console.log("Showing floating button (enabled in settings)");
+        this.floatingButton.style.display = "flex";
+      } else {
+        console.log("Floating button disabled in settings");
+        this.floatingButton.style.display = "none";
+      }
     }
     showProxyClient() {
       console.log("Showing Ocot Client, hiding floating button");
       this.frame.style.display = "flex";
       this.floatingButton.style.display = "none";
+    }
+    getGeneralSettings() {
+      const settings = localStorage.getItem("ocot-general-settings");
+      return settings ? JSON.parse(settings) : { enableFloatingButton: true };
+    }
+    applyInitialSettings() {
+      const settings = this.getGeneralSettings();
+      if (!settings.enableFloatingButton) {
+        this.floatingButton.style.display = "none";
+        console.log("Initial settings: Floating button disabled");
+      } else {
+        console.log("Initial settings: Floating button enabled");
+      }
     }
     toggleProxyClient() {
       if (this.frame.style.display === "none") {
@@ -5277,67 +5974,162 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       const setActiveButton = (buttonKey) => {
         this.sidebar.setActiveButton(buttonKey);
       };
-      b.proxyButton.addEventListener("click", () => {
-        hideAll();
-        v.proxyView.style.display = "flex";
-        setActiveButton("proxyButton");
+      const eventHandlers = {
+        proxyButton: () => {
+          hideAll();
+          v.proxyView.style.display = "flex";
+          setActiveButton("proxyButton");
+        },
+        notesButton: () => {
+          hideAll();
+          v.notesView.style.display = "block";
+          setActiveButton("notesButton");
+        },
+        calculatorButton: () => {
+          hideAll();
+          v.calculatorView.style.display = "block";
+          setActiveButton("calculatorButton");
+          this.initCalculator();
+        },
+        consoleButton: () => {
+          hideAll();
+          v.consoleView.style.display = "block";
+          setActiveButton("consoleButton");
+        },
+        cloakingButton: () => {
+          hideAll();
+          v.cloakingView.style.display = "block";
+          setActiveButton("cloakingButton");
+        },
+        historyFloodButton: () => {
+          hideAll();
+          v.historyFloodView.style.display = "block";
+          setActiveButton("historyFloodButton");
+        },
+        corsProxyButton: () => {
+          hideAll();
+          v.corsProxyView.style.display = "block";
+          setActiveButton("corsProxyButton");
+        },
+        pocketBrowserButton: () => {
+          hideAll();
+          v.pocketBrowserView.style.display = "block";
+          setActiveButton("pocketBrowserButton");
+        },
+        scriptsButton: () => {
+          hideAll();
+          v.scriptsView.style.display = "block";
+          setActiveButton("scriptsButton");
+        },
+        settingsButton: () => {
+          hideAll();
+          v.settingsView.style.display = "block";
+          setActiveButton("settingsButton");
+        },
+        bookmarkletsButton: () => {
+          hideAll();
+          v.bookmarkletsView.style.display = "block";
+          setActiveButton("bookmarkletsButton");
+        },
+        gamesButton: () => {
+          hideAll();
+          v.gamesView.style.display = "block";
+          setActiveButton("gamesButton");
+        }
+      };
+      this.attachButtonEventListeners(eventHandlers);
+      document.addEventListener("tabOrderChanged", () => {
+        this.refreshSidebar();
       });
-      b.notesButton.addEventListener("click", () => {
-        hideAll();
-        v.notesView.style.display = "block";
-        setActiveButton("notesButton");
+    }
+    // Method to attach event listeners to buttons
+    attachButtonEventListeners(eventHandlers) {
+      const b = this.sidebarButtons;
+      Object.keys(eventHandlers).forEach((buttonKey) => {
+        if (b[buttonKey]) {
+          const oldButton = b[buttonKey];
+          const newButton = oldButton.cloneNode(true);
+          oldButton.parentNode.replaceChild(newButton, oldButton);
+          b[buttonKey] = newButton;
+          b[buttonKey].addEventListener("click", eventHandlers[buttonKey]);
+        }
       });
-      b.calculatorButton.addEventListener("click", () => {
-        hideAll();
-        v.calculatorView.style.display = "block";
-        setActiveButton("calculatorButton");
-        this.initCalculator();
-      });
-      b.consoleButton.addEventListener("click", () => {
-        hideAll();
-        v.consoleView.style.display = "block";
-        setActiveButton("consoleButton");
-      });
-      b.cloakingButton.addEventListener("click", () => {
-        hideAll();
-        v.cloakingView.style.display = "block";
-        setActiveButton("cloakingButton");
-      });
-      b.historyFloodButton.addEventListener("click", () => {
-        hideAll();
-        v.historyFloodView.style.display = "block";
-        setActiveButton("historyFloodButton");
-      });
-      b.corsProxyButton.addEventListener("click", () => {
-        hideAll();
-        v.corsProxyView.style.display = "block";
-        setActiveButton("corsProxyButton");
-      });
-      b.pocketBrowserButton.addEventListener("click", () => {
-        hideAll();
-        v.pocketBrowserView.style.display = "block";
-        setActiveButton("pocketBrowserButton");
-      });
-      b.scriptsButton.addEventListener("click", () => {
-        hideAll();
-        v.scriptsView.style.display = "block";
-        setActiveButton("scriptsButton");
-      });
-      b.settingsButton.addEventListener("click", () => {
-        hideAll();
-        v.settingsView.style.display = "block";
-        setActiveButton("settingsButton");
-      });
-      b.bookmarkletsButton.addEventListener("click", () => {
-        hideAll();
-        v.bookmarkletsView.style.display = "block";
-        setActiveButton("bookmarkletsButton");
-      });
-      b.gamesButton.addEventListener("click", () => {
-        hideAll();
-        v.gamesView.style.display = "block";
-        setActiveButton("gamesButton");
-      });
+    }
+    // Method to refresh sidebar when tab order changes
+    refreshSidebar() {
+      this.sidebar.refreshButtonOrder();
+      this.sidebarButtons = this.sidebar.getButtons();
+      const v = this.views;
+      const hideAll = () => {
+        Object.values(v).forEach((view) => view.style.display = "none");
+      };
+      const setActiveButton = (buttonKey) => {
+        this.sidebar.setActiveButton(buttonKey);
+      };
+      const eventHandlers = {
+        proxyButton: () => {
+          hideAll();
+          v.proxyView.style.display = "flex";
+          setActiveButton("proxyButton");
+        },
+        notesButton: () => {
+          hideAll();
+          v.notesView.style.display = "block";
+          setActiveButton("notesButton");
+        },
+        calculatorButton: () => {
+          hideAll();
+          v.calculatorView.style.display = "block";
+          setActiveButton("calculatorButton");
+          this.initCalculator();
+        },
+        consoleButton: () => {
+          hideAll();
+          v.consoleView.style.display = "block";
+          setActiveButton("consoleButton");
+        },
+        cloakingButton: () => {
+          hideAll();
+          v.cloakingView.style.display = "block";
+          setActiveButton("cloakingButton");
+        },
+        historyFloodButton: () => {
+          hideAll();
+          v.historyFloodView.style.display = "block";
+          setActiveButton("historyFloodButton");
+        },
+        corsProxyButton: () => {
+          hideAll();
+          v.corsProxyView.style.display = "block";
+          setActiveButton("corsProxyButton");
+        },
+        pocketBrowserButton: () => {
+          hideAll();
+          v.pocketBrowserView.style.display = "block";
+          setActiveButton("pocketBrowserButton");
+        },
+        scriptsButton: () => {
+          hideAll();
+          v.scriptsView.style.display = "block";
+          setActiveButton("scriptsButton");
+        },
+        settingsButton: () => {
+          hideAll();
+          v.settingsView.style.display = "block";
+          setActiveButton("settingsButton");
+        },
+        bookmarkletsButton: () => {
+          hideAll();
+          v.bookmarkletsView.style.display = "block";
+          setActiveButton("bookmarkletsButton");
+        },
+        gamesButton: () => {
+          hideAll();
+          v.gamesView.style.display = "block";
+          setActiveButton("gamesButton");
+        }
+      };
+      this.attachButtonEventListeners(eventHandlers);
     }
     // --- Calculator Initialization ---
     initCalculator() {
