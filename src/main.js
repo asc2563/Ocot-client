@@ -66,6 +66,9 @@ class ProxyClientApp {
     // Create floating show button
     this.createFloatingButton();
 
+    // Apply initial settings for floating button visibility
+    this.applyInitialSettings();
+
     // Keyboard shortcut to show/hide
     document.addEventListener("keydown", (event) => {
       if (event.key === "\\") {
@@ -267,15 +270,42 @@ class ProxyClientApp {
   }
 
   hideProxyClient() {
-    console.log("Hiding Ocot Client, showing floating button");
+    console.log("Hiding Ocot Client");
     this.frame.style.display = "none";
-    this.floatingButton.style.display = "flex";
+
+    // Check if floating button is enabled in settings
+    const settings = this.getGeneralSettings();
+    if (settings.enableFloatingButton) {
+      console.log("Showing floating button (enabled in settings)");
+      this.floatingButton.style.display = "flex";
+    } else {
+      console.log("Floating button disabled in settings");
+      this.floatingButton.style.display = "none";
+    }
   }
 
   showProxyClient() {
     console.log("Showing Ocot Client, hiding floating button");
     this.frame.style.display = "flex";
     this.floatingButton.style.display = "none";
+  }
+
+  getGeneralSettings() {
+    const settings = localStorage.getItem("ocot-general-settings");
+    return settings ? JSON.parse(settings) : { enableFloatingButton: true };
+  }
+
+  applyInitialSettings() {
+    const settings = this.getGeneralSettings();
+
+    // Apply floating button visibility based on current state
+    if (!settings.enableFloatingButton) {
+      // If floating button is disabled, make sure it's hidden
+      this.floatingButton.style.display = "none";
+      console.log("Initial settings: Floating button disabled");
+    } else {
+      console.log("Initial settings: Floating button enabled");
+    }
   }
 
   toggleProxyClient() {
@@ -456,7 +486,7 @@ class ProxyClientApp {
         hideAll();
         v.gamesView.style.display = "block";
         setActiveButton("gamesButton");
-      }
+      },
     };
 
     // Attach event listeners to all buttons
@@ -471,15 +501,15 @@ class ProxyClientApp {
   // Method to attach event listeners to buttons
   attachButtonEventListeners(eventHandlers) {
     const b = this.sidebarButtons;
-    
-    Object.keys(eventHandlers).forEach(buttonKey => {
+
+    Object.keys(eventHandlers).forEach((buttonKey) => {
       if (b[buttonKey]) {
         // Remove existing listeners (if any)
         const oldButton = b[buttonKey];
         const newButton = oldButton.cloneNode(true);
         oldButton.parentNode.replaceChild(newButton, oldButton);
         b[buttonKey] = newButton;
-        
+
         // Attach new listener
         b[buttonKey].addEventListener("click", eventHandlers[buttonKey]);
       }
@@ -490,10 +520,10 @@ class ProxyClientApp {
   refreshSidebar() {
     // Refresh button order in sidebar
     this.sidebar.refreshButtonOrder();
-    
+
     // Update button references
     this.sidebarButtons = this.sidebar.getButtons();
-    
+
     // Re-attach event listeners with new button references
     const v = this.views;
     const hideAll = () => {
@@ -504,18 +534,67 @@ class ProxyClientApp {
     };
 
     const eventHandlers = {
-      proxyButton: () => { hideAll(); v.proxyView.style.display = "flex"; setActiveButton("proxyButton"); },
-      notesButton: () => { hideAll(); v.notesView.style.display = "block"; setActiveButton("notesButton"); },
-      calculatorButton: () => { hideAll(); v.calculatorView.style.display = "block"; setActiveButton("calculatorButton"); this.initCalculator(); },
-      consoleButton: () => { hideAll(); v.consoleView.style.display = "block"; setActiveButton("consoleButton"); },
-      cloakingButton: () => { hideAll(); v.cloakingView.style.display = "block"; setActiveButton("cloakingButton"); },
-      historyFloodButton: () => { hideAll(); v.historyFloodView.style.display = "block"; setActiveButton("historyFloodButton"); },
-      corsProxyButton: () => { hideAll(); v.corsProxyView.style.display = "block"; setActiveButton("corsProxyButton"); },
-      pocketBrowserButton: () => { hideAll(); v.pocketBrowserView.style.display = "block"; setActiveButton("pocketBrowserButton"); },
-      scriptsButton: () => { hideAll(); v.scriptsView.style.display = "block"; setActiveButton("scriptsButton"); },
-      settingsButton: () => { hideAll(); v.settingsView.style.display = "block"; setActiveButton("settingsButton"); },
-      bookmarkletsButton: () => { hideAll(); v.bookmarkletsView.style.display = "block"; setActiveButton("bookmarkletsButton"); },
-      gamesButton: () => { hideAll(); v.gamesView.style.display = "block"; setActiveButton("gamesButton"); }
+      proxyButton: () => {
+        hideAll();
+        v.proxyView.style.display = "flex";
+        setActiveButton("proxyButton");
+      },
+      notesButton: () => {
+        hideAll();
+        v.notesView.style.display = "block";
+        setActiveButton("notesButton");
+      },
+      calculatorButton: () => {
+        hideAll();
+        v.calculatorView.style.display = "block";
+        setActiveButton("calculatorButton");
+        this.initCalculator();
+      },
+      consoleButton: () => {
+        hideAll();
+        v.consoleView.style.display = "block";
+        setActiveButton("consoleButton");
+      },
+      cloakingButton: () => {
+        hideAll();
+        v.cloakingView.style.display = "block";
+        setActiveButton("cloakingButton");
+      },
+      historyFloodButton: () => {
+        hideAll();
+        v.historyFloodView.style.display = "block";
+        setActiveButton("historyFloodButton");
+      },
+      corsProxyButton: () => {
+        hideAll();
+        v.corsProxyView.style.display = "block";
+        setActiveButton("corsProxyButton");
+      },
+      pocketBrowserButton: () => {
+        hideAll();
+        v.pocketBrowserView.style.display = "block";
+        setActiveButton("pocketBrowserButton");
+      },
+      scriptsButton: () => {
+        hideAll();
+        v.scriptsView.style.display = "block";
+        setActiveButton("scriptsButton");
+      },
+      settingsButton: () => {
+        hideAll();
+        v.settingsView.style.display = "block";
+        setActiveButton("settingsButton");
+      },
+      bookmarkletsButton: () => {
+        hideAll();
+        v.bookmarkletsView.style.display = "block";
+        setActiveButton("bookmarkletsButton");
+      },
+      gamesButton: () => {
+        hideAll();
+        v.gamesView.style.display = "block";
+        setActiveButton("gamesButton");
+      },
     };
 
     this.attachButtonEventListeners(eventHandlers);

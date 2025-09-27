@@ -79,7 +79,7 @@ export class ProxySidebar {
     // Get current tab order from localStorage or use default
     const tabOrder = this._getTabOrder();
     const tabMetadata = this._getTabMetadata();
-    
+
     // Create navigation buttons in custom order
     tabOrder.forEach((key) => {
       const tabData = tabMetadata[key];
@@ -105,7 +105,7 @@ export class ProxySidebar {
   _getTabOrder() {
     const defaultOrder = [
       "proxyButton",
-      "gamesButton", 
+      "gamesButton",
       "bookmarkletsButton",
       "scriptsButton",
       "notesButton",
@@ -115,7 +115,7 @@ export class ProxySidebar {
       "historyFloodButton",
       "corsProxyButton",
       "pocketBrowserButton",
-      "settingsButton"
+      "settingsButton",
     ];
 
     try {
@@ -124,7 +124,7 @@ export class ProxySidebar {
         const parsed = JSON.parse(saved);
         // Validate that we have all required tabs
         if (Array.isArray(parsed) && parsed.length === defaultOrder.length) {
-          const hasAllTabs = defaultOrder.every(tab => parsed.includes(tab));
+          const hasAllTabs = defaultOrder.every((tab) => parsed.includes(tab));
           if (hasAllTabs) {
             return parsed;
           }
@@ -150,7 +150,7 @@ export class ProxySidebar {
       historyFloodButton: { label: "History Flood", icon: "🌊" },
       corsProxyButton: { label: "CORS Proxy", icon: "🔄" },
       pocketBrowserButton: { label: "Pocket Browser", icon: "🔍" },
-      settingsButton: { label: "Settings", icon: "⚙️" }
+      settingsButton: { label: "Settings", icon: "⚙️" },
     };
   }
 
@@ -158,24 +158,24 @@ export class ProxySidebar {
   refreshButtonOrder() {
     // Clear existing navigation buttons (but keep action buttons)
     const buttonsToRemove = [];
-    Object.keys(this.buttons).forEach(key => {
-      if (key !== 'hideButton' && key !== 'removeButton') {
+    Object.keys(this.buttons).forEach((key) => {
+      if (key !== "hideButton" && key !== "removeButton") {
         if (this.buttons[key] && this.buttons[key].parentNode) {
           this.buttons[key].parentNode.removeChild(this.buttons[key]);
         }
         buttonsToRemove.push(key);
       }
     });
-    
+
     // Remove from buttons object
-    buttonsToRemove.forEach(key => {
+    buttonsToRemove.forEach((key) => {
       delete this.buttons[key];
     });
-    
+
     // Save references to action buttons
     const hideButton = this.buttons.hideButton;
     const removeButton = this.buttons.removeButton;
-    
+
     // Remove action buttons temporarily
     if (hideButton && hideButton.parentNode) {
       hideButton.parentNode.removeChild(hideButton);
@@ -183,11 +183,11 @@ export class ProxySidebar {
     if (removeButton && removeButton.parentNode) {
       removeButton.parentNode.removeChild(removeButton);
     }
-    
+
     // Re-add navigation buttons with new order
     const tabOrder = this._getTabOrder();
     const tabMetadata = this._getTabMetadata();
-    
+
     tabOrder.forEach((key) => {
       const tabData = tabMetadata[key];
       if (tabData) {
@@ -199,7 +199,7 @@ export class ProxySidebar {
         this.buttonContainer.appendChild(this.buttons[key]);
       }
     });
-    
+
     // Re-add action buttons at the end
     if (hideButton) {
       this.buttonContainer.appendChild(hideButton);
