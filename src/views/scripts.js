@@ -158,6 +158,82 @@ export default function createscriptsView() {
       },
     },
     {
+      title: "Math Tools",
+      desc: "Load advanced math calculator and tools",
+      onClick: async () => {
+        const mathToolsUrl =
+          "https://cdn.jsdelivr.net/gh/Penguinify/math-bookmarklet/dist/bundle.js";
+
+        // Show loading feedback
+        const loadingAlert = setTimeout(() => {
+          alert(
+            "🔄 Loading Math Tools...\n\nFetching advanced math calculator from CDN. Please wait..."
+          );
+        }, 100);
+
+        try {
+          // Fetch the script from CDN
+          const response = await fetch(mathToolsUrl);
+
+          // Clear loading alert
+          clearTimeout(loadingAlert);
+
+          // Check if fetch was successful
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          // Get script content
+          const scriptContent = await response.text();
+
+          // Validate that we got actual script content
+          if (!scriptContent || scriptContent.trim().length === 0) {
+            throw new Error("Empty script content received");
+          }
+
+          // Create and inject script element
+          const script = document.createElement("script");
+          script.textContent = scriptContent;
+
+          // Add error handling for script execution
+          script.onerror = (event) => {
+            alert(
+              "❌ Math Tools Execution Error\n\nThe math tools script failed to execute properly. This may be due to:\n• JavaScript syntax errors in the fetched script\n• Compatibility issues with the current page\n• Security restrictions"
+            );
+          };
+
+          // Inject the script
+          document.head.appendChild(script);
+
+          // Success feedback
+          alert(
+            "✅ Math Tools Loaded Successfully!\n\n🧮 Advanced math calculator and tools are now available on this page.\n\nLook for new math-related UI elements or check the browser console for instructions on how to use the tools."
+          );
+        } catch (error) {
+          // Clear loading alert in case of error
+          clearTimeout(loadingAlert);
+
+          // Provide detailed error feedback
+          let errorMessage = "❌ Failed to Load Math Tools\n\n";
+
+          if (error.name === "TypeError" && error.message.includes("fetch")) {
+            errorMessage +=
+              "Network Error: Unable to connect to the CDN.\n\nPossible causes:\n• No internet connection\n• CDN server is down\n• Network firewall blocking the request";
+          } else if (error.message.includes("HTTP")) {
+            errorMessage += `Server Error: ${error.message}\n\nThe CDN returned an error response. This may be due to:\n• Temporary server issues\n• Script URL has changed or is no longer available\n• Access restrictions`;
+          } else if (error.message.includes("CORS")) {
+            errorMessage +=
+              "CORS Error: Cross-origin request blocked.\n\nThis may be due to:\n• Browser security policies\n• CDN CORS configuration\n• Network proxy restrictions";
+          } else {
+            errorMessage += `Unexpected Error: ${error.message}\n\nPlease try again later or check the browser console for more details.`;
+          }
+
+          alert(errorMessage);
+          console.error("Math Tools loading error:", error);
+        }
+      },
+    },
+    {
       title: "Page Editor On",
       desc: "Make the current page editable.",
       onClick: () => {
@@ -833,7 +909,7 @@ alert('Code executed successfully!');
 
         modal.querySelector("#ocot-option").addEventListener("click", () => {
           const ocotUrl =
-            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.7/dist/bundle.js";
+            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.8/dist/bundle.js";
           createAboutBlankWithScript(ocotUrl, true);
         });
       },
