@@ -4742,6 +4742,34 @@ Math.sqrt(16);
         color: #6c757d;
       }
       
+      /* Anti force reload script states */
+      .script-item.anti-force-reload-enabled {
+        background: linear-gradient(135deg, #4f1a3a, #5a2d42);
+        border: 2px solid #dc3545;
+        box-shadow: 0 4px 16px 0 rgba(220, 53, 69, 0.3);
+      }
+      
+      .script-item.anti-force-reload-enabled:hover {
+        background: linear-gradient(135deg, #5d1e47, #633249);
+        box-shadow: 0 6px 20px 0 rgba(220, 53, 69, 0.4);
+        transform: translateY(-2px) scale(1.03);
+      }
+      
+      .script-item.anti-force-reload-enabled .script-title::before {
+        content: "\u{1F6E1}\uFE0F ";
+        color: #dc3545;
+      }
+      
+      .script-item.anti-force-reload-disabled {
+        background: #292d36;
+        border: 2px solid transparent;
+      }
+      
+      .script-item.anti-force-reload-disabled .script-title::before {
+        content: "\u{1F513} ";
+        color: #6c757d;
+      }
+      
       .script-item .status-indicator {
         display: inline-block;
         width: 8px;
@@ -4757,6 +4785,16 @@ Math.sqrt(16);
       }
       
       .script-item.auto-hide-disabled .status-indicator {
+        background: #6c757d;
+        animation: none;
+      }
+      
+      .script-item.anti-force-reload-enabled .status-indicator {
+        background: #dc3545;
+        box-shadow: 0 0 6px rgba(220, 53, 69, 0.6);
+      }
+      
+      .script-item.anti-force-reload-disabled .status-indicator {
         background: #6c757d;
         animation: none;
       }
@@ -4788,6 +4826,28 @@ Math.sqrt(16);
         descElement.textContent = "Click to enable automatic hiding when switching tabs.";
         statusIndicator.className = "status-indicator";
         statusIndicator.title = "Auto-hide is currently disabled";
+      }
+      if (!titleElement.querySelector(".status-indicator")) {
+        titleElement.appendChild(statusIndicator);
+      }
+    }
+    function updateAntiForceReloadVisualState(itemElement, isEnabled) {
+      if (!itemElement) return;
+      const titleElement = itemElement.querySelector(".script-title");
+      const descElement = itemElement.querySelector(".script-desc");
+      const statusIndicator = itemElement.querySelector(".status-indicator") || document.createElement("span");
+      if (isEnabled) {
+        itemElement.className = "script-item anti-force-reload-enabled";
+        titleElement.textContent = "Anti Force Reload (ON)";
+        descElement.textContent = "Page reload protection is ACTIVE - prevents forced page refreshes.";
+        statusIndicator.className = "status-indicator";
+        statusIndicator.title = "Anti force reload is currently enabled";
+      } else {
+        itemElement.className = "script-item anti-force-reload-disabled";
+        titleElement.textContent = "Anti Force Reload (OFF)";
+        descElement.textContent = "Click to enable protection against forced page reloads.";
+        statusIndicator.className = "status-indicator";
+        statusIndicator.title = "Anti force reload is currently disabled";
       }
       if (!titleElement.querySelector(".status-indicator")) {
         titleElement.appendChild(statusIndicator);
@@ -5026,6 +5086,40 @@ Please try again later or check the browser console for more details.`;
           updateAutoHideVisualState(autoHideItem, true);
           alert(
             "\u{1F512} Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n\u2022 Switch to another tab\n\u2022 Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide."
+          );
+        }
+      },
+      {
+        title: "Anti Force Reload",
+        desc: "Prevent forced page reloads and refreshes.",
+        isAntiForceReload: true,
+        // Special flag to identify this script for dynamic updates
+        onClick: () => {
+          function enableantiforcereload() {
+            window.onbeforeunload = () => {
+              return "no";
+            };
+          }
+          function disabledantiforcereload() {
+            window.onbeforeunload = null;
+          }
+          const antiForceReloadItem = document.querySelector(
+            '.script-item[data-script="anti-force-reload"]'
+          );
+          if (window.antiForceReloadEnabled) {
+            disabledantiforcereload();
+            window.antiForceReloadEnabled = false;
+            updateAntiForceReloadVisualState(antiForceReloadItem, false);
+            alert(
+              "\u{1F513} Anti Force Reload disabled!\n\nPage reload protection is now OFF. The page can be refreshed normally."
+            );
+            return;
+          }
+          enableantiforcereload();
+          window.antiForceReloadEnabled = true;
+          updateAntiForceReloadVisualState(antiForceReloadItem, true);
+          alert(
+            "\u{1F6E1}\uFE0F Anti Force Reload enabled!\n\nPage reload protection is now ACTIVE. The browser will warn before allowing page refreshes or navigation away from this page.\n\nClick this script again to disable protection."
           );
         }
       },
@@ -5429,6 +5523,14 @@ alert('Code executed successfully!');
         <div class="script-desc">${isEnabled ? "Auto-hide is ACTIVE - will hide when switching tabs or clicking away." : "Click to enable automatic hiding when switching tabs."}</div>
       `;
         updateAutoHideVisualState(item, isEnabled);
+      } else if (action.isAntiForceReload) {
+        item.setAttribute("data-script", "anti-force-reload");
+        const isEnabled = window.antiForceReloadEnabled || false;
+        item.innerHTML = `
+        <div class="script-title">${isEnabled ? "Anti Force Reload (ON)" : "Anti Force Reload (OFF)"}</div>
+        <div class="script-desc">${isEnabled ? "Page reload protection is ACTIVE - prevents forced page refreshes." : "Click to enable protection against forced page reloads."}</div>
+      `;
+        updateAntiForceReloadVisualState(item, isEnabled);
       } else {
         item.innerHTML = `
         <div class="script-title">${action.title}</div>

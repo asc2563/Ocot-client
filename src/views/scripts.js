@@ -75,6 +75,34 @@ export default function createscriptsView() {
         color: #6c757d;
       }
       
+      /* Anti force reload script states */
+      .script-item.anti-force-reload-enabled {
+        background: linear-gradient(135deg, #4f1a3a, #5a2d42);
+        border: 2px solid #dc3545;
+        box-shadow: 0 4px 16px 0 rgba(220, 53, 69, 0.3);
+      }
+      
+      .script-item.anti-force-reload-enabled:hover {
+        background: linear-gradient(135deg, #5d1e47, #633249);
+        box-shadow: 0 6px 20px 0 rgba(220, 53, 69, 0.4);
+        transform: translateY(-2px) scale(1.03);
+      }
+      
+      .script-item.anti-force-reload-enabled .script-title::before {
+        content: "🛡️ ";
+        color: #dc3545;
+      }
+      
+      .script-item.anti-force-reload-disabled {
+        background: #292d36;
+        border: 2px solid transparent;
+      }
+      
+      .script-item.anti-force-reload-disabled .script-title::before {
+        content: "🔓 ";
+        color: #6c757d;
+      }
+      
       .script-item .status-indicator {
         display: inline-block;
         width: 8px;
@@ -90,6 +118,16 @@ export default function createscriptsView() {
       }
       
       .script-item.auto-hide-disabled .status-indicator {
+        background: #6c757d;
+        animation: none;
+      }
+      
+      .script-item.anti-force-reload-enabled .status-indicator {
+        background: #dc3545;
+        box-shadow: 0 0 6px rgba(220, 53, 69, 0.6);
+      }
+      
+      .script-item.anti-force-reload-disabled .status-indicator {
         background: #6c757d;
         animation: none;
       }
@@ -130,6 +168,38 @@ export default function createscriptsView() {
         "Click to enable automatic hiding when switching tabs.";
       statusIndicator.className = "status-indicator";
       statusIndicator.title = "Auto-hide is currently disabled";
+    }
+
+    // Add status indicator if not already present
+    if (!titleElement.querySelector(".status-indicator")) {
+      titleElement.appendChild(statusIndicator);
+    }
+  }
+
+  // Function to update anti force reload visual state
+  function updateAntiForceReloadVisualState(itemElement, isEnabled) {
+    if (!itemElement) return;
+
+    const titleElement = itemElement.querySelector(".script-title");
+    const descElement = itemElement.querySelector(".script-desc");
+    const statusIndicator =
+      itemElement.querySelector(".status-indicator") ||
+      document.createElement("span");
+
+    if (isEnabled) {
+      itemElement.className = "script-item anti-force-reload-enabled";
+      titleElement.textContent = "Anti Force Reload (ON)";
+      descElement.textContent =
+        "Page reload protection is ACTIVE - prevents forced page refreshes.";
+      statusIndicator.className = "status-indicator";
+      statusIndicator.title = "Anti force reload is currently enabled";
+    } else {
+      itemElement.className = "script-item anti-force-reload-disabled";
+      titleElement.textContent = "Anti Force Reload (OFF)";
+      descElement.textContent =
+        "Click to enable protection against forced page reloads.";
+      statusIndicator.className = "status-indicator";
+      statusIndicator.title = "Anti force reload is currently disabled";
     }
 
     // Add status indicator if not already present
@@ -441,6 +511,54 @@ export default function createscriptsView() {
 
         alert(
           "🔒 Auto-hide enabled!\n\nThe Ocot Client is now set to automatically hide when you:\n• Switch to another tab\n• Click outside the application\n\nNOTE: It will NOT hide immediately when you click this button - only when you switch tabs or click away. Click this script again to disable auto-hide."
+        );
+      },
+    },
+    {
+      title: "Anti Force Reload",
+      desc: "Prevent forced page reloads and refreshes.",
+      isAntiForceReload: true, // Special flag to identify this script for dynamic updates
+      onClick: () => {
+        // Anti force reload functions
+        function enableantiforcereload() {
+          window.onbeforeunload = () => {
+            return 'no';
+          };
+        }
+
+        function disabledantiforcereload() {
+          window.onbeforeunload = null;
+        }
+
+        // Find the anti force reload script item and update it
+        const antiForceReloadItem = document.querySelector(
+          '.script-item[data-script="anti-force-reload"]'
+        );
+
+        // Check if anti force reload is already enabled
+        if (window.antiForceReloadEnabled) {
+          // Disable anti force reload
+          disabledantiforcereload();
+          window.antiForceReloadEnabled = false;
+
+          // Update the visual state
+          updateAntiForceReloadVisualState(antiForceReloadItem, false);
+
+          alert(
+            "🔓 Anti Force Reload disabled!\n\nPage reload protection is now OFF. The page can be refreshed normally."
+          );
+          return;
+        }
+
+        // Enable anti force reload
+        enableantiforcereload();
+        window.antiForceReloadEnabled = true;
+
+        // Update the visual state
+        updateAntiForceReloadVisualState(antiForceReloadItem, true);
+
+        alert(
+          "🛡️ Anti Force Reload enabled!\n\nPage reload protection is now ACTIVE. The browser will warn before allowing page refreshes or navigation away from this page.\n\nClick this script again to disable protection."
         );
       },
     },
@@ -944,6 +1062,25 @@ alert('Code executed successfully!');
 
       // Apply initial visual state
       updateAutoHideVisualState(item, isEnabled);
+    } else if (action.isAntiForceReload) {
+      // Special handling for anti force reload script
+      item.setAttribute("data-script", "anti-force-reload");
+      const isEnabled = window.antiForceReloadEnabled || false;
+
+      // Set initial state based on current anti force reload status
+      item.innerHTML = `
+        <div class="script-title">${
+          isEnabled ? "Anti Force Reload (ON)" : "Anti Force Reload (OFF)"
+        }</div>
+        <div class="script-desc">${
+          isEnabled
+            ? "Page reload protection is ACTIVE - prevents forced page refreshes."
+            : "Click to enable protection against forced page reloads."
+        }</div>
+      `;
+
+      // Apply initial visual state
+      updateAntiForceReloadVisualState(item, isEnabled);
     } else {
       item.innerHTML = `
         <div class="script-title">${action.title}</div>
