@@ -310,25 +310,31 @@ export default function createscriptsView() {
           setTimeout(() => {
             // Check if the blur was caused by focusing on an internal iframe
             const activeElement = document.activeElement;
-            
+
             // Helper function to check if element is an internal iframe
             const isInternalIframe = (element) => {
-              if (!element || element.tagName !== 'IFRAME') {
+              if (!element || element.tagName !== "IFRAME") {
                 return false;
               }
-              
+
               // Check if it's one of our internal iframes
-              const internalIframeIds = ['ocot-proxy-iframe', 'ocot-pocket-browser-iframe'];
+              const internalIframeIds = [
+                "ocot-proxy-iframe",
+                "ocot-pocket-browser-iframe",
+              ];
               return internalIframeIds.includes(element.id);
             };
-            
+
             // Don't hide if focus moved to an internal iframe
             if (isInternalIframe(activeElement)) {
               return;
             }
-            
+
             // Hide the proxy client when window loses focus (tab switch)
-            if (window.proxyFrame && window.proxyFrame.style.display !== "none") {
+            if (
+              window.proxyFrame &&
+              window.proxyFrame.style.display !== "none"
+            ) {
               // Use the app's built-in hide method if available
               if (
                 window.proxyClientApp &&
@@ -827,7 +833,7 @@ alert('Code executed successfully!');
 
         modal.querySelector("#ocot-option").addEventListener("click", () => {
           const ocotUrl =
-            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.6/dist/bundle.js";
+            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.7/dist/bundle.js";
           createAboutBlankWithScript(ocotUrl, true);
         });
       },

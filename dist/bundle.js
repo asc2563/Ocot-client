@@ -1761,6 +1761,68 @@
             <div style="color: #fff; font-weight: 600;">Crimson Red</div>
             <div style="color: #aaa; font-size: 0.85rem;">Bold and striking</div>
           </div>
+
+          <div class="theme-option custom-theme-option" data-theme="custom" style="background: #292d36; border: 2px solid #404040; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;">
+            <div class="theme-preview" style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <div id="custom-preview-1" style="width: 20px; height: 20px; background: var(--custom-bg, #292d36); border-radius: 4px;"></div>
+              <div id="custom-preview-2" style="width: 20px; height: 20px; background: var(--custom-accent, #00bfff); border-radius: 4px;"></div>
+              <div id="custom-preview-3" style="width: 20px; height: 20px; background: var(--custom-secondary, #23272f); border-radius: 4px;"></div>
+            </div>
+            <div style="color: #fff; font-weight: 600;">Custom Theme</div>
+            <div style="color: #aaa; font-size: 0.85rem;">Create your own colors</div>
+          </div>
+        </div>
+
+        <!-- Custom Theme Color Picker -->
+        <div id="custom-theme-panel" style="display: none; margin-top: 16px; background: #23272f; border-radius: 8px; padding: 16px; border: 1px solid #404040;">
+          <h4 style="color: #fff; margin: 0 0 16px 0; font-size: 1.1rem;">Customize Colors</h4>
+          <div style="display: grid; gap: 16px;">
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Accent Color:</label>
+              <input type="color" id="custom-accent-color" value="#00bfff" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-accent-text" value="#00bfff" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Background:</label>
+              <input type="color" id="custom-bg-color" value="#292d36" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-bg-text" value="#292d36" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div class="color-input-group" style="display: flex; align-items: center; gap: 12px;">
+              <label style="color: #aaa; min-width: 120px;">Secondary:</label>
+              <input type="color" id="custom-secondary-color" value="#23272f" style="width: 50px; height: 30px; border: none; border-radius: 4px; cursor: pointer;">
+              <input type="text" id="custom-secondary-text" value="#23272f" style="background: #292d36; color: #fff; border: 1px solid #404040; border-radius: 4px; padding: 4px 8px; font-family: monospace; width: 80px;">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button id="apply-custom-theme" style="background: #00bfff; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; font-weight: 600;">Apply Theme</button>
+              <button id="reset-custom-theme" style="background: #666; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Settings Section -->
+      <div class="settings-section general-section">
+        <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          \u2699\uFE0F General Settings
+        </h3>
+        <p style="color: #aaa; margin: 0 0 16px 0; font-size: 0.9rem;">
+          Configure general app behavior and appearance
+        </p>
+        <div class="general-options" style="display: grid; gap: 16px;">
+          <div class="setting-item" style="background: #292d36; border-radius: 8px; padding: 16px;">
+            <label style="color: #00bfff; font-weight: 600; margin-bottom: 12px; display: block;">
+              Floating Button
+            </label>
+            <div style="display: grid; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; color: #fff; cursor: pointer;">
+                <input type="checkbox" id="enable-floating-button" checked style="margin: 0;">
+                <span>Show floating button when client is hidden</span>
+              </label>
+            </div>
+            <div style="color: #aaa; font-size: 0.8rem; margin-top: 8px;">
+              The floating button (\u{1F527}) appears when you hide the main client, allowing you to quickly show it again. You can also press "\\" to toggle the client.
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1987,6 +2049,7 @@
     if (savedThemeOption) {
       savedThemeOption.style.borderColor = "#00bfff";
     }
+    setupCustomTheme();
     const saveButton = document.getElementById("save-browser-settings");
     const resetButton = document.getElementById("reset-browser-settings");
     if (saveButton) {
@@ -2015,6 +2078,7 @@
     }
     loadBrowserSettings();
     loadProxySettings();
+    loadGeneralSettings();
     const browserInputs = [
       "homepage-input",
       "enable-history",
@@ -2023,6 +2087,7 @@
       "enable-safe-search",
       "user-agent-select"
     ];
+    const generalInputs = ["enable-floating-button"];
     browserInputs.forEach((id) => {
       const element = document.getElementById(id);
       if (element) {
@@ -2031,6 +2096,17 @@
         } else {
           element.addEventListener("change", saveBrowserSettings);
           element.addEventListener("input", saveBrowserSettings);
+        }
+      }
+    });
+    generalInputs.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        if (element.type === "checkbox") {
+          element.addEventListener("change", saveGeneralSettings);
+        } else {
+          element.addEventListener("change", saveGeneralSettings);
+          element.addEventListener("input", saveGeneralSettings);
         }
       }
     });
@@ -2066,6 +2142,9 @@
         root.style.setProperty("--accent-color", "#dc2626");
         root.style.setProperty("--accent-hover", "#b91c1c");
         root.style.setProperty("--accent-color-rgb", "220, 38, 38");
+        break;
+      case "custom":
+        applyCustomTheme();
         break;
       default:
         root.style.setProperty("--bg-primary", "#23272f");
@@ -2107,6 +2186,125 @@
     activeButtons.forEach((btn) => {
       btn.style.background = accentColor;
     });
+  }
+  function setupCustomTheme() {
+    const customThemeOption = document.querySelector(
+      '.theme-option[data-theme="custom"]'
+    );
+    const customThemePanel = document.getElementById("custom-theme-panel");
+    customThemeOption.addEventListener("click", (e) => {
+      e.stopPropagation();
+      customThemePanel.style.display = customThemePanel.style.display === "none" ? "block" : "none";
+    });
+    const setupColorSync = (colorId, textId) => {
+      const colorInput = document.getElementById(colorId);
+      const textInput = document.getElementById(textId);
+      colorInput.addEventListener("input", () => {
+        textInput.value = colorInput.value;
+        updateCustomPreview();
+      });
+      textInput.addEventListener("input", () => {
+        if (isValidHex(textInput.value)) {
+          colorInput.value = textInput.value;
+          updateCustomPreview();
+        }
+      });
+    };
+    setupColorSync("custom-accent-color", "custom-accent-text");
+    setupColorSync("custom-bg-color", "custom-bg-text");
+    setupColorSync("custom-secondary-color", "custom-secondary-text");
+    document.getElementById("apply-custom-theme").addEventListener("click", () => {
+      saveCustomTheme();
+      applyCustomTheme();
+    });
+    document.getElementById("reset-custom-theme").addEventListener("click", () => {
+      resetCustomTheme();
+    });
+    loadCustomTheme();
+  }
+  function updateCustomPreview() {
+    const accentColor = document.getElementById("custom-accent-text").value;
+    const bgColor = document.getElementById("custom-bg-text").value;
+    const secondaryColor = document.getElementById("custom-secondary-text").value;
+    document.getElementById("custom-preview-1").style.background = bgColor;
+    document.getElementById("custom-preview-2").style.background = accentColor;
+    document.getElementById("custom-preview-3").style.background = secondaryColor;
+  }
+  function saveCustomTheme() {
+    const customTheme = {
+      accent: document.getElementById("custom-accent-text").value,
+      background: document.getElementById("custom-bg-text").value,
+      secondary: document.getElementById("custom-secondary-text").value
+    };
+    localStorage.setItem("customTheme", JSON.stringify(customTheme));
+    console.log("Custom theme saved:", customTheme);
+  }
+  function loadCustomTheme() {
+    const saved = localStorage.getItem("customTheme");
+    if (saved) {
+      try {
+        const theme = JSON.parse(saved);
+        document.getElementById("custom-accent-color").value = theme.accent;
+        document.getElementById("custom-accent-text").value = theme.accent;
+        document.getElementById("custom-bg-color").value = theme.background;
+        document.getElementById("custom-bg-text").value = theme.background;
+        document.getElementById("custom-secondary-color").value = theme.secondary;
+        document.getElementById("custom-secondary-text").value = theme.secondary;
+        updateCustomPreview();
+      } catch (e) {
+        console.warn("Failed to load custom theme:", e);
+      }
+    }
+  }
+  function applyCustomTheme() {
+    const saved = localStorage.getItem("customTheme");
+    if (!saved) return;
+    try {
+      const theme = JSON.parse(saved);
+      const root = document.documentElement;
+      const accentHover = adjustBrightness(theme.accent, -20);
+      const accentRgb = hexToRgb(theme.accent);
+      root.style.setProperty("--bg-primary", theme.secondary);
+      root.style.setProperty("--bg-secondary", theme.background);
+      root.style.setProperty("--accent-color", theme.accent);
+      root.style.setProperty("--accent-hover", accentHover);
+      root.style.setProperty(
+        "--accent-color-rgb",
+        `${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}`
+      );
+      updateThemeColors();
+    } catch (e) {
+      console.warn("Failed to apply custom theme:", e);
+    }
+  }
+  function resetCustomTheme() {
+    document.getElementById("custom-accent-color").value = "#00bfff";
+    document.getElementById("custom-accent-text").value = "#00bfff";
+    document.getElementById("custom-bg-color").value = "#292d36";
+    document.getElementById("custom-bg-text").value = "#292d36";
+    document.getElementById("custom-secondary-color").value = "#23272f";
+    document.getElementById("custom-secondary-text").value = "#23272f";
+    updateCustomPreview();
+  }
+  function isValidHex(hex) {
+    return /^#[0-9A-F]{6}$/i.test(hex);
+  }
+  function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+  function adjustBrightness(hex, percent) {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return hex;
+    const adjust = (color) => Math.max(0, Math.min(255, color + color * percent / 100));
+    const r = Math.round(adjust(rgb.r)).toString(16).padStart(2, "0");
+    const g = Math.round(adjust(rgb.g)).toString(16).padStart(2, "0");
+    const b = Math.round(adjust(rgb.b)).toString(16).padStart(2, "0");
+    return `#${r}${g}${b}`;
   }
   function saveBrowserSettings() {
     const settings = {
@@ -2189,6 +2387,49 @@
         userAgentSelect.value = settings.userAgent || "default";
     } catch (e) {
       console.warn("Failed to load browser settings:", e);
+    }
+  }
+  function saveGeneralSettings() {
+    const settings = {
+      enableFloatingButton: document.getElementById("enable-floating-button")?.checked ?? true
+    };
+    localStorage.setItem("ocot-general-settings", JSON.stringify(settings));
+    console.log("Settings: Saved general settings", settings);
+    updateFloatingButtonVisibility(settings.enableFloatingButton);
+    console.log("General settings saved successfully");
+  }
+  function loadGeneralSettings() {
+    const saved = localStorage.getItem("ocot-general-settings");
+    if (!saved) return;
+    try {
+      const settings = JSON.parse(saved);
+      const floatingButtonCheck = document.getElementById(
+        "enable-floating-button"
+      );
+      if (floatingButtonCheck) {
+        floatingButtonCheck.checked = settings.enableFloatingButton !== false;
+      }
+    } catch (e) {
+      console.warn("Failed to load general settings:", e);
+    }
+  }
+  function updateFloatingButtonVisibility(enabled) {
+    console.log("updateFloatingButtonVisibility called with enabled:", enabled);
+    if (window.proxyClientApp && window.proxyClientApp.floatingButton) {
+      if (enabled) {
+        console.log("Floating button setting enabled");
+        if (window.proxyClientApp.frame && window.proxyClientApp.frame.style.display === "none") {
+          console.log("Client is hidden, showing floating button");
+          window.proxyClientApp.floatingButton.style.display = "flex";
+        } else {
+          console.log("Client is visible, keeping floating button hidden");
+        }
+      } else {
+        console.log("Floating button setting disabled, hiding button");
+        window.proxyClientApp.floatingButton.style.display = "none";
+      }
+    } else {
+      console.log("proxyClientApp or floatingButton not found");
     }
   }
   function saveProxySettings() {
@@ -2554,7 +2795,9 @@
         item.classList.remove("drag-over");
       });
       if (afterElement == null) {
-        const items = [...tabOrderList.querySelectorAll(".tab-order-item:not(.dragging)")];
+        const items = [
+          ...tabOrderList.querySelectorAll(".tab-order-item:not(.dragging)")
+        ];
         if (items.length > 0) {
           items[items.length - 1].classList.add("drag-over");
         }
@@ -2577,21 +2820,28 @@
     });
   }
   function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll(".tab-order-item:not(.dragging)")];
-    return draggableElements.reduce((closest, child) => {
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height / 2;
-      if (offset < 0 && offset > closest.offset) {
-        return { offset, element: child };
-      } else {
-        return closest;
-      }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
+    const draggableElements = [
+      ...container.querySelectorAll(".tab-order-item:not(.dragging)")
+    ];
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY }
+    ).element;
   }
   function updateTabOrderFromDOM() {
     const tabOrderList = document.getElementById("tab-order-list");
     if (!tabOrderList) return;
-    const newOrder = [...tabOrderList.querySelectorAll(".tab-order-item")].map((item) => item.getAttribute("data-tab-key"));
+    const newOrder = [...tabOrderList.querySelectorAll(".tab-order-item")].map(
+      (item) => item.getAttribute("data-tab-key")
+    );
     saveTabOrder(newOrder);
     setTimeout(() => renderTabOrderList(), 100);
   }
@@ -2599,7 +2849,10 @@
     const tabOrder = getTabOrder();
     const currentIndex = tabOrder.indexOf(tabKey);
     if (currentIndex > 0) {
-      [tabOrder[currentIndex - 1], tabOrder[currentIndex]] = [tabOrder[currentIndex], tabOrder[currentIndex - 1]];
+      [tabOrder[currentIndex - 1], tabOrder[currentIndex]] = [
+        tabOrder[currentIndex],
+        tabOrder[currentIndex - 1]
+      ];
       saveTabOrder(tabOrder);
       renderTabOrderList();
     }
@@ -2608,7 +2861,10 @@
     const tabOrder = getTabOrder();
     const currentIndex = tabOrder.indexOf(tabKey);
     if (currentIndex < tabOrder.length - 1) {
-      [tabOrder[currentIndex], tabOrder[currentIndex + 1]] = [tabOrder[currentIndex + 1], tabOrder[currentIndex]];
+      [tabOrder[currentIndex], tabOrder[currentIndex + 1]] = [
+        tabOrder[currentIndex + 1],
+        tabOrder[currentIndex]
+      ];
       saveTabOrder(tabOrder);
       renderTabOrderList();
     }
@@ -4686,7 +4942,10 @@ Math.sqrt(16);
                 if (!element || element.tagName !== "IFRAME") {
                   return false;
                 }
-                const internalIframeIds = ["ocot-proxy-iframe", "ocot-pocket-browser-iframe"];
+                const internalIframeIds = [
+                  "ocot-proxy-iframe",
+                  "ocot-pocket-browser-iframe"
+                ];
                 return internalIframeIds.includes(element.id);
               };
               if (isInternalIframe(activeElement)) {
@@ -5095,7 +5354,7 @@ alert('Code executed successfully!');
             showCodeEditorModal(createAboutBlankWithScript);
           });
           modal.querySelector("#ocot-option").addEventListener("click", () => {
-            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.6/dist/bundle.js";
+            const ocotUrl = "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.7/dist/bundle.js";
             createAboutBlankWithScript(ocotUrl, true);
           });
         }
@@ -5450,6 +5709,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.frame.appendChild(content);
       document.body.appendChild(this.frame);
       this.createFloatingButton();
+      this.applyInitialSettings();
       document.addEventListener("keydown", (event) => {
         if (event.key === "\\") {
           if (window.proxyFrame) {
@@ -5597,14 +5857,34 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       });
     }
     hideProxyClient() {
-      console.log("Hiding Ocot Client, showing floating button");
+      console.log("Hiding Ocot Client");
       this.frame.style.display = "none";
-      this.floatingButton.style.display = "flex";
+      const settings = this.getGeneralSettings();
+      if (settings.enableFloatingButton) {
+        console.log("Showing floating button (enabled in settings)");
+        this.floatingButton.style.display = "flex";
+      } else {
+        console.log("Floating button disabled in settings");
+        this.floatingButton.style.display = "none";
+      }
     }
     showProxyClient() {
       console.log("Showing Ocot Client, hiding floating button");
       this.frame.style.display = "flex";
       this.floatingButton.style.display = "none";
+    }
+    getGeneralSettings() {
+      const settings = localStorage.getItem("ocot-general-settings");
+      return settings ? JSON.parse(settings) : { enableFloatingButton: true };
+    }
+    applyInitialSettings() {
+      const settings = this.getGeneralSettings();
+      if (!settings.enableFloatingButton) {
+        this.floatingButton.style.display = "none";
+        console.log("Initial settings: Floating button disabled");
+      } else {
+        console.log("Initial settings: Floating button enabled");
+      }
     }
     toggleProxyClient() {
       if (this.frame.style.display === "none") {
