@@ -522,7 +522,7 @@ export default function createscriptsView() {
         // Anti force reload functions
         function enableantiforcereload() {
           window.onbeforeunload = () => {
-            return 'no';
+            return "no";
           };
         }
 
@@ -1027,7 +1027,7 @@ alert('Code executed successfully!');
 
         modal.querySelector("#ocot-option").addEventListener("click", () => {
           const ocotUrl =
-            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.2.8/dist/bundle.js";
+            "https://cdn.jsdelivr.net/gh/asc2563/ocot-client@2.3.0/dist/bundle.js";
           createAboutBlankWithScript(ocotUrl, true);
         });
       },

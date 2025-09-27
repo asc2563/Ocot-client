@@ -67,9 +67,7 @@ export class ProxySidebar {
   // Button factory function
   createButton(label, icon = "", type = "normal") {
     const btn = document.createElement("button");
-    btn.className = `sidebar-btn ${type === "hide" ? "hide-btn" : ""} ${
-      type === "remove" ? "remove-btn" : ""
-    }`;
+    btn.className = `sidebar-btn`;
     btn.innerHTML = icon ? `${icon} ${label}` : label;
     return btn;
   }
@@ -92,13 +90,6 @@ export class ProxySidebar {
         this.buttonContainer.appendChild(this.buttons[key]);
       }
     });
-
-    // Action buttons (always at the bottom)
-    this.buttons.hideButton = this.createButton("Hide App", "❌", "hide");
-    this.buttons.removeButton = this.createButton("Remove App", "🗑️", "remove");
-
-    this.buttonContainer.appendChild(this.buttons.hideButton);
-    this.buttonContainer.appendChild(this.buttons.removeButton);
   }
 
   // Get tab order from localStorage or return default
@@ -156,33 +147,19 @@ export class ProxySidebar {
 
   // Method to refresh button order (for when settings change)
   refreshButtonOrder() {
-    // Clear existing navigation buttons (but keep action buttons)
+    // Clear existing navigation buttons
     const buttonsToRemove = [];
     Object.keys(this.buttons).forEach((key) => {
-      if (key !== "hideButton" && key !== "removeButton") {
-        if (this.buttons[key] && this.buttons[key].parentNode) {
-          this.buttons[key].parentNode.removeChild(this.buttons[key]);
-        }
-        buttonsToRemove.push(key);
+      if (this.buttons[key] && this.buttons[key].parentNode) {
+        this.buttons[key].parentNode.removeChild(this.buttons[key]);
       }
+      buttonsToRemove.push(key);
     });
 
     // Remove from buttons object
     buttonsToRemove.forEach((key) => {
       delete this.buttons[key];
     });
-
-    // Save references to action buttons
-    const hideButton = this.buttons.hideButton;
-    const removeButton = this.buttons.removeButton;
-
-    // Remove action buttons temporarily
-    if (hideButton && hideButton.parentNode) {
-      hideButton.parentNode.removeChild(hideButton);
-    }
-    if (removeButton && removeButton.parentNode) {
-      removeButton.parentNode.removeChild(removeButton);
-    }
 
     // Re-add navigation buttons with new order
     const tabOrder = this._getTabOrder();
@@ -199,14 +176,6 @@ export class ProxySidebar {
         this.buttonContainer.appendChild(this.buttons[key]);
       }
     });
-
-    // Re-add action buttons at the end
-    if (hideButton) {
-      this.buttonContainer.appendChild(hideButton);
-    }
-    if (removeButton) {
-      this.buttonContainer.appendChild(removeButton);
-    }
   }
 
   // Get button references for event listeners
