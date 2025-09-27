@@ -5827,6 +5827,8 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.sidebarButtons = {};
       this.isMaximized = false;
       this.normalFrameStyle = null;
+      this.isFrameDragging = false;
+      this.dragOffset = { x: 0, y: 0 };
     }
     launch() {
       injectAppCSS();
@@ -5856,6 +5858,7 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.frame.appendChild(topBar);
       this.frame.appendChild(mainContent);
       document.body.appendChild(this.frame);
+      this.initializeTopBarDrag();
       this.createFloatingButton();
       this.applyInitialSettings();
       document.addEventListener("keydown", (event) => {
@@ -5951,6 +5954,52 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       this.addDragFunctionality();
       document.body.appendChild(this.floatingButton);
       console.log("Floating button added to body, should be visible now");
+    }
+    initializeTopBarDrag() {
+      const topBar = this.frame.querySelector(".proxy-top-bar");
+      const windowControls = topBar.querySelector("div:last-child");
+      const titleArea = topBar.querySelector("div:first-child");
+      titleArea.style.cursor = "grab";
+      const handleMouseDown = (e) => {
+        if (this.isMaximized) return;
+        if (windowControls.contains(e.target)) return;
+        this.isFrameDragging = true;
+        const frameRect = this.frame.getBoundingClientRect();
+        this.dragOffset.x = e.clientX - frameRect.left;
+        this.dragOffset.y = e.clientY - frameRect.top;
+        titleArea.style.cursor = "grabbing";
+        document.body.style.cursor = "grabbing";
+        e.preventDefault();
+      };
+      const handleMouseMove = (e) => {
+        if (!this.isFrameDragging) return;
+        let newX = e.clientX - this.dragOffset.x;
+        let newY = e.clientY - this.dragOffset.y;
+        const frameRect = this.frame.getBoundingClientRect();
+        const frameWidth = frameRect.width;
+        const frameHeight = frameRect.height;
+        const maxX = window.innerWidth - frameWidth;
+        const maxY = window.innerHeight - frameHeight;
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        this.frame.style.transform = `translate(${newX}px, ${newY}px)`;
+        this.frame.style.left = "0";
+        this.frame.style.top = "0";
+      };
+      const handleMouseUp = () => {
+        if (!this.isFrameDragging) return;
+        this.isFrameDragging = false;
+        titleArea.style.cursor = "grab";
+        document.body.style.cursor = "";
+      };
+      topBar.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      this.topBarDragHandlers = {
+        mouseDown: handleMouseDown,
+        mouseMove: handleMouseMove,
+        mouseUp: handleMouseUp
+      };
     }
     addDragFunctionality() {
       let isDragging = false;
@@ -6156,6 +6205,9 @@ https://discord.gg/jHjGrrdXP6"       );     };`
         btn.style.opacity = "1";
       });
       btn.addEventListener("click", onClick);
+      btn.addEventListener("mousedown", (e) => {
+        e.stopPropagation();
+      });
       return btn;
     }
     toggleMaximize() {
@@ -6173,6 +6225,10 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       frame.style.transform = "none";
       frame.style.width = "100vw";
       frame.style.height = "100vh";
+      const titleArea = frame.querySelector(".proxy-top-bar div:first-child");
+      if (titleArea) {
+        titleArea.style.cursor = "default";
+      }
       if (this.maximizeBtn) {
         this.maximizeBtn.innerHTML = "\u2750";
         this.maximizeBtn.title = "Restore";
@@ -6186,6 +6242,10 @@ https://discord.gg/jHjGrrdXP6"       );     };`
       frame.style.transform = this.normalFrameStyle.transform;
       frame.style.width = this.normalFrameStyle.width;
       frame.style.height = this.normalFrameStyle.height;
+      const titleArea = frame.querySelector(".proxy-top-bar div:first-child");
+      if (titleArea) {
+        titleArea.style.cursor = "grab";
+      }
       if (this.maximizeBtn) {
         this.maximizeBtn.innerHTML = "\u25A1";
         this.maximizeBtn.title = "Maximize";

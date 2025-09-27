@@ -25,6 +25,10 @@ class ProxyClientApp {
     this.sidebarButtons = {};
     this.isMaximized = false;
     this.normalFrameStyle = null;
+    
+    // Drag functionality state for top bar
+    this.isFrameDragging = false;
+    this.dragOffset = { x: 0, y: 0 };
   }
 
   launch() {
@@ -78,6 +82,9 @@ class ProxyClientApp {
 
     // Append to existing page instead of clearing it
     document.body.appendChild(this.frame);
+
+    // Initialize top bar drag functionality
+    this.initializeTopBarDrag();
 
     // Create floating show button
     this.createFloatingButton();
@@ -198,6 +205,87 @@ class ProxyClientApp {
 
     document.body.appendChild(this.floatingButton);
     console.log("Floating button added to body, should be visible now");
+  }
+
+  initializeTopBarDrag() {
+    const topBar = this.frame.querySelector('.proxy-top-bar');
+    const windowControls = topBar.querySelector('div:last-child'); // The window controls container
+    
+    // Add grab cursor to the draggable area (title area)
+    const titleArea = topBar.querySelector('div:first-child');
+    titleArea.style.cursor = 'grab';
+    
+    // Mouse down handler
+    const handleMouseDown = (e) => {
+      // Don't start drag if maximized
+      if (this.isMaximized) return;
+      
+      // Don't start drag if clicking on window controls
+      if (windowControls.contains(e.target)) return;
+      
+      this.isFrameDragging = true;
+      
+      // Calculate offset between mouse and frame position
+      const frameRect = this.frame.getBoundingClientRect();
+      this.dragOffset.x = e.clientX - frameRect.left;
+      this.dragOffset.y = e.clientY - frameRect.top;
+      
+      // Change cursor to grabbing
+      titleArea.style.cursor = 'grabbing';
+      document.body.style.cursor = 'grabbing';
+      
+      // Prevent text selection
+      e.preventDefault();
+    };
+    
+    // Mouse move handler
+    const handleMouseMove = (e) => {
+      if (!this.isFrameDragging) return;
+      
+      // Calculate new position
+      let newX = e.clientX - this.dragOffset.x;
+      let newY = e.clientY - this.dragOffset.y;
+      
+      // Get frame dimensions
+      const frameRect = this.frame.getBoundingClientRect();
+      const frameWidth = frameRect.width;
+      const frameHeight = frameRect.height;
+      
+      // Keep window within viewport bounds
+      const maxX = window.innerWidth - frameWidth;
+      const maxY = window.innerHeight - frameHeight;
+      
+      newX = Math.max(0, Math.min(newX, maxX));
+      newY = Math.max(0, Math.min(newY, maxY));
+      
+      // Update frame position using transform
+      this.frame.style.transform = `translate(${newX}px, ${newY}px)`;
+      this.frame.style.left = '0';
+      this.frame.style.top = '0';
+    };
+    
+    // Mouse up handler
+    const handleMouseUp = () => {
+      if (!this.isFrameDragging) return;
+      
+      this.isFrameDragging = false;
+      
+      // Restore cursor
+      titleArea.style.cursor = 'grab';
+      document.body.style.cursor = '';
+    };
+    
+    // Attach event listeners
+    topBar.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    // Store handlers for cleanup if needed
+    this.topBarDragHandlers = {
+      mouseDown: handleMouseDown,
+      mouseMove: handleMouseMove,
+      mouseUp: handleMouseUp
+    };
   }
 
   addDragFunctionality() {
@@ -472,6 +560,11 @@ class ProxyClientApp {
 
     btn.addEventListener("click", onClick);
 
+    // Prevent drag when clicking buttons
+    btn.addEventListener("mousedown", (e) => {
+      e.stopPropagation();
+    });
+
     return btn;
   }
 
@@ -493,6 +586,12 @@ class ProxyClientApp {
     frame.style.width = "100vw";
     frame.style.height = "100vh";
     
+    // Disable drag cursor when maximized
+    const titleArea = frame.querySelector('.proxy-top-bar div:first-child');
+    if (titleArea) {
+      titleArea.style.cursor = 'default';
+    }
+    
     // Update maximize button symbol
     if (this.maximizeBtn) {
       this.maximizeBtn.innerHTML = "❐";
@@ -509,6 +608,12 @@ class ProxyClientApp {
     frame.style.transform = this.normalFrameStyle.transform;
     frame.style.width = this.normalFrameStyle.width;
     frame.style.height = this.normalFrameStyle.height;
+    
+    // Re-enable drag cursor when restored
+    const titleArea = frame.querySelector('.proxy-top-bar div:first-child');
+    if (titleArea) {
+      titleArea.style.cursor = 'grab';
+    }
     
     // Update maximize button symbol
     if (this.maximizeBtn) {
