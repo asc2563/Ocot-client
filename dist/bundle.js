@@ -4811,6 +4811,55 @@ Math.sqrt(16);
         }
       },
       {
+        title: "Math Tools",
+        desc: "Load advanced math calculator and tools",
+        onClick: async () => {
+          const mathToolsUrl = "https://cdn.jsdelivr.net/gh/Penguinify/math-bookmarklet/dist/bundle.js";
+          const loadingAlert = setTimeout(() => {
+            alert("\u{1F504} Loading Math Tools...\n\nFetching advanced math calculator from CDN. Please wait...");
+          }, 100);
+          try {
+            const response = await fetch(mathToolsUrl);
+            clearTimeout(loadingAlert);
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const scriptContent = await response.text();
+            if (!scriptContent || scriptContent.trim().length === 0) {
+              throw new Error("Empty script content received");
+            }
+            const script = document.createElement("script");
+            script.textContent = scriptContent;
+            script.onerror = (event) => {
+              alert("\u274C Math Tools Execution Error\n\nThe math tools script failed to execute properly. This may be due to:\n\u2022 JavaScript syntax errors in the fetched script\n\u2022 Compatibility issues with the current page\n\u2022 Security restrictions");
+            };
+            document.head.appendChild(script);
+            alert("\u2705 Math Tools Loaded Successfully!\n\n\u{1F9EE} Advanced math calculator and tools are now available on this page.\n\nLook for new math-related UI elements or check the browser console for instructions on how to use the tools.");
+          } catch (error) {
+            clearTimeout(loadingAlert);
+            let errorMessage = "\u274C Failed to Load Math Tools\n\n";
+            if (error.name === "TypeError" && error.message.includes("fetch")) {
+              errorMessage += "Network Error: Unable to connect to the CDN.\n\nPossible causes:\n\u2022 No internet connection\n\u2022 CDN server is down\n\u2022 Network firewall blocking the request";
+            } else if (error.message.includes("HTTP")) {
+              errorMessage += `Server Error: ${error.message}
+
+The CDN returned an error response. This may be due to:
+\u2022 Temporary server issues
+\u2022 Script URL has changed or is no longer available
+\u2022 Access restrictions`;
+            } else if (error.message.includes("CORS")) {
+              errorMessage += "CORS Error: Cross-origin request blocked.\n\nThis may be due to:\n\u2022 Browser security policies\n\u2022 CDN CORS configuration\n\u2022 Network proxy restrictions";
+            } else {
+              errorMessage += `Unexpected Error: ${error.message}
+
+Please try again later or check the browser console for more details.`;
+            }
+            alert(errorMessage);
+            console.error("Math Tools loading error:", error);
+          }
+        }
+      },
+      {
         title: "Page Editor On",
         desc: "Make the current page editable.",
         onClick: () => {
